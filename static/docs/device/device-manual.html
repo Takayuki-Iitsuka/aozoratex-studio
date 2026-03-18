@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>デバイス別組版ガイド</title>
+  <link rel="stylesheet" href="/static/docs/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+  <h1>デバイス別組版ガイド</h1>
+  <p>以下の資料を統合: iPhone/Android/iPad/PC 各検討メモ。</p>
+
+  <table>
+    <thead>
+      <tr><th>device</th><th>サイズ(mm)</th><th>用途</th><th>備考</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>iphone</td><td>65 x 140</td><td>iPhone 11 相当</td><td>片手読書向け</td></tr>
+      <tr><td>android</td><td>70 x 156</td><td>9:20系 Android</td><td>現行機向け</td></tr>
+      <tr><td>android_legacy</td><td>74.7 x 132.8</td><td>9:16系 Android</td><td>比較用</td></tr>
+      <tr><td>ipad</td><td>158 x 227</td><td>iPad 縦向き</td><td>単段組</td></tr>
+      <tr><td>ipad_landscape</td><td>227 x 158</td><td>iPad 横向き</td><td>自動2段組（twocolumn）</td></tr>
+      <tr><td>pc</td><td>210 x 297</td><td>A4</td><td>既定のPC向け</td></tr>
+    </tbody>
+  </table>
+
+  <h2>実装上のポイント</h2>
+  <ul>
+    <li>CLI/API の device 指定は config/device_settings.default.ini と整合させる。</li>
+    <li>iPad 横向きのみテンプレート側で twocolumn を追加する。</li>
+    <li>色と文字サイズは読み環境に応じて調整する。</li>
+  </ul>
+
+  <p><a href="/static/docs/device/device-paper-size-map.html">サイズ対応図を開く</a></p>
+  <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+  </main>
+</body>
+</html>

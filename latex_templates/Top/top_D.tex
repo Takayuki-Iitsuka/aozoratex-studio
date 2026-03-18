@@ -1,0 +1,118 @@
+\documentclass[lualatex, paper={90mm, 160mm}]{jlreq}
+\usepackage{tikz}
+\usepackage{lltjext}
+\usetikzlibrary{calc, decorations.pathmorphing}
+
+\begin{document}
+\pagestyle{empty}
+
+\begin{tikzpicture}[remember picture, overlay]
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 1. グラデーション背景（女性の透明感）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \fill[bottom color=white, middle color=white!15!red!20, top color=white!20!blue!30]
+    (current page.south west) rectangle (current page.north east);
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 2. レイヤー1: 大きな円形グラデーション（中心：ローズピンク）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \begin{scope}[opacity=0.12]
+    \shade[ball color=red!35!pink, shading angle=45]
+      ($(current page.center)$) circle (90mm);
+  \end{scope}
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 3. 流動曲線1: sin波（ローズピンク色）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \begin{scope}[opacity=0.35, line width=1.2pt, color=red!40!pink]
+    \draw[smooth, samples=200] 
+      plot[domain=-80:-20] ({\x mm}, {5*sin(\x/5)+30 mm});
+    \draw[smooth, samples=200] 
+      plot[domain=-80:-20] ({\x mm}, {5*sin(\x/5+90)-30 mm});
+  \end{scope}
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 4. 流動曲線2: sin波（ラベンダー色）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \begin{scope}[opacity=0.30, line width=1.0pt, color=purple!40!blue]
+    \draw[smooth, samples=200] 
+      plot[domain=-75:-10] ({\x mm}, {6*sin(\x/4.5+45)-10 mm});
+    \draw[smooth, samples=200] 
+      plot[domain=-75:-10] ({\x mm}, {6*sin(\x/4.5+135)+35 mm});
+  \end{scope}
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 5. 流動曲線3: sin波（スカイブルー色）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \begin{scope}[opacity=0.28, line width=1.1pt, color=cyan!50!blue]
+    \draw[smooth, samples=200] 
+      plot[domain=-70:-15] ({\x mm}, {4.5*sin(\x/6)-15 mm});
+    \draw[smooth, samples=200] 
+      plot[domain=-70:-15] ({\x mm}, {4.5*sin(\x/6+180)+40 mm});
+  \end{scope}
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 6. 流動曲線4: 螺旋曲線（ペールピンク）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \begin{scope}[opacity=0.25, line width=0.9pt, color=pink!60]
+    \draw[smooth, samples=300] 
+      plot[domain=0:360] ({0.15*\x*sin(\x/6)+5 mm}, {0.15*\x*cos(\x/6)-30 mm});
+    \draw[smooth, samples=300] 
+      plot[domain=0:360] ({0.12*\x*sin(\x/7)-8 mm}, {0.12*\x*cos(\x/7)+25 mm});
+  \end{scope}
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 7. 上下からのグラデーション欠片（奥行き感）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \begin{scope}[opacity=0.08]
+    \shade[top color=purple!20, bottom color=white]
+      ($(current page.north west)$) rectangle ($(current page.north east) + (0, -30mm)$);
+    \shade[bottom color=blue!15, top color=white]
+      ($(current page.south west)$) rectangle ($(current page.south east) + (0, 30mm)$);
+  \end{scope}
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 8. 繊細な枠線
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \draw[line width=0.8pt, color=white!60]
+    ($(current page.south west) + (5mm, 5mm)$)
+    rectangle ($(current page.north east) - (5mm, 5mm)$);
+  \draw[line width=0.2pt, color=white!40]
+    ($(current page.south west) + (6mm, 6mm)$)
+    rectangle ($(current page.north east) - (6mm, 6mm)$);
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 9. タイトル（白でシンプルに）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \node[anchor=center, text=white] at ($(current page.center) + (0, 15mm)$) {
+    \begin{minipage}{16em}
+      \begin{center}
+        {\fontsize{32pt}{45pt}\selectfont\bfseries 走れメロス\par}
+      \end{center}
+    \end{minipage}
+  };
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 10. 作者名（白、小ぶり）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \node[anchor=center, text=white!90] at ($(current page.center) + (0, -25mm)$) {
+    \begin{minipage}{12em}
+      \begin{center}
+        {\fontsize{14pt}{20pt}\selectfont 太宰 治\par}
+      \end{center}
+    \end{minipage}
+  };
+
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  % 11. 装飾的なアクセント（軽い点）
+  % ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  \begin{scope}[opacity=0.20, color=white]
+    \foreach \i in {1,...,8} {
+      \fill ($(current page.center) + (-30mm + \i*8mm, 55mm)$) circle (0.8pt);
+      \fill ($(current page.center) + (-30mm + \i*8mm, -45mm)$) circle (0.8pt);
+    }
+  \end{scope}
+
+\end{tikzpicture}
+\end{document}

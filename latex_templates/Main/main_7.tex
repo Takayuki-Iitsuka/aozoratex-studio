@@ -1,0 +1,224 @@
+% ============================================================
+%  青空文庫テンプレート — LuaLaTeX / jlreq 縦書き
+%
+%  コンパイル方法:
+%    lualatex main_design.tex
+%    lualatex main_design.tex   （2回実行でページ番号が確定）
+%
+%  デザイン仕様:
+%    ・左上ギリギリ: 書名
+%    ・右上: ページ番号
+%    ・ヘッダー下 / フッター上: 幾何学模様の横罫線
+%    ・四隅: 雷紋（らいもん）風の幾何学装飾
+%    ・縦書き本文
+% ============================================================
+\documentclass[tate, book, paper=a5, fontsize=10pt]{jlreq}
+
+% ── パッケージ ───────────────────────────────────────────
+\usepackage{luatexja-fontspec}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{eso-pic}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+% ── フォント設定 ──────────────────────────────────────────
+% 環境に合わせて変更可。例: IPAex明朝、源ノ明朝 等
+\setmainjfont[
+  BoldFont = NotoSerifCJKjp-Bold,
+]{NotoSerifCJKjp-Regular}
+
+% ── ページ余白 ────────────────────────────────────────────
+\geometry{
+  paper    = a5paper,
+  top      = 25mm,
+  bottom   = 22mm,
+  left     = 18mm,
+  right    = 18mm,
+  headsep  = 7mm,
+  footskip = 11mm,
+}
+
+% ── カラー ────────────────────────────────────────────────
+\definecolor{inkgray}   {gray}{0.30}
+\definecolor{rulegray}  {gray}{0.48}
+\definecolor{cornergray}{gray}{0.40}
+
+% ============================================================
+%  マクロ: 幾何学模様の横罫線
+% ============================================================
+\newlength{\GeoRuleWidth}
+\newcommand{\GeoRule}[1]{%
+  \setlength{\GeoRuleWidth}{#1}%
+  \begin{tikzpicture}[baseline=-0.6ex, x=1pt, y=1pt]
+    \pgfmathsetmacro{\TW}{\strip@pt\GeoRuleWidth}
+    % 左端細線
+    \draw[line width=0.3pt, color=rulegray](0,0) -- (0.17*\TW, 0);
+    % 左側 小矩形×3
+    \foreach \i in {0,1,2}{
+      \draw[line width=0.45pt, color=rulegray, fill=rulegray!18]
+        ({0.17*\TW + \i*9.5}, -1.6) rectangle ++(5, 3.2);
+    }
+    % 中央 菱形
+    \filldraw[color=rulegray, fill=rulegray!55]
+      ({0.5*\TW},  3.2) -- ({0.5*\TW+3.2}, 0) --
+      ({0.5*\TW}, -3.2) -- ({0.5*\TW-3.2}, 0) -- cycle;
+    % 右側 小矩形×3
+    \foreach \i in {0,1,2}{
+      \draw[line width=0.45pt, color=rulegray, fill=rulegray!18]
+        ({0.83*\TW-(2-\i)*9.5}, -1.6) rectangle ++(5, 3.2);
+    }
+    % 右端細線
+    \draw[line width=0.3pt, color=rulegray](0.83*\TW, 0) -- (\TW, 0);
+  \end{tikzpicture}%
+}
+
+% ============================================================
+%  四隅 幾何学装飾（雷紋風）
+% ============================================================
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture, overlay,
+      every path/.style={line width=0.33pt, color=cornergray}]
+
+    % ── 左上 ──
+    \draw ([shift={(10mm,-10mm)}]current page.north west)
+          -- ([shift={(10mm,-28mm)}]current page.north west)
+          -- ([shift={(14mm,-28mm)}]current page.north west);
+    \draw ([shift={(10mm,-10mm)}]current page.north west)
+          -- ([shift={(28mm,-10mm)}]current page.north west)
+          -- ([shift={(28mm,-14mm)}]current page.north west);
+    \draw ([shift={(13mm,-15mm)}]current page.north west)
+          -- ++(7mm,0) -- ++(0,-2.5mm) -- ++(-4.5mm,0)
+          -- ++(0,4.5mm) -- ++(2.5mm,0) -- ++(0,-2.5mm);
+    \foreach \d in {13,16.5,20}{
+      \filldraw[cornergray]
+        ([shift={(\d mm,-22mm)}]current page.north west) circle(0.55pt);
+    }
+
+    % ── 右上 ──
+    \draw ([shift={(-10mm,-10mm)}]current page.north east)
+          -- ([shift={(-10mm,-28mm)}]current page.north east)
+          -- ([shift={(-14mm,-28mm)}]current page.north east);
+    \draw ([shift={(-10mm,-10mm)}]current page.north east)
+          -- ([shift={(-28mm,-10mm)}]current page.north east)
+          -- ([shift={(-28mm,-14mm)}]current page.north east);
+    \draw ([shift={(-13mm,-15mm)}]current page.north east)
+          -- ++(-7mm,0) -- ++(0,-2.5mm) -- ++(4.5mm,0)
+          -- ++(0,4.5mm) -- ++(-2.5mm,0) -- ++(0,-2.5mm);
+    \foreach \d in {13,16.5,20}{
+      \filldraw[cornergray]
+        ([shift={(-\d mm,-22mm)}]current page.north east) circle(0.55pt);
+    }
+
+    % ── 左下 ──
+    \draw ([shift={(10mm,10mm)}]current page.south west)
+          -- ([shift={(10mm,28mm)}]current page.south west)
+          -- ([shift={(14mm,28mm)}]current page.south west);
+    \draw ([shift={(10mm,10mm)}]current page.south west)
+          -- ([shift={(28mm,10mm)}]current page.south west)
+          -- ([shift={(28mm,14mm)}]current page.south west);
+    \draw ([shift={(13mm,15mm)}]current page.south west)
+          -- ++(7mm,0) -- ++(0,2.5mm) -- ++(-4.5mm,0)
+          -- ++(0,-4.5mm) -- ++(2.5mm,0) -- ++(0,2.5mm);
+    \foreach \d in {13,16.5,20}{
+      \filldraw[cornergray]
+        ([shift={(\d mm,22mm)}]current page.south west) circle(0.55pt);
+    }
+
+    % ── 右下 ──
+    \draw ([shift={(-10mm,10mm)}]current page.south east)
+          -- ([shift={(-10mm,28mm)}]current page.south east)
+          -- ([shift={(-14mm,28mm)}]current page.south east);
+    \draw ([shift={(-10mm,10mm)}]current page.south east)
+          -- ([shift={(-28mm,10mm)}]current page.south east)
+          -- ([shift={(-28mm,14mm)}]current page.south east);
+    \draw ([shift={(-13mm,15mm)}]current page.south east)
+          -- ++(-7mm,0) -- ++(0,2.5mm) -- ++(4.5mm,0)
+          -- ++(0,-4.5mm) -- ++(-2.5mm,0) -- ++(0,2.5mm);
+    \foreach \d in {13,16.5,20}{
+      \filldraw[cornergray]
+        ([shift={(-\d mm,22mm)}]current page.south east) circle(0.55pt);
+    }
+
+  \end{tikzpicture}%
+}
+
+% ============================================================
+%  ヘッダー・フッター
+% ============================================================
+\pagestyle{fancy}
+\fancyhf{}
+
+% 左上: 書名
+\fancyhead[L]{%
+  {\fontsize{7.5pt}{7.5pt}\selectfont\color{inkgray}%
+   \textbf{走れメロス}}%   ◀ 書名を変更してください
+}
+% 右上: ページ番号
+\fancyhead[R]{%
+  {\fontsize{7.5pt}{7.5pt}\selectfont\color{inkgray}\thepage}%
+}
+
+% ヘッダー下 幾何学罫線
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headrule}{%
+  \vspace{2pt}\noindent\GeoRule{\headwidth}\par\vspace{-3pt}}
+
+% フッター上 幾何学罫線 + 中央ページ番号
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\footrule}{%
+  \vspace{-1pt}\noindent\GeoRule{\headwidth}\par\vspace{2pt}}
+\fancyfoot[C]{%
+  {\fontsize{7.5pt}{7.5pt}\selectfont\color{inkgray}\thepage}%
+}
+
+% chapter 冒頭ページ (plain) も同デザイン
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{%
+    {\fontsize{7.5pt}{7.5pt}\selectfont\color{inkgray}%
+     \textbf{走れメロス}}}%
+  \fancyhead[R]{%
+    {\fontsize{7.5pt}{7.5pt}\selectfont\color{inkgray}\thepage}}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\headrule}{%
+    \vspace{2pt}\noindent\GeoRule{\headwidth}\par\vspace{-3pt}}%
+  \renewcommand{\footrulewidth}{0pt}%
+  \renewcommand{\footrule}{%
+    \vspace{-1pt}\noindent\GeoRule{\headwidth}\par\vspace{2pt}}%
+  \fancyfoot[C]{%
+    {\fontsize{7.5pt}{7.5pt}\selectfont\color{inkgray}\thepage}}%
+}
+
+% ============================================================
+%  本文 — ここ以下に青空文庫テキストを貼り付けてください
+% ============================================================
+\begin{document}
+
+\chapter*{走れメロス}
+\thispagestyle{plain}
+
+メロスは激怒した。必ず、かの邪智暴虐の王を除かなければならぬと決意した。メロスには政治がわからぬ。メロスは、村の牧人である。笛を吹き、羊と遊んで暮して来た。けれども邪悪に対しては、人一倍に敏感であった。
+
+きょう未明メロスは村を出発し、野を越え山越え、十里はなれた此のシラクスの市にやって来た。メロスには父も、母も無い。女房も無い。十六の、内気な妹と二人暮しだ。この妹は、村の或る律気な一牧人を、近々、花婿として迎える事になっていた。結婚式も間近かなのである。メロスは、それゆえ、花嫁の衣裳やら祝宴の御馳走やらを買いに、はるばる市にやって来たのだ。先ず、その品々を買い集め、それから都の大路をぶらぶら歩いた。メロスには竹馬の友があった。セリヌンティウスである。今は此のシラクスの市で、石工をしている。その友を、これから訪ねてみるつもりなのだ。久しく逢わなかったのだから、訪ねて行くのが楽しみである。
+
+ところが、まちの様子が、おかしい。ひっそりしている。もう既に日も落ちて、まちの人たちは、めいめい家に引きとって、静かに戸を閉めていた。たまに通る人も、首をすくめ、そそくさと急いでいる様子で、それは何か不吉なものを予感させた。
+
+メロスは、それでも知らん振りして、まちの大路を歩いた。するとそこに一人の老爺が、うずくまっていた。
+
+「ご老体、なぜ泣いているのですか。」
+
+老爺は、しかし、返事もせず、ひたすら地面を見つめていた。
+
+「何かあったのですか？」
+
+老爺は、やっと頭を上げ、ぼそぼそと告げた。「今から三日前のことじゃ。王様が、またひとり家来を殺されました。」
+
+「なぜ？」
+
+「邪推からです。人の心が信じられぬのです。」
+
+メロスは拳を握りしめ、王城へと歩き出した。
+
+\end{document}

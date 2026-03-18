@@ -1,0 +1,181 @@
+%% ============================================================
+%%  走れメロス ── 本文ページ デザイン②「大正活版印刷風」
+%%  エンジン: LuaLaTeX (TeX Live 2026, Windows)
+%%
+%%  コンパイル: lualatex honbun2.tex  (2回実行)
+%%
+%%  ◆ デザイン①との違い
+%%    ① → 和紙色・金/朱のアクセント・天地細罫
+%%    ② → 生成り色・墨一色・版面を太い二重罫で囲む
+%%           大正〜昭和初期の活版印刷書籍の風格
+%%
+%%  ◆ デザイン方針
+%%    ・背景: 生成り色 (#EDE8DC) ── 古書の紙の色
+%%    ・版面を太罫 (1.8pt) + 細罫 (0.5pt) の二重枠で囲む
+%%    ・四隅に小さな角飾り（■）
+%%    ・使用色は墨 (#111111) 一色のみ ── 装飾色なし
+%%    ・柱は天余白・小口寄りに極小文字
+%%    ・ノンブルは地余白・中央に漢数字
+%%    ・章見出しは ◇ で挟み、下に横罫一本
+%%
+%%  ◆ フォント
+%%    游明朝 (Yu Mincho) ── Windows 8.1 以降標準搭載
+%%    ない場合: \setmainjfont{MS Mincho} 等に変更
+%%
+%%  ◆ 用紙・版面
+%%    用紙  : A5 (148×210mm)
+%%    版面  : ノド22mm・小口16mm・天20mm・地18mm
+%%    文字数: 1行 37字
+%%    行数  : 16行
+%%    行間  : 約 1.9 倍
+%% ============================================================
+\documentclass[
+  paper           = a5,
+  fontsize        = 10.5pt,
+  jafontsize      = 10.5pt,
+  baselineskip    = 20pt,
+  line_length     = 37zw,
+  number_of_lines = 16,
+  head_space      = 20mm,
+  foot_space      = 18mm,
+  tate,
+  lualatex,
+]{jlreq}
+
+%% ── フォント ────────────────────────────────────────────────
+\usepackage{luatexja-fontspec}
+\setmainjfont[
+  BoldFont = Yu Mincho Demibold,
+]{Yu Mincho}
+%% ▼ 游明朝がない場合
+%% \setmainjfont{MS Mincho}
+%% \setmainjfont{IPAexMincho}
+
+%% ── パッケージ ──────────────────────────────────────────────
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{xcolor}
+\usepackage{eso-pic}
+
+%% ── カラーパレット（墨一色）────────────────────────────────
+\definecolor{narinari}{HTML}{EDE8DC}  %% 生成り（背景）
+\definecolor{sumi}    {HTML}{111111}  %% 墨（本文・罫線）
+\definecolor{usuzumi} {HTML}{666666}  %% 薄墨（柱・ノンブル）
+
+%% ── 背景色 ──────────────────────────────────────────────────
+\pagecolor{narinari}
+\color{sumi}
+
+%% ══════════════════════════════════════════════════════════
+%%  版面を囲む二重罫 ＋ 四隅の角飾り（全ページ自動）
+%%  版面領域 = jlreq が設定したテキストブロック
+%%  ここでは A5 のノド22・小口16・天20・地18 に合わせて
+%%  tikz 座標で直接描画
+%% ══════════════════════════════════════════════════════════
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture, overlay]
+    %% 外枠（太罫）
+    \draw[sumi, line width=1.8pt]
+      ($(current page.south west) + (20mm, 16mm)$)
+      rectangle
+      ($(current page.north east) + (-14mm, -18mm)$);
+    %% 内枠（細罫）
+    \draw[sumi, line width=0.5pt]
+      ($(current page.south west) + (22mm, 18mm)$)
+      rectangle
+      ($(current page.north east) + (-16mm, -20mm)$);
+    %% 四隅の角飾り（■ 3mm×3mm）
+    \foreach \corner/\sx/\sy in {
+      south west/+1/+1,
+      south east/-1/+1,
+      north west/+1/-1,
+      north east/-1/-1%
+    }{
+      \fill[sumi]
+        ($(current page.\corner) + (\sx*18.5mm, \sy*14.5mm)$)
+        rectangle
+        ($(current page.\corner) + (\sx*21.5mm, \sy*17.5mm)$);
+    }
+  \end{tikzpicture}%
+}
+
+%% ══════════════════════════════════════════════════════════
+%%  柱・ノンブル
+%% ══════════════════════════════════════════════════════════
+\NewPageStyle{honbun2}{
+  odd_running_head      = {\fontsize{7pt}{7pt}\selectfont\color{usuzumi}走れメロス},
+  even_running_head     = {\fontsize{7pt}{7pt}\selectfont\color{usuzumi}太宰　治},
+  running_head_position = top-left,
+  nombre_position       = bottom-center,
+  nombre                = {\fontsize{8pt}{8pt}\selectfont\color{usuzumi}\KANJI{page}},
+}
+\pagestyle{honbun2}
+
+%% ノンブルを漢数字に変換
+\usepackage{CJKnumb}
+\renewcommand{\KANJI}[1]{\CJKnumber{\arabic{#1}}}
+
+%% ══════════════════════════════════════════════════════════
+%%  章見出しコマンド
+%%  ◇ 見出し ◇ の下に横罫一本
+%%  使い方: \章見出し{一}
+%% ══════════════════════════════════════════════════════════
+\newcommand{\章見出し}[1]{%
+  \vspace{3\zw}%
+  \noindent
+  {\large ◇}\hspace{0.5\zw}%
+  {\large\bfseries #1}%
+  \hspace{0.5\zw}{\large ◇}%
+  \par\vspace{0.8\zw}%
+  {\color{sumi}\hrule height 0.4pt}%
+  \vspace{1.8\zw}\par
+}
+
+%% ══════════════════════════════════════════════════════════
+%%  本文
+%% ══════════════════════════════════════════════════════════
+\begin{document}
+
+\章見出し{一}
+
+メロスは激怒した。
+必ず、かの邪智暴虐の王を除かなければならぬと決意した。
+メロスには政治がわからぬ。
+メロスは、村の牧人である。
+笛を吹き、羊と遊んで暮らして来た。
+けれども邪悪に対しては、人一倍に敏感であった。
+
+きょう未明メロスは村を出発し、野を越え山越え、十里はなれた此のシラクスの市にやって来た。
+メロスには父も、母もない。
+女房もない。
+十六の、内気な妹と二人暮しだ。
+この妹は、村の或る律気な一牧人を、近々、花婿として迎える事になっていた。
+結婚式も間近かなのだ。
+メロスはそれが気になりながら、花嫁のための贈り物を買いに、はるばる市にやって来たのだ。
+
+まず、その品々を買い集め、それから都の大路をぶらぶら歩いた。
+メロスには竹馬の友があった。
+セリヌンティウスである。
+今は此のシラクスの市で、石工をしている。
+その友を、これから訪ねてみるつもりだった。
+久し振りに会って、ゆっくり語り合いたかったのだ。
+
+\章見出し{二}
+
+歩いているうちに、メロスは、まちの様子を怪しく思った。
+ひっそりしている。
+もう既に日も落ちて、まちの暗い家並にともしびが、一つ、二つ見え始めた頃合いなのだが、
+けれども、なんだか、夜のせいばかりでは無く、市全体が、やけに寂しい。
+のんき者のメロスも、さすがに感じるところがあった。
+
+路で逢った若い衆をつかまえて、何かあったのか、二三日前から町がひっそりしているが、と質問した。
+若い衆は、首を振って答えなかった。
+メロスは、それでも、あきらめずに質問を続けた。
+
+「王様が、人を殺すのです」
+とその若い衆は、あわれな声で答え、うつむいた。
+「なぜ殺すのだ」
+「悪心を抱いている、というのですが、誰もそんな、悪心は持っていないのに」
+若い衆は、泣き出しそうな顔をして、それから走り去った。
+
+\end{document}

@@ -1,0 +1,37 @@
+% Compiled with LuaLaTeX
+\documentclass[tate, book, paper=a5]{jlreq}
+\usepackage{luatexja-fontspec}
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usepackage{geometry}
+
+% Margin settings
+\geometry{margin=20mm}
+
+% Subtle bottom-center geometric design using eso-pic and TikZ
+\AddToShipoutPictureBG{
+    \begin{tikzpicture}[remember picture, overlay]
+        % Define a very subtle color
+        \colorlet{accentcolor}{gray!35!white}
+        
+        % Position at the bottom center of the page (15mm from the bottom edge)
+        \begin{scope}[shift={(current page.south)}, yshift=15mm]
+            % Horizontal hairline
+            \draw[line width=0.2pt, color=accentcolor] (-10mm, 0) -- (10mm, 0);
+            
+            % Minimal Pentagon (Pointing upwards, symbolizing forward movement/will)
+            \fill[color=accentcolor] 
+                (0, 1.5mm) -- (-1.2mm, 0.2mm) -- (-0.8mm, -1.2mm) -- (0.8mm, -1.2mm) -- (1.2mm, 0.2mm) -- cycle;
+        \end{scope}
+    \end{tikzpicture}
+}
+
+\begin{document}
+
+\chapter*{走れメロス}
+
+メロスは激怒した。必ず、かの邪智暴虐の王を除かなければならぬと決意した。メロスには政治がわからぬ。メロスは、村の牧人である。笛を吹き、羊と遊んで暮して来た。けれども邪悪に対しては、人一倍に敏感であった。
+
+きょう未明メロスは村を出発し、野を越え山越え、十里はなれた此のシラクスの市にやって来た。メロスには父も、母も無い。女房も無い。十六の、内気な妹と二人暮しだ。この妹は、村の或る律気な一牧人を、近々、花婿として迎える事になっていた。結婚式も間近かなのである。メロスは、それゆえ、花嫁の衣裳やら祝宴の御馳走やらを買いに、はるばる市にやって来たのだ。先ず、その品々を買い集め、それから都の大路をぶらぶら歩いた。メロスには竹馬の友があった。セリヌンティウスである。今は此のシラクスの市で、石工をしている。その友を、これから訪ねてみるつもりなのだ。久しく逢わなかったのだから、訪ねて行くのが楽しみである。
+
+\end{document}

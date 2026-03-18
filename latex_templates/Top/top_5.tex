@@ -1,0 +1,50 @@
+% Compiled with LuaLaTeX
+\documentclass[tate, book, paper=a5]{jlreq}
+\usepackage{luatexja-fontspec}
+\usepackage{tikz}
+\usepackage{geometry}
+
+% Margin settings
+\geometry{margin=20mm}
+
+\begin{document}
+\begin{titlepage}
+    % Background and Abstract Graphic using TikZ
+    \begin{tikzpicture}[remember picture, overlay]
+        % Solid background
+        \fill[color=gray!5!white] (current page.south west) rectangle (current page.north east);
+
+        % Geometric Patterns (Triangles and Polygons)
+        \begin{scope}[shift={(current page.center)}]
+            % Polygon 1: Passion and Speed (Red)
+            \fill[color=red!70!black, opacity=0.4] 
+                (-4, -10) -- (-2, 10) -- (5, 3) -- cycle;
+            
+            % Polygon 2: Trust and Calmness (Blue)
+            \fill[color=blue!60!black, opacity=0.3] 
+                (-7, 5) -- (2, -8) -- (6, -2) -- cycle;
+            
+            % Polygon 3: The setting sun / Deadline (Orange)
+            \fill[color=orange!80!yellow, opacity=0.5] 
+                (-5, -5) -- (4, -10) -- (8, 6) -- cycle;
+
+            % Sharp intersecting lines (Pathways / Obstacles)
+            \draw[line width=2pt, color=white, opacity=0.8] (-6, -6) -- (6, 8);
+            \draw[line width=1.5pt, color=white, opacity=0.8] (-5, 8) -- (7, -4);
+            \draw[line width=3pt, color=black, opacity=0.1] (-2, -10) -- (-2, 10);
+        \end{scope}
+    \end{tikzpicture}
+
+    \centering
+    \vspace*{40mm}
+    
+    % Title
+    {\fontsize{42pt}{50pt}\selectfont \textbf{走れメロス}\par}
+    
+    \vspace{25mm}
+    
+    % Author
+    {\fontsize{24pt}{35pt}\selectfont 太宰 治\par}
+    
+\end{titlepage}
+\end{document}

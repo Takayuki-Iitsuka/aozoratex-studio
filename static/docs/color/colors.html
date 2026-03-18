@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Scheme 一覧（統合版）</title>
+    <link rel="stylesheet" href="colors.css">
+</head>
+<body>
+    <main class="page">
+        <h1 id="page-title">Color Scheme 一覧（統合版）</h1>
+        <p class="lead">
+            旧配色ページを統合した一覧です。色相順で確認できます。
+        </p>
+
+        <section class="toolbar">
+            <div class="tool">
+                <label for="search-filter">検索</label>
+                <input id="search-filter" type="text" placeholder="色名 / HEX / カテゴリ">
+            </div>
+            <div class="tool">
+                <label for="mode-filter">モード</label>
+                <select id="mode-filter">
+                    <option value="all">all</option>
+                    <option value="light">light</option>
+                    <option value="dark">dark</option>
+                    <option value="preset">preset</option>
+                </select>
+            </div>
+            <div class="tool">
+                <label for="sort-filter">並び順</label>
+                <select id="sort-filter">
+                    <option value="hue">色相順</option>
+                    <option value="contrast">コントラスト順</option>
+                    <option value="category">カテゴリ順</option>
+                </select>
+            </div>
+            <div class="tool">
+                <label>件数</label>
+                <div id="count">読み込み中</div>
+            </div>
+        </section>
+
+        <section class="grid" id="color-grid"></section>
+    </main>
+
+    <script src="../../color-palettes.js"></script>
+    <script src="colors.js"></script>
+</body>
+</html>

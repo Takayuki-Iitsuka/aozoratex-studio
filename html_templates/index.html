@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AozoraBunko LaTeX Converter</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+    <div class="container">
+        <h1>青空文庫 → LuaLaTeX PDF 変換</h1>
+        <p class="subtitle">デバイス・配色・サイズを視覚確認しながら TEX/PDF を生成できます。</p>
+
+        <div class="progress">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+
+        <section class="section">
+            <h2>ステップ 1: 入力ファイル選択</h2>
+            <select id="sourceFile">
+                <option value="">-- ファイルを選択 --</option>
+                {% for file in files %}
+                <option value="{{ file.path }}">{{ file.name }}</option>
+                {% endfor %}
+            </select>
+
+            <p class="muted source-hint">複数生成は下の一覧から選択してください。</p>
+
+            <div class="grid-2 source-toolbar">
+                <input type="text" id="sourceSearch" placeholder="ファイル名で検索">
+                <select id="sourceSort">
+                    <option value="name-asc">名前順（昇順）</option>
+                    <option value="name-desc">名前順（降順）</option>
+                    <option value="id-asc">作品ID順（昇順）</option>
+                    <option value="id-desc">作品ID順（降順）</option>
+                </select>
+            </div>
+
+            <div class="source-actions">
+                <button id="selectAllBtn" class="btn-secondary" type="button">全選択</button>
+                <button id="clearAllBtn" class="btn-secondary" type="button">選択解除</button>
+            </div>
+
+            <div class="source-list" id="sourceList"></div>
+            <p class="muted" id="sourceSummary"></p>
+        </section>
+
+        <section class="section">
+            <h2>ステップ 2: 出力デバイス選択</h2>
+            <div class="card-grid" id="deviceGrid"></div>
+        </section>
+
+        <section class="section">
+            <h2>ステップ 3: 背景色・文字色を視覚設定</h2>
+            <p class="muted">
+                配色一覧: <a href="/colors.html" target="_blank">統合 colors.html</a>
+            </p>
+
+            <div class="mode-picker">
+                <label class="mode-option"><input type="radio" name="colorMode" value="light" checked> light</label>
+                <label class="mode-option"><input type="radio" name="colorMode" value="dark"> dark</label>
+                <label class="mode-option"><input type="radio" name="colorMode" value="intermediate"> intermediate</label>
+            </div>
+
+            <div class="card-grid color-grid" id="colorGrid"></div>
+
+            <div class="color-controls">
+                <div class="field">
+                    <label for="bgColorInput">背景色 (Background color)</label>
+                    <input id="bgColorInput" type="color" value="#ffffff">
+                </div>
+                <div class="field">
+                    <label for="fgColorInput">文字色 (Text color)</label>
+                    <input id="fgColorInput" type="color" value="#000000">
+                </div>
+                <button id="saveColorBtn" class="btn-success" type="button">設定保存</button>
+            </div>
+
+            <div class="preview-box">
+                <div class="preview-title" id="colorMeta">BG #FFFFFF / FG #000000</div>
+                <div class="preview-sample" id="colorPreview">
+                    春はあけぼの。やうやう白くなりゆく山ぎは、少しあかりて、
+                    紫だちたる雲のほそくたなびきたる。
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>ステップ 4: 出力サイズ確認</h2>
+            <div class="size-preview">
+                <div class="size-card">
+                    <p class="muted" id="deviceMeta">device: -</p>
+                    <div class="device-box-wrap">
+                        <div class="device-box" id="devicePreviewBox"></div>
+                    </div>
+                </div>
+                <iframe class="size-iframe" id="deviceMapFrame" src="/device-paper-size-map.html"></iframe>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>生成</h2>
+            <div class="button-group">
+                <button class="btn-primary" id="generateBtn" type="button">選択をPDF化</button>
+                <button class="btn-primary" id="generateAllBtn" type="button">data全件をPDF化</button>
+                <button class="btn-secondary" id="cleanupBtn" type="button">非PDFファイル削除</button>
+                <a class="btn-secondary link-button" href="/docs" target="_blank">ドキュメント</a>
+            </div>
+        </section>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p id="loadingText">生成中...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script id="source-files-json" type="application/json">{{ files|tojson }}</script>
+    <script src="/static/js/index.js"></script>
+</body>
+</html>

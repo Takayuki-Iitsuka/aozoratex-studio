@@ -1,0 +1,2 @@
+"""AozoraBunko source package."""
+

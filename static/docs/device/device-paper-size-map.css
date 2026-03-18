@@ -1,0 +1,224 @@
+body {
+    margin: 0;
+    padding: 24px;
+    font-family: "Segoe UI", "Yu Gothic", sans-serif;
+    background: #f3f4f6;
+    color: #0f172a;
+}
+
+.page {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+h1 {
+    margin: 0 0 10px;
+    font-size: 28px;
+}
+
+.lead {
+    margin: 0 0 18px;
+    color: #475569;
+}
+
+.scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 16px;
+}
+
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 32px;
+    align-items: flex-end;
+    width: max-content;
+    transform: scale(0.6);
+    transform-origin: bottom left;
+}
+
+.device-card {
+    background-color: #ffffff;
+    border: 6px solid #333;
+    border-radius: 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.device-card.is-focus {
+    transform: translateY(-14px) scale(1.03);
+    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.32);
+}
+
+.iphone11 {
+    width: 64.5mm;
+    height: 139.6mm;
+    border-color: #007aff;
+}
+
+.pixel8 {
+    width: 64.1mm;
+    height: 142.4mm;
+    border-color: #34a853;
+}
+
+.ratio-9-16 {
+    width: 74.7mm;
+    height: 132.8mm;
+    border-color: #e67e22;
+}
+
+.ipad {
+    width: 157.8mm;
+    height: 227.1mm;
+    border-color: #5856d6;
+}
+
+.ipad-landscape-card {
+    width: 227.1mm;
+    height: 157.8mm;
+}
+
+.paper {
+    border-style: dashed;
+    border-radius: 0;
+    border-width: 4px;
+}
+
+.a6-paper {
+    width: 105mm;
+    height: 148mm;
+    border-color: #8e44ad;
+    background: rgba(142, 68, 173, 0.05);
+}
+
+.b6-paper {
+    width: 128mm;
+    height: 182mm;
+    border-color: #2980b9;
+    background: rgba(41, 128, 185, 0.05);
+}
+
+.a5-paper {
+    width: 148mm;
+    height: 210mm;
+    border-color: #ff9500;
+    background: rgba(255, 149, 0, 0.05);
+}
+
+.b5-paper {
+    width: 182mm;
+    height: 257mm;
+    border-color: #c0392b;
+    background: rgba(192, 57, 43, 0.05);
+}
+
+.b4-paper {
+    width: 257mm;
+    height: 364mm;
+    border-color: #16a085;
+    background: rgba(22, 160, 133, 0.05);
+}
+
+.specs {
+    font-size: 24px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.specs h2 {
+    margin: 0 0 12px;
+    font-size: 30px;
+}
+
+.tone-iphone {
+    color: #007aff;
+}
+
+.tone-pixel {
+    color: #34a853;
+}
+
+.tone-ratio {
+    color: #e67e22;
+}
+
+.tone-a6 {
+    color: #8e44ad;
+}
+
+.tone-b6 {
+    color: #2980b9;
+}
+
+.tone-a5 {
+    color: #ff9500;
+}
+
+.tone-ipad {
+    color: #5856d6;
+}
+
+.tone-ipad-landscape {
+    color: #6366f1;
+}
+
+.tone-b5 {
+    color: #c0392b;
+}
+
+.tone-b4 {
+    color: #16a085;
+}
+
+.specs p {
+    margin: 5px 0;
+}
+
+.specs .info {
+    font-size: 18px;
+    color: #666;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+.specs .highlight {
+    font-weight: bold;
+    color: #e74c3c;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.table-wrap {
+    margin-top: 14px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    overflow: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #f8fafc;
+    font-size: 13px;
+    color: #334155;
+}

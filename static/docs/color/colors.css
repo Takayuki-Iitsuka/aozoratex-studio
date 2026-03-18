@@ -1,0 +1,118 @@
+body {
+    margin: 0;
+    padding: 24px;
+    font-family: "Segoe UI", "Yu Gothic", sans-serif;
+    background: #101419;
+    color: #e6edf3;
+}
+
+.page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+}
+
+.lead {
+    margin: 0 0 20px;
+    color: #9fb1c1;
+}
+
+.toolbar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.tool {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tool label {
+    font-size: 12px;
+    color: #9fb1c1;
+}
+
+.tool input,
+.tool select {
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e6edf3;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.summary {
+    margin: 0 0 12px;
+    color: #c3d2df;
+    font-size: 14px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 240px;
+}
+
+.meta {
+    background: rgba(0, 0, 0, 0.22);
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.meta strong {
+    display: block;
+    font-size: 14px;
+}
+
+.sample {
+    flex: 1;
+    padding: 14px 14px 18px;
+    font-family: "Yu Mincho", "MS Mincho", "Hiragino Mincho ProN", serif;
+    line-height: 1.8;
+    word-break: break-all;
+    font-size: 1.02rem;
+}
+
+.actions {
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.actions a {
+    text-decoration: none;
+    font-size: 12px;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    padding: 5px 8px;
+}
+
+@media (max-width: 760px) {
+    body {
+        padding: 14px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+}
+

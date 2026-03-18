@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device & Paper Size Map</title>
+    <link rel="stylesheet" href="device-paper-size-map.css">
+</head>
+<body>
+    <main class="page">
+        <h1>Device & Paper Size Map</h1>
+        <p class="lead">
+            画面と用紙サイズを同一スケールで比較できます。URLに <code>?device=iphone</code> のように付けると対象を強調表示します。
+        </p>
+
+        <div class="scroll-wrapper">
+            <section class="container">
+                <article class="device-card iphone11" data-device="iphone">
+                    <div class="specs">
+                        <h2 class="tone-iphone">iPhone 11</h2>
+                        <p>6.1 Inch / 1792 x 828</p>
+                        <p class="highlight">64.5 x 139.6 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card pixel8" data-device="android">
+                    <div class="specs">
+                        <h2 class="tone-pixel">Pixel 8</h2>
+                        <p>6.2 Inch / 2400 x 1080</p>
+                        <p class="highlight">64.1 x 142.4 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card ratio-9-16" data-device="android_legacy">
+                    <div class="specs">
+                        <h2 class="tone-ratio">Generic 9:16</h2>
+                        <p>1080 x 1920 (Assumed)</p>
+                        <p class="highlight">74.7 x 132.8 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper a6-paper">
+                    <div class="specs">
+                        <h2 class="tone-a6">A6 Paper</h2>
+                        <p class="info">文庫本・卓上カレンダー</p>
+                        <p class="highlight">105.0 x 148.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper b6-paper">
+                    <div class="specs">
+                        <h2 class="tone-b6">B6 Paper</h2>
+                        <p class="info">単行本・手帳</p>
+                        <p class="highlight">128.0 x 182.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper a5-paper">
+                    <div class="specs">
+                        <h2 class="tone-a5">A5 Paper</h2>
+                        <p class="info">学術書・システム手帳</p>
+                        <p class="highlight">148.0 x 210.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card ipad" data-device="ipad">
+                    <div class="specs">
+                        <h2 class="tone-ipad">iPad (Gen 10)</h2>
+                        <p>10.9 Inch / 2360 x 1640</p>
+                        <p class="highlight">157.8 x 227.1 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card ipad ipad-landscape-card" data-device="ipad_landscape">
+                    <div class="specs">
+                        <h2 class="tone-ipad-landscape">iPad Landscape</h2>
+                        <p>Two Column Base</p>
+                        <p class="highlight">227.1 x 157.8 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper b5-paper" data-device="pc">
+                    <div class="specs">
+                        <h2 class="tone-b5">B5 Paper</h2>
+                        <p class="info">大学ノート・週刊誌</p>
+                        <p class="highlight">182.0 x 257.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper b4-paper">
+                    <div class="specs">
+                        <h2 class="tone-b4">B4 Paper</h2>
+                        <p class="info">原稿用紙・折込チラシ</p>
+                        <p class="highlight">257.0 x 364.0 mm</p>
+                    </div>
+                </article>
+            </section>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>name</th>
+                        <th>width(mm)</th>
+                        <th>height(mm)</th>
+                        <th>note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>iphone</td><td>65</td><td>140</td><td>AozoraBunko default profile</td></tr>
+                    <tr><td>android</td><td>70</td><td>155.5</td><td>9:20 modern device profile</td></tr>
+                    <tr><td>ipad</td><td>158</td><td>227</td><td>portrait profile</td></tr>
+                    <tr><td>ipad_landscape</td><td>227</td><td>158</td><td>two-column profile</td></tr>
+                    <tr><td>pc</td><td>210</td><td>297</td><td>A4 profile</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const selected = (params.get("device") || "").toLowerCase();
+        if (selected) {
+            document.querySelectorAll(`[data-device="${selected}"]`).forEach((el) => {
+                el.classList.add("is-focus");
+            });
+        }
+    </script>
+</body>
+</html>

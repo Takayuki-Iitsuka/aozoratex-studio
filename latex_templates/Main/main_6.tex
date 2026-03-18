@@ -1,0 +1,91 @@
+% lualatexでコンパイルしてください
+\documentclass[tate,book,paper=a5,fontsize=10pt,jafontsize=10pt,oneside]{jlreq}
+
+% パッケージの読み込み
+\usepackage{luatexja-fontspec}
+\usepackage{geometry}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{eso-pic}
+
+% 本文の余白設定（装飾と被らないように少し広めに取る）
+\geometry{margin=25mm, top=35mm, bottom=35mm}
+
+% タイトルの定義
+\newcommand{\booktitle}{銀河鉄道の夜}
+
+% 背景レイヤーに装飾とヘッダー/フッターを描画する設定
+\AddToShipoutPictureBG{%
+    \begin{tikzpicture}[remember picture, overlay]
+        % --- 設定値 ---
+        \def\margin{10mm}      % ページ端からの全体余白
+        \def\lineoffsetY{22mm} % 上下横線のページ端からの距離
+
+        % --- スタイル定義 ---
+        % 四隅の幾何学ライン（外側と内側）
+        \tikzset{cornerOut/.style={draw=gray!80, line width=0.8pt}}
+        \tikzset{cornerIn/.style={draw=gray!50, line width=0.4pt}}
+        % 幾何学的な横線（長めの線と短いドットの繰り返し）
+        \tikzset{geoline/.style={draw=gray!70, line width=0.6pt, dash pattern=on 8pt off 2pt on 1pt off 2pt}}
+
+        % --- 1. 四隅の幾何学模様 ---
+        % 左上
+        \draw[cornerOut] ($(current page.north west) + (\margin, -\margin)$) -- ++(15mm, 0)
+                         ($(current page.north west) + (\margin, -\margin)$) -- ++(0, -15mm);
+        \draw[cornerIn]  ($(current page.north west) + (\margin+2mm, -\margin-2mm)$) -- ++(8mm, 0)
+                         ($(current page.north west) + (\margin+2mm, -\margin-2mm)$) -- ++(0, -8mm);
+        % 右上
+        \draw[cornerOut] ($(current page.north east) + (-\margin, -\margin)$) -- ++(-15mm, 0)
+                         ($(current page.north east) + (-\margin, -\margin)$) -- ++(0, -15mm);
+        \draw[cornerIn]  ($(current page.north east) + (-\margin-2mm, -\margin-2mm)$) -- ++(-8mm, 0)
+                         ($(current page.north east) + (-\margin-2mm, -\margin-2mm)$) -- ++(0, -8mm);
+        % 左下
+        \draw[cornerOut] ($(current page.south west) + (\margin, \margin)$) -- ++(15mm, 0)
+                         ($(current page.south west) + (\margin, \margin)$) -- ++(0, 15mm);
+        \draw[cornerIn]  ($(current page.south west) + (\margin+2mm, \margin+2mm)$) -- ++(8mm, 0)
+                         ($(current page.south west) + (\margin+2mm, \margin+2mm)$) -- ++(0, 8mm);
+        % 右下
+        \draw[cornerOut] ($(current page.south east) + (-\margin, \margin)$) -- ++(-15mm, 0)
+                         ($(current page.south east) + (-\margin, \margin)$) -- ++(0, 15mm);
+        \draw[cornerIn]  ($(current page.south east) + (-\margin-2mm, \margin+2mm)$) -- ++(-8mm, 0)
+                         ($(current page.south east) + (-\margin-2mm, \margin+2mm)$) -- ++(0, 8mm);
+
+        % --- 2. 上部（ヘッダー領域） ---
+        % 左上ギリギリに本の名前
+        \node[anchor=north west, font=\small\sffamily, text=darkgray] 
+            at ($(current page.north west) + (\margin, -8mm)$) {\booktitle};
+        % 上右にページ数
+        \node[anchor=north east, font=\small\sffamily, text=darkgray] 
+            at ($(current page.north east) + (-\margin, -8mm)$) {Page \thepage};
+        % その下に幾何学模様の横線
+        \draw[geoline] ($(current page.north west) + (\margin, -\lineoffsetY)$) 
+                    -- ($(current page.north east) + (-\margin, -\lineoffsetY)$);
+
+        % --- 3. 下部（フッター領域） ---
+        % 最も下にページ数
+        \node[anchor=south, font=\small\sffamily, text=darkgray] 
+            at ($(current page.south) + (0, 8mm)$) {Page \thepage};
+        % その上に幾何学模様の横線
+        \draw[geoline] ($(current page.south west) + (\margin, \lineoffsetY)$) 
+                    -- ($(current page.south east) + (-\margin, \lineoffsetY)$);
+    \end{tikzpicture}
+}
+
+% デフォルトのヘッダー・フッターを無効化
+\pagestyle{empty}
+
+\begin{document}
+
+% ダミーテキスト（青空文庫風）
+「ではみなさんは、そういうふうに川だと云われたり、乳の流れたあとだと云われたりしていたこのぼんやりと白いものがほんとうは何かご承知ですか。」先生は、黒板に吊した大きな黒い星座の図の、上から下へ白くけぶった銀河帯のようなところを指しながら、みんなに問をかけました。
+
+カムパネルラが手をあげました。それから四五人手をあげました。ジョバンニも手をあげようとして、急いでそのままやめました。たしかにあれがみんな星だと、いつか雑誌で読んだのでしたが、このごろはジョバンニはまるで毎日教室でもねむく、本を読むひまも読む本もないので、なんだかどんなこともよくわからないという気がするのでした。
+
+\newpage
+
+ところが先生は早くもそれを見附けたのでした。
+「ジョバンニさん。あなたはわかっているのでしょう。」
+ジョバンニは勢いよく立ちあがりましたが、立って見るともうはっきりとそれを答えることができないのでした。ザネリが前の席からふりかえって、ジョバンニを見てくすっとわらいました。ジョバンニはもうどぎまぎしてまっ赤になってしまいました。先生がまた云いました。
+「大きな望遠鏡で銀河をよっく調べると銀河は大体何でしょう。」
+
+\end{document}

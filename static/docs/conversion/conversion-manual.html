@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>変換・文字コード・LaTeX設定ガイド</title>
+  <link rel="stylesheet" href="/static/docs/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+  <h1>変換・文字コード・LaTeX設定ガイド</h1>
+  <p>以下の資料を統合: LualaTexについて / Tex化について / 文字コード / ファイルのエンコード / ページ番号設定 / 高度な読書体験。</p>
+
+  <h2>基本フロー</h2>
+  <ol>
+    <li>HTML/XHTML を読み込み（エンコーディング判定 + フォールバック）</li>
+    <li>本文ノードを LaTeX 断片へ変換（ルビ・見出し・画像など）</li>
+    <li>テンプレートに埋め込み、TeX出力</li>
+    <li>必要時に lualatex でPDF化</li>
+  </ol>
+
+  <h2>文字コード運用</h2>
+  <ul>
+    <li>入力は UTF-8 / Shift_JIS / CP932 が混在し得るため、自動判定に加えて <code>--encoding</code> で明示可能にする。</li>
+    <li>内部処理は UTF-8 に正規化して扱う。</li>
+  </ul>
+
+  <h2>CLI 例</h2>
+<pre><code>.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device iphone --mode light
+.venv\Scripts\python.exe aozoratex.py data --device ipad_landscape --out out/ipad_landscape</code></pre>
+
+  <h2>PDF化（Web API）</h2>
+  <p><code>/api/generate</code> に <code>compile_pdf=true</code> を渡すと、TeX生成後に lualatex を実行して PDF を生成します。</p>
+
+  <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+  </main>
+</body>
+</html>
