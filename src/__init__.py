@@ -1,2 +1,1 @@
-"""AozoraBunko source package."""
-
+"""AozoraTeX Studio source package."""

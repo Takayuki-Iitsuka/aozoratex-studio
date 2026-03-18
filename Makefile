@@ -25,7 +25,7 @@ else
 endif
 
 define RUN_LUALATEX
-	$(LATEXMK_BASE) $(LATEXMK_FLAGS) -outdir=out/$(1) out/$(1)/*.tex
+	$(LATEXMK_BASE) $(LATEXMK_FLAGS) -outdir=out/$(1) -auxdir=out/$(1) out/$(1)/*.tex
 	$(call MOVE_LTJRUBY_TO_OUT,$(1))
 endef
 
@@ -36,7 +36,7 @@ endef
         pdf-iPhone pdf-Android pdf-PC pdf-iPad pdf-iPad-TwoColumn
 
 help:
-	@printf '%s\n' 'AozoraBunko LaTeX Converter - Makefile'
+	@printf '%s\n' 'AozoraTeX Studio - Makefile'
 	@printf "\n"
 	@printf '%s\n' 'Available commands:'
 	@printf '%s\n' '  make install             - Install Python dependencies'

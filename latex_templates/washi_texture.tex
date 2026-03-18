@@ -1,0 +1,330 @@
+%%============================================================
+%%  和紙テクスチャ生成（究極版・パラメータ調整可能） washi_texture_ultimate.tex
+%%  Engine  : LuaLaTeX
+%%============================================================
+\documentclass{article}
+\usepackage[
+  paperwidth  = 210mm,
+  paperheight = 297mm,
+  margin      = 0pt
+]{geometry}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{luacode}
+\usepackage{luatexja}
+\usepackage{luatexja-fontspec}
+
+%% フォント自動検出
+\directlua{
+  local candidates = {
+    { name = "Yu Mincho",         bold = "Yu Mincho Demibold" },
+    { name = "YuMincho",          bold = "YuMincho Demibold"  },
+    { name = "HGSMinchoE",        bold = "HGSMinchoE"         },
+    { name = "IPAexMincho",       bold = "IPAexMincho"        },
+  }
+  local function font_exists(fname)
+    local ok, _ = pcall(function() luaotfload.find_font(fname) end)
+    return ok
+  end
+  local chosen, chosen_bold = nil, nil
+  for _, cand in ipairs(candidates) do
+    local fnt = fontloader.open(cand.name)
+    if fnt then
+      fontloader.close(fnt)
+      chosen = cand.name
+      chosen_bold = cand.bold
+      local fb = fontloader.open(cand.bold)
+      if not fb then chosen_bold = cand.name else fontloader.close(fb) end
+      break
+    end
+  end
+  if chosen then
+    if chosen == chosen_bold then tex.sprint("\\setmainjfont{" .. chosen .. "}")
+    else tex.sprint("\\setmainjfont[BoldFont={" .. chosen_bold .. "}]{" .. chosen .. "}") end
+  else
+    tex.sprint("\\setmainjfont{IPAexMincho}")
+  end
+}
+
+\pagestyle{empty}
+
+%% ── カラーパレット（Color Palette） ────────────
+%% 和紙全体のトーンを決定します。
+\definecolor{wBase}  {RGB}{248,241,222} % 基本の紙色（Base color）
+\definecolor{wLight} {RGB}{252,248,235} % 透かしの明るい部分（Highlight）
+\definecolor{wDark}  {RGB}{232,220,195} % 繊維の重なりによる暗い部分（Shadow）
+\definecolor{wF1}    {RGB}{218,205,178} % 繊維の色1（薄め）
+\definecolor{wF2}    {RGB}{192,176,145} % 繊維の色2（標準）
+\definecolor{wF3}    {RGB}{161,143,109} % 繊維の色3（濃いめ）
+\definecolor{wSpeck} {RGB}{137,119, 87} % 茶色い塵（Brown specks）
+\definecolor{wBark}  {RGB}{80, 65, 45}  % 黒っぽい樹皮の残り（Dark bark）
+
+%%============================================================
+%%  Lua スクリプト（パラメータ調整部 ＋ 描画関数）
+%%============================================================
+\begin{luacode*}
+
+-- =========================================================
+-- 【ユーザー設定領域（Configuration Table）】
+-- ここの数値を変更することで、和紙の質感を細かく調整できます。
+-- =========================================================
+local config = {
+  -- 1. 簀の目（Sunome: 竹ひごと絹糸の跡）
+  sunome = {
+    enable       = true,  -- trueで描画、falseで非表示
+    laid_spacing = 1.5,   -- 横線（竹ひご）の間隔（mm）
+    chain_spacing= 30.0,  -- 縦線（編み糸）の間隔（mm）
+    opacity      = 0.035, -- 線の濃さ（0.0 ~ 1.0）
+    jitter       = 0.15,  -- 横線の自然な「ゆらぎ」の幅（mm）
+  },
+
+  -- 2. 色むら・地合い（Patches / Formation）
+  patches = {
+    count        = 80,    -- 雲泥の数（数が多いほど厚みが不均一に見える）
+    max_radius   = 60,    -- 雲泥の最大サイズ（mm）
+    base_opacity = 0.04,  -- 色むらの基本不透明度
+  },
+
+  -- 3. 長繊維（Long Fibers: 楮の長い繊維など）
+  long_fibers = {
+    count        = 250,   -- 描画する本数（増やすと和紙の毛羽立ちが強くなる）
+    min_length   = 15,    -- 最短の長さ（mm）
+    max_length   = 60,    -- 最長の長さ（mm）
+    curve_power  = 5.0,   -- 曲線のうねり度合い（大きいほどクネクネする）
+    base_opacity = 0.15,  -- 繊維の基本不透明度
+  },
+
+  -- 4. 短繊維（Short Fibers: 細かい千切れ繊維）
+  short_fibers = {
+    count        = 500,   -- 描画する本数（紙の密度感を出す）
+    max_length   = 8.0,   -- 最長の長さ（mm）
+    curve_power  = 2.0,   -- 湾曲の度合い
+    base_opacity = 0.12,  -- 繊維の基本不透明度
+    clumping     = 0.6,   -- ダマ（偏り）になる確率（0.0〜1.0）。1.0で完全に局所化。
+  },
+
+  -- 5. 塵・微粒子（Specks / Bark residues）
+  specks = {
+    count        = 150,   -- 塵の数（和紙の野趣・素朴さを調整）
+    max_radius   = 0.4,   -- 塵の最大半径（mm）
+    bark_ratio   = 0.2,   -- 濃い樹皮(wBark)が選ばれる割合（0.0〜1.0）
+  }
+}
+-- =========================================================
+
+local function bucket(n) return math.random(n) end
+
+-- 中心極限定理を用いた疑似正規分布（ダマを作るための中央寄せ乱数）
+local function pseudo_normal(center, spread)
+  local r = (math.random() + math.random() + math.random() - 1.5) / 1.5
+  return center + r * spread
+end
+
+-- 1. 簀の目（ゆらぎと縦線の追加）
+function draw_sunome()
+  if not config.sunome.enable then return end
+  local lines = {}
+  -- 横線（Laid lines）: 僅かに波打たせる
+  for y = 0, 297, config.sunome.laid_spacing do
+    local path = string.format("(0,%.2f)", y)
+    for x = 20, 210, 20 do
+      local jitter = (math.random() - 0.5) * config.sunome.jitter
+      path = path .. string.format("--(%.2f,%.2f)", x, y + jitter)
+    end
+    table.insert(lines, path)
+  end
+  -- 縦線（Chain lines）: 直線
+  for x = 15, 210, config.sunome.chain_spacing do
+    table.insert(lines, string.format("(%.2f,0)--(%.2f,297)", x, x))
+  end
+  tex.sprint(string.format("\\draw[wDark,opacity=%.3f,line width=0.4mm] %s;", config.sunome.opacity, table.concat(lines," ")))
+end
+
+-- 2. 色むら（ハイライトとシャドウの混在）
+function draw_patches(seed)
+  math.randomseed(seed)
+  local cols   = {"wLight", "wDark", "wF1"}
+  local op_val = {config.patches.base_opacity * 0.5, config.patches.base_opacity, config.patches.base_opacity * 1.5}
+  local g = {}
+  for ci=1,3 do g[ci]={} for oi=1,3 do g[ci][oi]={} end end
+
+  for i=1, config.patches.count do
+    local x   = math.random()*230 - 10
+    local y   = math.random()*320 - 10
+    local rx  = 10 + math.random() * config.patches.max_radius
+    local ry  = 10 + math.random() * (config.patches.max_radius * 0.6)
+    local ang = math.random()*180
+    local ci  = math.random(3)
+    local oi  = bucket(3)
+    table.insert(g[ci][oi], string.format("(%.1f,%.1f) ellipse[x radius=%.1fmm, y radius=%.1fmm, rotate=%.1f]", x, y, rx, ry, ang))
+  end
+
+  for ci=1,3 do
+    for oi=1,3 do
+      if #g[ci][oi] > 0 then
+        tex.sprint(string.format("\\fill[%s,opacity=%.3f] %s;", cols[ci], op_val[oi], table.concat(g[ci][oi]," ")))
+      end
+    end
+  end
+end
+
+-- 3. 長繊維
+function draw_long_fibers(seed)
+  math.randomseed(seed)
+  local cols   = {"wF1","wF2","wF3"}
+  local base_op = config.long_fibers.base_opacity
+  local op_val = {base_op * 0.5, base_op, base_op * 1.5}
+  local lw_val = {0.05, 0.12, 0.22}
+  local g = {}
+  for ci=1,3 do g[ci]={} for oi=1,3 do g[ci][oi]={} for li=1,3 do g[ci][oi][li]={} end end end
+
+  for i=1, config.long_fibers.count do
+    local x   = math.random()*230 - 10
+    local y   = math.random()*320 - 10
+    local ang = math.random()*math.pi
+    local len = config.long_fibers.min_length + math.random() * (config.long_fibers.max_length - config.long_fibers.min_length)
+    local dx  = math.cos(ang)*len
+    local dy  = math.sin(ang)*len
+    local jit = config.long_fibers.curve_power
+    local cx1 = x+dx*0.3+(math.random()-0.5)*jit*2
+    local cy1 = y+dy*0.3+(math.random()-0.5)*jit*2
+    local cx2 = x+dx*0.7+(math.random()-0.5)*jit*2
+    local cy2 = y+dy*0.7+(math.random()-0.5)*jit*2
+    local ci  = math.random(3)
+    local oi  = bucket(3)
+    local li  = bucket(3)
+    table.insert(g[ci][oi][li], string.format("(%.2f,%.2f)..controls(%.2f,%.2f)and(%.2f,%.2f)..(%.2f,%.2f)", x,y, cx1,cy1, cx2,cy2, x+dx,y+dy))
+  end
+
+  for ci=1,3 do for oi=1,3 do for li=1,3 do
+    local segs = g[ci][oi][li]
+    if #segs > 0 then
+      tex.sprint(string.format("\\draw[%s,opacity=%.2f,line width=%.2fmm,line cap=round] %s;", cols[ci], op_val[oi], lw_val[li], table.concat(segs," ")))
+    end
+  end end end
+end
+
+-- 4. 短繊維（ダマ・偏りの導入）
+function draw_short_fibers(seed)
+  math.randomseed(seed)
+  local cols   = {"wF2","wF3","wSpeck"}
+  local base_op = config.short_fibers.base_opacity
+  local op_val = {base_op * 0.6, base_op, base_op * 1.6}
+  local lw_val = {0.04, 0.08, 0.12}
+  local g = {}
+  for ci=1,3 do g[ci]={} for oi=1,3 do g[ci][oi]={} for li=1,3 do g[ci][oi][li]={} end end end
+
+  -- クラスター（ダマ）の基準点をいくつか用意する
+  local clusters = {}
+  for i=1, 15 do table.insert(clusters, {x=math.random()*210, y=math.random()*297}) end
+
+  for i=1, config.short_fibers.count do
+    local x, y
+    if math.random() < config.short_fibers.clumping then
+      -- クラスターの周囲に密集させる（疑似正規分布）
+      local c = clusters[math.random(#clusters)]
+      x = pseudo_normal(c.x, 30)
+      y = pseudo_normal(c.y, 30)
+    else
+      -- 均一に散らばる
+      x = math.random()*230 - 10
+      y = math.random()*320 - 10
+    end
+
+    local ang = math.random()*math.pi
+    local len = 1.0 + math.random() * (config.short_fibers.max_length - 1.0)
+    local dx  = math.cos(ang)*len
+    local dy  = math.sin(ang)*len
+    local jit = config.short_fibers.curve_power
+    local cx  = x + dx*0.5 + (math.random()-0.5)*jit
+    local cy  = y + dy*0.5 + (math.random()-0.5)*jit
+    local ci  = math.random(3)
+    local oi  = bucket(3)
+    local li  = bucket(3)
+    table.insert(g[ci][oi][li], string.format("(%.2f,%.2f)..controls(%.2f,%.2f)..(%.2f,%.2f)", x,y, cx,cy, x+dx,y+dy))
+  end
+
+  for ci=1,3 do for oi=1,3 do for li=1,3 do
+    local segs = g[ci][oi][li]
+    if #segs > 0 then
+      tex.sprint(string.format("\\draw[%s,opacity=%.2f,line width=%.2fmm,line cap=round] %s;", cols[ci], op_val[oi], lw_val[li], table.concat(segs," ")))
+    end
+  end end end
+end
+
+-- 5. 塵・微粒子
+function draw_specks(seed)
+  math.randomseed(seed)
+  local cols   = {"wSpeck", "wBark"}
+  local op_val = {0.15, 0.25, 0.40}
+  local g = {}
+  for ci=1,2 do g[ci]={} for oi=1,3 do g[ci][oi]={} end end
+
+  for i=1, config.specks.count do
+    local x  = math.random()*210
+    local y  = math.random()*297
+    -- config.specks.bark_ratio の確率で wBark を選択
+    local ci = (math.random() < config.specks.bark_ratio) and 2 or 1 
+    local oi = bucket(3)
+    local r  = 0.1 + math.random() * (config.specks.max_radius - 0.1)
+    table.insert(g[ci][oi], string.format("(%.2f,%.2f) circle[radius=%.2fmm]", x, y, r))
+  end
+
+  for ci=1,2 do for oi=1,3 do
+    local circs = g[ci][oi]
+    if #circs > 0 then
+      tex.sprint(string.format("\\fill[%s,opacity=%.2f] %s;", cols[ci], op_val[oi], table.concat(circs," ")))
+    end
+  end end
+end
+
+-- 6. ヴィネット（四隅の暗がり）
+function draw_vignette(steps, maxW, maxOp)
+  for i=1,steps do
+    local m  = maxW * i / steps
+    local op = maxOp * (steps - i + 1) / steps
+    tex.sprint(string.format("\\fill[wDark,opacity=%.5f](0,0)rectangle(%.2f,297);",op,m))
+    tex.sprint(string.format("\\fill[wDark,opacity=%.5f](%.2f,0)rectangle(210,297);",op,210-m))
+    tex.sprint(string.format("\\fill[wDark,opacity=%.5f](0,0)rectangle(210,%.2f);",op,m))
+    tex.sprint(string.format("\\fill[wDark,opacity=%.5f](0,%.2f)rectangle(210,297);",op,297-m))
+  end
+end
+\end{luacode*}
+
+\begin{document}
+\noindent%
+\begin{tikzpicture}[x=1mm,y=1mm]
+
+  %% 描画領域の固定（位置ずれ防止）
+  \useasboundingbox (0,0) rectangle (210,297);
+  \clip (0,0) rectangle (210,297);
+
+  %% ベース色
+  \fill[wBase](0,0)rectangle(210,297);
+
+  %% 各レイヤーの描画（引数は乱数のシード値）
+  \directlua{draw_sunome()}
+  \directlua{draw_patches(101)}
+  \directlua{draw_long_fibers(2025)}
+  \directlua{draw_short_fibers(3456)}
+  \directlua{draw_specks(7777)}
+  \directlua{draw_vignette(6, 26, 0.028)}
+
+  %% ── デモテキスト ───
+  \draw[wF2,line width=0.5mm,opacity=0.55](50,173)--(160,173);
+  \draw[wF2,line width=0.18mm,opacity=0.45](50,170.5)--(160,170.5);
+  \draw[wF2,line width=0.5mm,opacity=0.55](50,128)--(160,128);
+  \draw[wF2,line width=0.18mm,opacity=0.45](50,130.5)--(160,130.5);
+
+  \node[anchor=center,text=wSpeck!85!black] at (105,154)
+    {{\mcfamily\fontsize{44}{58}\selectfont 走れメロス}};
+  \node[anchor=center,text=wF3!80!black] at (105,140)
+    {{\mcfamily\fontsize{18}{28}\selectfont 太宰治}};
+
+  \foreach \xpos in {46,164}{
+    \fill[wF2,opacity=0.5]
+      (\xpos,154)--++(1.5,2.2)--++(1.5,-2.2)--++(-1.5,-2.2)--cycle;
+  }
+
+\end{tikzpicture}
+\end{document}

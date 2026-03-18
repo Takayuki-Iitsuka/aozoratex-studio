@@ -242,6 +242,7 @@ def _run_latexmk(tex_file: Path, output_dir: Path) -> tuple[bool, str]:
         "-silent",
         "-use-make",
         "-outdir=" + str(output_dir),
+        "-auxdir=" + str(output_dir),
         str(tex_file),
     ]
     proc = subprocess.run(cmd, capture_output=True, timeout=180, cwd=WORKDIR)
@@ -496,14 +497,18 @@ def api_devices():
 
 @app.route("/api/settings", methods=["GET"])
 def api_settings_get():
-    return jsonify({"success": True, "settings": settings_store.export_settings_for_api()})
+    return jsonify(
+        {"success": True, "settings": settings_store.export_settings_for_api()}
+    )
 
 
 @app.route("/api/settings", methods=["POST"])
 def api_settings_save():
     payload = request.get_json() or {}
     if not isinstance(payload, dict):
-        return jsonify({"success": False, "error": "payload must be a JSON object"}), 400
+        return jsonify(
+            {"success": False, "error": "payload must be a JSON object"}
+        ), 400
     settings = settings_store.save_settings(payload)
     return jsonify({"success": True, "settings": settings})
 

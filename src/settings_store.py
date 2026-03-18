@@ -32,6 +32,7 @@ DEVICE_LABELS: dict[str, str] = {
 GLOBAL_DEFAULTS: dict[str, str] = {
     "font_family": "Yu Mincho",
     "color_mode": "light",
+    "washi_theme_enabled": "false",
     "background_color": "#FFFFFF",
     "text_color": "#000000",
     "background_color_light": "#FFFFFF",
@@ -199,6 +200,7 @@ def _render_global_default_ini() -> str:
         "[global]",
         f"font_family = {GLOBAL_DEFAULTS['font_family']}",
         f"color_mode = {GLOBAL_DEFAULTS['color_mode']}",
+        f"washi_theme_enabled = {GLOBAL_DEFAULTS['washi_theme_enabled']}",
         f"background_color = {GLOBAL_DEFAULTS['background_color']}",
         f"text_color = {GLOBAL_DEFAULTS['text_color']}",
         "",
@@ -397,10 +399,20 @@ def get_global_settings() -> dict[str, Any]:
     font_family = _get_option(
         cfg, section, "font_family", GLOBAL_DEFAULTS["font_family"]
     ) or GLOBAL_DEFAULTS["font_family"]
+    washi_theme_enabled = _safe_bool(
+        _get_option(
+            cfg,
+            section,
+            "washi_theme_enabled",
+            GLOBAL_DEFAULTS["washi_theme_enabled"],
+        ),
+        _safe_bool(GLOBAL_DEFAULTS["washi_theme_enabled"], False),
+    )
 
     return {
         "font_family": font_family,
         "color_mode": mode,
+        "washi_theme_enabled": washi_theme_enabled,
         "background_color": bg,
         "text_color": fg,
         "modes": mode_colors,

@@ -34,7 +34,12 @@ from src import settings_store
 
 # ---- 定数 ----
 WORKDIR = Path(__file__).resolve().parent.parent
-OKUDUKE_TEMPLATE_FILE = WORKDIR / "latex_templates" / "Oku" / "okuduke.tex"
+LATEX_TEMPLATE_DIR = WORKDIR / "latex_templates"
+FRONTCOVER_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "FrontCover.tex"
+TYPESETTING_INFO_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Typesetting_info.tex"
+MAIN_TEXT_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Main_text.tex"
+COLOPHON_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Colophon.tex"
+WASHI_TEXTURE_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "washi_texture.tex"
 
 # よく使う青空外字注記のうち、Unicode へ安全に置換できるもの
 GAIJI_ALT_TO_UNICODE: dict[str, str] = {
@@ -382,8 +387,15 @@ def _strip_after_sections(main_elem: Tag) -> Iterable:
     そのブロックの中身のみを yield し、それ以外のトップ要素はスキップします。
     ``main_text`` ブロックが見つからない場合は従来通り stop_classes で打ち切ります。
     """
-    skip_classes = {"metadata", "header", "toc", "navi", "navigation",
-                    "bibliographical_information", "notation_notes"}
+    skip_classes = {
+        "metadata",
+        "header",
+        "toc",
+        "navi",
+        "navigation",
+        "bibliographical_information",
+        "notation_notes",
+    }
     stop_classes = {"bibliographical_information", "notation_notes"}
 
     # body 内に main_text ブロックがあるか確認する
@@ -495,16 +507,97 @@ def normalize_src_path(src: str) -> str:
 # LaTeX テンプレート
 # -----------------------
 
-DEFAULT_OKUDUKE_TEMPLATE = r"""%% ---- 奥付 ----
-\newpage
+DEFAULT_FRONTCOVER_TEMPLATE = r"""%% ---- FrontCover ----
+\begin{titlepage}
 \csname thispagestyle\endcsname{empty}
-\begin{center}
-    \vspace*{\fill}
-    {\Large お読みいただきありがとうございました。} \\[1cm]
-    {\small 本書の著作権は著者に帰属します。}
-    \vspace*{\fill}
-\end{center}
+  \centering
+  \vspace*{\fill}
+  {{\ltjsetparameter{kanjiskip={0.12\zw plus 0.05\zw minus 0.02\zw}}\Huge \textbf{{{title}}}}} \\[1.5cm]
+  {{\ltjsetparameter{kanjiskip={0.10\zw plus 0.04\zw minus 0.02\zw}}\Large {{{author}}}}}
+  \vspace*{\fill}
+\end{titlepage}
 """
+
+DEFAULT_TYPESETTING_INFO_TEMPLATE = r"""%% ---- Typesetting_info ----
+\newpage
+{{typesetting_info_body}}
+"""
+
+DEFAULT_MAIN_TEXT_TEMPLATE = r"""%% ---- Main_text ----
+\clearpage
+\setcounter{page}{1}
+\pagestyle{{{pagestyle_name}}}
+{{pre_main_text_layout}}
+{{main_text_body}}
+\label{LastBodyPage}
+"""
+
+DEFAULT_COLOPHON_TEMPLATE = r"""%% ---- Colophon ----
+\clearpage
+\thispagestyle{empty}
+\begingroup
+\small
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\begin{flushleft}
+{{colophon_body}}
+\end{flushleft}
+\endgroup
+"""
+
+DEFAULT_COLOPHON_BODY = "\n".join(
+    [
+        r"\begin{center}",
+        r"\vspace*{\fill}",
+        r"{\Large お読みいただきありがとうございました。}\\[1cm]",
+        r"{\small 本書の著作権は著者に帰属します。}",
+        r"\vspace*{\fill}",
+        r"\end{center}",
+    ]
+)
+
+TEMPLATE_KEY_PATTERN = re.compile(r"\{\{\s*([A-Za-z0-9_]+)\s*\}\}")
+
+
+def _load_text_template(path: Path, fallback: str) -> str:
+    if path.exists():
+        text = path.read_text(encoding="utf-8").strip()
+        if text:
+            return text + "\n"
+    return fallback.strip() + "\n"
+
+
+def render_template_block(template_text: str, values: dict[str, str]) -> str:
+    def repl(match: re.Match[str]) -> str:
+        return values.get(match.group(1), "")
+
+    rendered = TEMPLATE_KEY_PATTERN.sub(repl, template_text)
+    if not rendered.endswith("\n"):
+        rendered += "\n"
+    return rendered
+
+
+def load_frontcover_template() -> str:
+    return _load_text_template(FRONTCOVER_TEMPLATE_FILE, DEFAULT_FRONTCOVER_TEMPLATE)
+
+
+def load_typesetting_info_template() -> str:
+    return _load_text_template(
+        TYPESETTING_INFO_TEMPLATE_FILE,
+        DEFAULT_TYPESETTING_INFO_TEMPLATE,
+    )
+
+
+def load_main_text_template() -> str:
+    return _load_text_template(MAIN_TEXT_TEMPLATE_FILE, DEFAULT_MAIN_TEXT_TEMPLATE)
+
+
+def load_colophon_template() -> str:
+    return _load_text_template(COLOPHON_TEMPLATE_FILE, DEFAULT_COLOPHON_TEMPLATE)
+
+
+def load_washi_texture_template() -> str:
+    return _load_text_template(WASHI_TEXTURE_TEMPLATE_FILE, "")
 
 
 def _extract_meta_content(soup: BeautifulSoup, key: str) -> str:
@@ -590,14 +683,14 @@ def extract_bibliographical_information(html: str, parser: str = "html.parser") 
     return "\n".join(lines)
 
 
-def build_okuduke_from_html(html: str, parser: str = "html.parser") -> str:
+def build_colophon_body_from_html(html: str, parser: str = "html.parser") -> str:
     """
-    HTML から奥付を抽出して LaTeX ブロック化する。
-    抽出できない場合は既存テンプレートへフォールバックする。
+    HTML から Colophon 本文を抽出して LaTeX 行へ整形する。
+    抽出できない場合は既定の Colophon 文面へフォールバックする。
     """
     bib_text = extract_bibliographical_information(html, parser=parser)
     if not bib_text:
-        return load_okuduke_template()
+        return DEFAULT_COLOPHON_BODY
 
     rows: list[str] = []
     for line in bib_text.splitlines():
@@ -609,30 +702,23 @@ def build_okuduke_from_html(html: str, parser: str = "html.parser") -> str:
     if rows and rows[-1] == r"\\":
         rows.pop()
 
-    body = "\n".join(rows)
-    return (
-        r"""%% ---- 奥付 ----
-\clearpage
-\thispagestyle{empty}
-\begingroup
-\small
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{0pt}
-\begin{flushleft}
-"""
-        + body
-        + r"""
-\end{flushleft}
-\endgroup
-"""
-    )
+    return "\n".join(rows)
 
 
 def load_okuduke_template() -> str:
-    """奥付テンプレートを読み込む。無ければデフォルト文面を使う。"""
-    if OKUDUKE_TEMPLATE_FILE.exists():
-        return OKUDUKE_TEMPLATE_FILE.read_text(encoding="utf-8").strip() + "\n"
-    return DEFAULT_OKUDUKE_TEMPLATE
+    """
+    Colophon (奥付) テンプレートを読み込む。
+    ファイルが存在しなければ既定値を返す。
+    """
+    return load_colophon_template()
+
+
+def build_okuduke_from_html(html: str, parser: str = "html.parser") -> str:
+    """
+    HTML から奥付本文を抽出して LaTeX 形式で生成する。
+    build_colophon_body_from_html のエイリアス。
+    """
+    return build_colophon_body_from_html(html, parser=parser)
 
 
 LATEX_TEMPLATE_JLREQ_TATE = r"""\documentclass[%(font_size)spt,paper={%(width)smm,%(height)smm},tate%(docclass_extra)s,line_length=%(chars)szw]{jlreq}
@@ -673,33 +759,19 @@ LATEX_TEMPLATE_JLREQ_TATE = r"""\documentclass[%(font_size)spt,paper={%(width)sm
 
 \setmainjfont{%(font)s}
 %(layout_tweak)s
+%(washi_texture_block)s
 
 \begin{document}
 
-%% ---- 表紙 ----
-\begin{titlepage}
-\csname thispagestyle\endcsname{empty}
-  \centering
-  \vspace*{\fill}
-  {{\ltjsetparameter{kanjiskip={0.12\zw plus 0.05\zw minus 0.02\zw}}\Huge \textbf{%(title)s}}} \\[1.5cm]
-  {{\ltjsetparameter{kanjiskip={0.10\zw plus 0.04\zw minus 0.02\zw}}\Large %(author)s}}
-  \vspace*{\fill}
-\end{titlepage}
+%(frontcover_block)s
 
-%% ---- 情報ページ ----
-%(pre_info_layout)s
-%(info_page)s
+%(pre_typesetting_info_layout)s
+%(typesetting_info_block)s
 
-\setcounter{page}{1}
-\pagestyle{%(pagestyle_name)s}
-%(pre_body_layout)s
+%(main_text_block)s
 
-%% ---- 本文 ----
-%(body)s
-\label{LastBodyPage}
-
-%(pre_okuduke_layout)s
-%(okuduke)s
+%(pre_colophon_layout)s
+%(colophon_block)s
 
 \end{document}
 """
@@ -723,13 +795,14 @@ def build_info_page(
     show_page_number: bool,
 ) -> str:
     """
-    組版情報ページ（タイトルページ直後）の LaTeX ブロックを生成する。
+    Typesetting_info（タイトルページ直後）の LaTeX ブロックを生成する。
 
     記載内容:
-    - ファイル情報（名前・サイズ）
-    - フォント設定（名前・サイズ・ウェイト）
-    - レイアウト設定（字数・文字サイズ・行間・行送り・列数）
+    - ファイル情報（名前・サイズ・日付）
+    - フォント設定（名前・サイズ・ルビサイズ）
+    - レイアウト設定（列数・字数・文字サイズ / 字間・行間・行送り）
     - 用紙・余白設定（デバイス・サイズ・余白・ページ番号位置）
+    - 追加情報（行送り基準を含む）
     - 手動コンパイル手順
     """
     if html_path is not None and html_path.exists():
@@ -740,55 +813,66 @@ def build_info_page(
         else:
             fsize_str = f"{fsize_bytes / 1024:.1f} KB"
         html_name = escape_latex(html_path.name)
+        file_date = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
     else:
         fsize_str = "不明"
         html_name = "不明"
+        file_date = "不明"
 
     # 1pt = 0.35278mm（PostScript pt）
     char_size_mm = font_size * 0.35278
     line_height_mm = char_size_mm * 1.7
     ruby_pt = font_size / 2.0
-    generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    use_two_column = columns > 1
 
     page_number_desc = "表示" if show_page_number else "非表示"
 
-    def section_lines(section_title: str, rows: list[str]) -> list[str]:
-        block = [rf"\noindent\textbf{{── {section_title} ──}}\par"]
-        for row in rows:
-            block.append(rf"\noindent {row}\par")
-        return block
+    file_line = " ・ ".join(
+        [
+            rf"ファイル名：{html_name}",
+            rf"ファイルサイズ：{fsize_str}",
+            rf"ファイル日付：{escape_latex(file_date)}",
+        ]
+    )
+    font_line = " ・ ".join(
+        [
+            rf"フォント名：{escape_latex(font)}",
+            rf"本文サイズ：{font_size}pt",
+            rf"ルビサイズ：{ruby_pt:.1f}pt",
+        ]
+    )
+    # レイアウト設定：列数・字数・文字サイズは一行、行間・行送りは次の行
+    layout_line_1 = " ・ ".join(
+        [
+            rf"本文列数：{columns}列",
+            rf"一行の字数：{chars}字",
+            rf"一文字サイズ（1zw）：{char_size_mm:.2f}mm",
+        ]
+    )
+    layout_line_2 = " ・ ".join(
+        [
+            rf"字間（kanjiskip）：{character_spacing:.3f}zw",
+            rf"行間（linespread）：{spacing}",
+            rf"行送り（JIS 1.7zh）：約{line_height_mm:.2f}mm",
+        ]
+    )
+    paper_line = " ・ ".join(
+        [
+            rf"デバイス：{escape_latex(device)}",
+            rf"用紙サイズ：{width:.1f}mm x {height:.1f}mm",
+            rf"余白 上下左右：{margin_top:.1f}/{margin_bottom:.1f}/{margin_left:.1f}/{margin_right:.1f}mm",
+            rf"ページ番号：{page_number_desc}",
+        ]
+    )
+    # 追加情報：行送り基準を「・」で区切り、後で改行
+    extra_parts = [
+        r"組版エンジン：LuaLaTeX + jlreq（縦組）",
+        r"外字処理：Unicode置換 + 画像フォールバック",
+    ]
+    extra_line = " ・ ".join(extra_parts)
+    extra_line_with_linespeed = (
+        extra_line + r" ・ 行送り基準：\texttt{\setlength{\baselineskip}{1.7\zh}}"
+    )
 
-    file_rows = [
-        rf"ファイル名：{html_name}",
-        rf"ファイルサイズ：{fsize_str}",
-        rf"生成日時：{escape_latex(generated_at)}",
-    ]
-    font_rows = [
-        rf"フォント名：{escape_latex(font)}",
-        rf"本文サイズ：{font_size}pt",
-        rf"ルビサイズ：{ruby_pt:.1f}pt",
-    ]
-    layout_rows = [
-        rf"一行の字数：{chars}字",
-        rf"一文字サイズ（1zw）：{char_size_mm:.2f}mm",
-        rf"字間（kanjiskip）：{character_spacing:.3f}zw",
-        rf"行送り（JIS 1.7zh）：約{line_height_mm:.2f}mm",
-        rf"linespread：{spacing}",
-        rf"本文列数：{columns}列",
-    ]
-    paper_rows = [
-        rf"デバイス：{escape_latex(device)}",
-        rf"用紙サイズ：{width:.1f}mm x {height:.1f}mm",
-        rf"余白 上下左右：{margin_top:.1f}/{margin_bottom:.1f}/{margin_left:.1f}/{margin_right:.1f}mm",
-        rf"ページ番号：{page_number_desc}",
-    ]
-    extra_rows = [
-        "組版エンジン：LuaLaTeX + jlreq（縦組）",
-        rf"行送り基準：\\texttt{{\\setlength{{\\baselineskip}}{{1.7\\zh}}}}",
-        "外字処理：Unicode置換 + 画像フォールバック",
-    ]
     manual_rows = [
         "1. texファイル生成：",
         r"\quad\texttt{python aozoratex.py data/ -{}-device iphone -{}-mode light -{}-out out/iphone}",
@@ -797,48 +881,32 @@ def build_info_page(
     ]
 
     lines = [
-        r"\newpage",
         r"\begingroup",
         r"\scriptsize",
         r"\setlength{\parindent}{0pt}",
         r"\setlength{\parskip}{0pt}",
         r"\thispagestyle{empty}",
-        r"{\small\textbf{\ltjsetparameter{kanjiskip={0.10\zw plus 0.04\zw minus 0.02\zw}}組版情報}\par}",
+        r"{\small\textbf{\ltjsetparameter{kanjiskip={0.10\zw plus 0.04\zw minus 0.02\zw}}Typesetting\_info}\par}",
         r"\smallskip",
-    ]
-
-    if use_two_column:
-        lines += [
-            r"\noindent\begin{minipage}[t]{0.48\textwidth}",
-            *section_lines("ファイル情報", file_rows),
-            r"\smallskip",
-            *section_lines("フォント設定", font_rows),
-            r"\end{minipage}\hfill",
-            r"\begin{minipage}[t]{0.48\textwidth}",
-            *section_lines("レイアウト設定", layout_rows),
-            r"\smallskip",
-            *section_lines("用紙・余白設定", paper_rows),
-            r"\end{minipage}",
-            r"\par",
-            r"\smallskip",
-        ]
-    else:
-        lines += [
-            *section_lines("ファイル情報", file_rows),
-            r"\smallskip",
-            *section_lines("フォント設定", font_rows),
-            r"\smallskip",
-            *section_lines("レイアウト設定", layout_rows),
-            r"\smallskip",
-            *section_lines("用紙・余白設定", paper_rows),
-            r"\smallskip",
-        ]
-
-    lines += [
-        *section_lines("追加情報", extra_rows),
+        r"\noindent\textbf{── ファイル情報 ──}\par",
+        rf"\noindent {file_line}\par",
+        r"\smallskip",
+        r"\noindent\textbf{── フォント設定 ──}\par",
+        rf"\noindent {font_line}\par",
+        r"\smallskip",
+        r"\noindent\textbf{── レイアウト設定 ──}\par",
+        rf"\noindent {layout_line_1}\par",
+        rf"\noindent {layout_line_2}\par",
+        r"\smallskip",
+        r"\noindent\textbf{── 用紙・余白設定 ──}\par",
+        rf"\noindent {paper_line}\par",
+        r"\smallskip",
+        r"\noindent\textbf{── 追加情報 ──}\par",
+        rf"\noindent {extra_line_with_linespeed}\par",
         r"\smallskip",
         r"\noindent\textbf{── 手動コンパイル手順 ──}\par",
     ]
+
     for row in manual_rows:
         lines.append(rf"\noindent {row}\par")
 
@@ -895,9 +963,7 @@ def build_tex_file(
     # 行送り: JIS基準 = 字高さ × 1.7 (ルビなし行)。相対単位で指定するとフォントサイズ変更時に自動追従。
     # ルビ間隔: 0.1zh (ルビとルビ親文字の間)。ルビあり行・なし行で行間を均一に保つ。
     ruby_pt = font_size / 2.0
-    kanjiskip_expr = (
-        f"{character_spacing:.3f}\\zw plus 0.1pt minus 0.1pt"
-    )
+    kanjiskip_expr = f"{character_spacing:.3f}\\zw plus 0.1pt minus 0.1pt"
 
     layout_tweak_lines = [
         # JIS 準拠字間（漢字間=0、和欧文間=0.25zw）
@@ -938,11 +1004,13 @@ def build_tex_file(
         page_style_block = (
             r"\NewPageStyle{aozora}{" + "\n"
             r"    nombre_position=bottom-center," + "\n"
-            r"    nombre={\small \textemdash\ \thepage{} / \pageref{LastBodyPage}\ \textemdash}," + "\n"
+            r"    nombre={\small \textemdash\ \thepage{} / \pageref{LastBodyPage}\ \textemdash},"
+            + "\n"
             r"}" + "\n"
             r"\ModifyPageStyle{plain}{" + "\n"
             r"    nombre_position=bottom-center," + "\n"
-            r"    nombre={\small \textemdash\ \thepage{} / \pageref{LastBodyPage}\ \textemdash}," + "\n"
+            r"    nombre={\small \textemdash\ \thepage{} / \pageref{LastBodyPage}\ \textemdash},"
+            + "\n"
             r"}"
         )
         pagestyle_name = "aozora"
@@ -954,9 +1022,21 @@ def build_tex_file(
         okuduke_override if okuduke_override is not None else load_okuduke_template()
     )
 
-    # 情報ページを生成
+    # ---- 和紙テーマ設定の取得 ----
+    global_settings = settings_store.get_global_settings()
+    washi_enabled = global_settings.get("washi_theme_enabled", False)
+
+    # ---- テンプレートブロックの生成 ----
+    # 各テンプレートファイルを読み込み、プレースホルダをレンダリング
+    frontcover_template = load_frontcover_template()
+    typesetting_info_template = load_typesetting_info_template()
+    main_text_template = load_main_text_template()
+    colophon_template = load_colophon_template()
+    washi_texture = load_washi_texture_template()
+
+    # 組版情報ページを生成
     if html_path is not None:
-        info_page = build_info_page(
+        typesetting_info_body = build_info_page(
             html_path=html_path,
             font=font,
             font_size=font_size,
@@ -974,7 +1054,30 @@ def build_tex_file(
             show_page_number=show_page_number,
         )
     else:
-        info_page = ""
+        typesetting_info_body = ""
+
+    # 各ブロックのテンプレートをレンダリング
+    frontcover_block = render_template_block(
+        frontcover_template, {"title": title, "author": author}
+    )
+    typesetting_info_block = render_template_block(
+        typesetting_info_template, {"typesetting_info_body": typesetting_info_body}
+    )
+    main_text_block = render_template_block(
+        main_text_template,
+        {
+            "pre_main_text_layout": pre_body_layout,
+            "main_text_body": latex_body,
+            "pagestyle_name": pagestyle_name,
+        },
+    )
+    colophon_block = render_template_block(
+        colophon_template, {"colophon_body": okuduke}
+    )
+    # 和紙テーマが有効な場合のみテクスチャを読み込む
+    washi_texture_block = (
+        washi_texture.strip() if (washi_enabled and washi_texture) else ""
+    )
 
     content = LATEX_TEMPLATE_JLREQ_TATE % {
         "font": font,
@@ -991,16 +1094,20 @@ def build_tex_file(
         "spacing": spacing,
         "okuduke": okuduke,
         "layout_tweak": layout_tweak,
-        "info_page": info_page,
         "margin_left": margin_left,
         "margin_right": margin_right,
         "margin_top": margin_top,
         "margin_bottom": margin_bottom,
         "page_style_block": page_style_block,
         "pagestyle_name": pagestyle_name,
-        "pre_info_layout": pre_info_layout,
         "pre_body_layout": pre_body_layout,
-        "pre_okuduke_layout": pre_okuduke_layout,
+        "pre_typesetting_info_layout": pre_info_layout,
+        "pre_colophon_layout": pre_okuduke_layout,
+        "frontcover_block": frontcover_block,
+        "typesetting_info_block": typesetting_info_block,
+        "main_text_block": main_text_block,
+        "colophon_block": colophon_block,
+        "washi_texture_block": washi_texture_block,
     }
 
     out_tex.write_text(content, encoding="utf-8")

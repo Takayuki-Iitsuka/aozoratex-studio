@@ -4,7 +4,7 @@ Collect LuaLaTeX-usable fonts on this machine and export a CSV.
 
 Project-oriented behavior:
 - Uses `fc-list` (TeX Live / fontconfig) as the source of truth.
-- Generates a lightweight CSV used by AozoraBunko settings work.
+- Generates a lightweight CSV used by AozoraTeX Studio settings work.
 - Marks Japanese-candidate fonts and recommendation hints.
 """
 
@@ -172,7 +172,7 @@ def write_csv(rows: list[FontRow], output_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Export LuaLaTeX-usable fonts into CSV for AozoraBunko."
+        description="Export LuaLaTeX-usable fonts into CSV for AozoraTeX Studio."
     )
     parser.add_argument(
         "--output",
