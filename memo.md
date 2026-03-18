@@ -6,7 +6,7 @@ make pdf-iphone
 
 本当に iPhone + dark にしたい場合の実行コマンド
 
-.venv\Scripts\python.exe aozoratex.py data/ --device iphone --mode dark --out out/iphone-dark
+.venv\Scripts\python.exe -m src.aozoratex data/ --device iphone --mode dark --out out/iphone-dark
 
 補足すると、このスクリプトは名前に反して PDF そのものは作らず、.tex を生成するだけです。aozoratex.py:6
 PDFまで出すなら、その後で lualatex を2回実行します。aozoratex.py:768
@@ -18,18 +18,18 @@ lualatex -interaction=nonstopmode -output-directory out/iphone-dark out/iphone-d
 
 # 1. スマホデバイスで .tex ファイル生成（ページ番号確認）
 
-python aozoratex.py data/テスト.html --device iphone --mode light --out out/test_iphone
+python -m src.aozoratex data/テスト.html --device iphone --mode light --out out/test_iphone
 grep -i "pagestyle\|nombre" out/test_iphone/*.tex
 
 # 2. PC デバイスでページ番号が残ることを確認
 
-python aozoratex.py data/テスト.html --device pc --mode light --out out/test_pc
+python -m src.aozoratex data/テスト.html --device pc --mode light --out out/test_pc
 grep -i "pagestyle\|nombre" out/test_pc/*.tex
 
 # 3. JIS計算値の確認
 
 python -c "
-from aozoratex import build_tex_file
+from src.aozoratex import build_tex_file
 
 # ページ出力から kanjiskip が含まれるか確認
 

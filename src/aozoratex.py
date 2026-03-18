@@ -34,21 +34,143 @@ from src import settings_store
 
 # ---- 定数 ----
 WORKDIR = Path(__file__).resolve().parent.parent
-LATEX_TEMPLATE_DIR = WORKDIR / "latex_templates"
-FRONTCOVER_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "FrontCover.tex"
-TYPESETTING_INFO_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Typesetting_info.tex"
-MAIN_TEXT_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Main_text.tex"
-COLOPHON_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Colophon.tex"
-WASHI_TEXTURE_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "washi_texture.tex"
-COVER_TEXTURE_TEMPLATE_FILES: dict[int, Path] = {
-    1: LATEX_TEMPLATE_DIR / "FrontCover_texture1.tex",
-    2: LATEX_TEMPLATE_DIR / "FrontCover_texture2.tex",
-    3: LATEX_TEMPLATE_DIR / "FrontCover_texture3.tex",
+TEMPLATE_DIR = WORKDIR / "src" / "templates"
+WASHI_LUA_TEMPLATE_FILE = TEMPLATE_DIR / "washi_texture.lua"
+
+
+def _load_washi_lua_template() -> str:
+    if not WASHI_LUA_TEMPLATE_FILE.exists():
+        raise FileNotFoundError(
+            f"Washi Lua template not found: {WASHI_LUA_TEMPLATE_FILE}"
+        )
+    return WASHI_LUA_TEMPLATE_FILE.read_text(encoding="utf-8").strip()
+
+
+WASHI_TEXTURE_TEMPLATE = (
+    r"""% washi texture snippet (overlay-ready)
+% section={{section_label}}
+
+\definecolor{wBase}  {HTML}{{{base_bg_hex}}}
+\definecolor{wLight} {RGB}{236,224,197}
+\definecolor{wDark}  {RGB}{205,190,158}
+\definecolor{wF1}    {RGB}{176,160,128}
+\definecolor{wF2}    {RGB}{192,176,145}
+\definecolor{wF3}    {RGB}{161,143,109}
+\definecolor{wSpeck} {RGB}{137,119, 87}
+\definecolor{wBark}  {RGB}{80, 65, 45}
+
+\directlua{
+"""
+    + _load_washi_lua_template()
+    + r"""
 }
-MAIN_FRAME_TEMPLATE_FILES: dict[int, Path] = {
-    1: LATEX_TEMPLATE_DIR / "Main_Frame1.tex",
-    2: LATEX_TEMPLATE_DIR / "Main_Frame2.tex",
-    3: LATEX_TEMPLATE_DIR / "Main_Frame3.tex",
+"""
+)
+
+COVER_TEXTURE_TEMPLATES: dict[int, str] = {
+    1: r"""\fill[fill={rgb,255:red,246;green,229;blue,204},opacity=0.38]
+    (current page.south west) rectangle (current page.north east);
+\begin{scope}[opacity=0.14]
+    \foreach \x in {0,2,...,20} {
+        \foreach \y in {0,2,4} {
+            \fill[blue!45!black]
+                ($(current page.north west)+(\x*5mm,-\y*5mm)$) rectangle ++(5mm,-5mm);
+            \fill[blue!45!black]
+                ($(current page.north west)+(\x*5mm+5mm,-\y*5mm-5mm)$) rectangle ++(5mm,-5mm);
+            \fill[blue!45!black]
+                ($(current page.south west)+(\x*5mm,\y*5mm)$) rectangle ++(5mm,5mm);
+            \fill[blue!45!black]
+                ($(current page.south west)+(\x*5mm+5mm,\y*5mm+5mm)$) rectangle ++(5mm,5mm);
+        }
+    }
+\end{scope}
+\draw[line width=1.2pt, color=blue!65!black]
+    ($(current page.south west)+(6mm,6mm)$)
+    rectangle
+    ($(current page.north east)-(6mm,6mm)$);
+\draw[line width=0.3pt, color=blue!65!black]
+    ($(current page.south west)+(7.5mm,7.5mm)$)
+    rectangle
+    ($(current page.north east)-(7.5mm,7.5mm)$);""",
+    2: r"""\begin{scope}[opacity=0.25, color=black!80, very thin]
+    \foreach \angle in {0,10,...,350} {
+        \draw (current page.center) -- ++(\angle:130mm);
+    }
+\end{scope}
+\begin{scope}[opacity=0.30, color=black!80, very thin]
+    \foreach \s in {1,...,9} {
+        \draw ($(current page.center)-(\s*4.5mm,\s*8mm)$)
+            rectangle
+            ($(current page.center)+(\s*4.5mm,\s*8mm)$);
+    }
+\end{scope}
+\draw[line width=1.2pt, color=black!75]
+    ($(current page.south west)+(6mm,6mm)$)
+    rectangle
+    ($(current page.north east)-(6mm,6mm)$);
+\draw[line width=0.3pt, color=black!75]
+    ($(current page.south west)+(7.5mm,7.5mm)$)
+    rectangle
+    ($(current page.north east)-(7.5mm,7.5mm)$);""",
+    3: r"""\fill[fill={rgb,255:red,244;green,241;blue,234},opacity=0.45]
+    (current page.south west) rectangle (current page.north east);
+\begin{scope}[opacity=0.40, line width=0.8pt]
+    \foreach \r in {1,3,...,15} {
+        \draw[teal!55!black]
+            ($(current page.south west)+(10mm,15mm)$) circle (\r*7mm);
+    }
+    \foreach \r in {2,4,...,18} {
+        \draw[red!45!black]
+            ($(current page.north east)+(-15mm,-10mm)$) circle (\r*8mm);
+    }
+\end{scope}
+\draw[line width=1.2pt, color=black!70]
+    ($(current page.south west)+(6mm,6mm)$)
+    rectangle
+    ($(current page.north east)-(6mm,6mm)$);
+\draw[line width=0.3pt, color=black!70]
+    ($(current page.south west)+(7.5mm,7.5mm)$)
+    rectangle
+    ($(current page.north east)-(7.5mm,7.5mm)$);""",
+}
+
+MAIN_FRAME_TEMPLATES: dict[int, str] = {
+    1: r"""\def\mg{4mm}
+\draw[line width=0.5pt]
+    ([xshift=\mg, yshift=-\mg]current page.north west)
+    rectangle
+    ([xshift=-\mg, yshift=\mg]current page.south east);
+\tikzset{dia/.style={rotate=45, minimum size=5pt, fill=black, inner sep=0pt}}
+\node[dia] at ([xshift=\mg,  yshift=-\mg]current page.north west) {};
+\node[dia] at ([xshift=-\mg, yshift=-\mg]current page.north east) {};
+\node[dia] at ([xshift=\mg,  yshift=\mg] current page.south west) {};
+\node[dia] at ([xshift=-\mg, yshift=\mg] current page.south east) {};""",
+    2: r"""\definecolor{frameboard}{RGB}{205,133,63}
+\draw[line width=1.5pt, color=frameboard]
+    ([xshift=4mm, yshift=-4mm]current page.north west)
+    rectangle
+    ([xshift=-4mm, yshift=4mm]current page.south east);
+\draw[line width=0.3pt, color=frameboard]
+    ([xshift=4.4mm, yshift=-4.4mm]current page.north west)
+    rectangle
+    ([xshift=-4.4mm, yshift=4.4mm]current page.south east);""",
+    3: r"""\definecolor{shide}{HTML}{B22222}
+\draw[line width=0.4pt, gray!50]
+    ($(current page.north west)+(4mm,-4mm)$)
+    rectangle
+    ($(current page.south east)+(-4mm,4mm)$);
+\draw[line width=1.2pt, shide]
+    ($(current page.north west)+(1cm,-3cm)$)
+    -- ($(current page.north west)+(1cm,-1.5cm)$)
+    -- ($(current page.north west)+(1.5cm,-1.5cm)$)
+    -- ($(current page.north west)+(1.5cm,-1cm)$)
+    -- ($(current page.north west)+(3cm,-1cm)$);
+\draw[line width=1.2pt, shide]
+    ($(current page.south east)+(-1cm,3cm)$)
+    -- ($(current page.south east)+(-1cm,1.5cm)$)
+    -- ($(current page.south east)+(-1.5cm,1.5cm)$)
+    -- ($(current page.south east)+(-1.5cm,1cm)$)
+    -- ($(current page.south east)+(-3cm,1cm)$);""",
 }
 
 # よく使う青空外字注記のうち、Unicode へ安全に置換できるもの
@@ -71,18 +193,21 @@ def get_pdf_size(device: Optional[str] = None) -> tuple[float, float]:
 
 def get_pdf_settings(
     device: Optional[str] = None,
-) -> tuple[str, int, int, float, float]:
+) -> tuple[str, float, int, float, float]:
     """
     設定ファイルからフォント・レイアウト設定を取得する。
 
     戻り値: (font, font_size, characters_per_line, line_spacing, character_spacing)
+
+    - font_size は ini の値（小数可）
+    - line_spacing / character_spacing は JIS/JLREQ 準拠の計算値
     """
     device_name = device or "iphone"
     global_settings = settings_store.get_global_settings()
     profile = settings_store.get_device_settings(device_name)
 
     font = str(global_settings["font_family"])
-    font_size = int(profile["font_size"])
+    font_size = float(profile["font_size"])
     characters_per_line = int(profile["characters_per_line"])
     line_spacing = float(profile["line_spacing"])
     character_spacing = float(profile["character_spacing"])
@@ -523,14 +648,16 @@ DEFAULT_FRONTCOVER_TEMPLATE = r"""%% ---- FrontCover ----
 \csname thispagestyle\endcsname{empty}
   \centering
   \vspace*{\fill}
-  {{\ltjsetparameter{kanjiskip={0.12\zw plus 0.05\zw minus 0.02\zw}}\Huge \textbf{{{title}}}}} \\[1.5cm]
-  {{\ltjsetparameter{kanjiskip={0.10\zw plus 0.04\zw minus 0.02\zw}}\Large {{{author}}}}}
+    {{\ltjsetparameter{kanjiskip={0.18\zw plus 0.06\zw minus 0.03\zw}}\fontsize{30pt}{36pt}\selectfont \textbf{{{title}}}}}\par
+    \vspace{14mm}
+    {{\ltjsetparameter{kanjiskip={0.14\zw plus 0.05\zw minus 0.03\zw}}\fontsize{22pt}{28pt}\selectfont {{{author}}}}}\par
   \vspace*{\fill}
 \end{titlepage}
 """
 
 DEFAULT_TYPESETTING_INFO_TEMPLATE = r"""%% ---- Typesetting_info ----
 \newpage
+{{typesetting_info_texture_block}}
 {{typesetting_info_body}}
 """
 
@@ -573,14 +700,6 @@ DEFAULT_COLOPHON_BODY = "\n".join(
 TEMPLATE_KEY_PATTERN = re.compile(r"\{\{\s*([A-Za-z0-9_]+)\s*\}\}")
 
 
-def _load_text_template(path: Path, fallback: str) -> str:
-    if path.exists():
-        text = path.read_text(encoding="utf-8").strip()
-        if text:
-            return text + "\n"
-    return fallback.strip() + "\n"
-
-
 def render_template_block(template_text: str, values: dict[str, str]) -> str:
     def repl(match: re.Match[str]) -> str:
         return values.get(match.group(1), "")
@@ -592,26 +711,23 @@ def render_template_block(template_text: str, values: dict[str, str]) -> str:
 
 
 def load_frontcover_template() -> str:
-    return _load_text_template(FRONTCOVER_TEMPLATE_FILE, DEFAULT_FRONTCOVER_TEMPLATE)
+    return DEFAULT_FRONTCOVER_TEMPLATE.strip() + "\n"
 
 
 def load_typesetting_info_template() -> str:
-    return _load_text_template(
-        TYPESETTING_INFO_TEMPLATE_FILE,
-        DEFAULT_TYPESETTING_INFO_TEMPLATE,
-    )
+    return DEFAULT_TYPESETTING_INFO_TEMPLATE.strip() + "\n"
 
 
 def load_main_text_template() -> str:
-    return _load_text_template(MAIN_TEXT_TEMPLATE_FILE, DEFAULT_MAIN_TEXT_TEMPLATE)
+    return DEFAULT_MAIN_TEXT_TEMPLATE.strip() + "\n"
 
 
 def load_colophon_template() -> str:
-    return _load_text_template(COLOPHON_TEMPLATE_FILE, DEFAULT_COLOPHON_TEMPLATE)
+    return DEFAULT_COLOPHON_TEMPLATE.strip() + "\n"
 
 
 def load_washi_texture_template() -> str:
-    return _load_text_template(WASHI_TEXTURE_TEMPLATE_FILE, "")
+    return WASHI_TEXTURE_TEMPLATE.strip() + "\n"
 
 
 WASHI_DEVICE_PROFILES: dict[str, dict[str, float]] = {
@@ -675,6 +791,13 @@ WASHI_SECTION_PROFILES: dict[str, dict[str, float]] = {
         "length_scale": 0.86,
         "opacity_scale": 0.90,
     },
+    "typesetting_info": {
+        "patch_scale": 0.66,
+        "fiber_scale": 0.62,
+        "speck_scale": 0.60,
+        "length_scale": 0.88,
+        "opacity_scale": 0.88,
+    },
     "main": {
         "patch_scale": 1.00,
         "fiber_scale": 1.00,
@@ -701,6 +824,16 @@ WASHI_SECTION_COLORS: dict[str, dict[str, str]] = {
         "fiber_c": "5E4C36",
         "speck_a": "735A40",
         "speck_b": "4F3E2D",
+    },
+    "typesetting_info": {
+        "cloud_a": "F5EEDD",
+        "cloud_b": "ECE2CB",
+        "cloud_c": "DCCFB5",
+        "fiber_a": "8E785A",
+        "fiber_b": "746148",
+        "fiber_c": "584937",
+        "speck_a": "68533D",
+        "speck_b": "453729",
     },
     "main": {
         "cloud_a": "F4ECD9",
@@ -730,6 +863,7 @@ def _build_washi_render_values(
     section: str,
     page_width_mm: float,
     page_height_mm: float,
+    base_bg_hex: str,
 ) -> dict[str, str]:
     device_profile = WASHI_DEVICE_PROFILES.get(device, WASHI_DEVICE_PROFILES["iphone"])
     section_profile = WASHI_SECTION_PROFILES.get(
@@ -767,6 +901,9 @@ def _build_washi_render_values(
 
     values: dict[str, str] = {
         "section_label": section,
+        "base_bg_hex": base_bg_hex,
+        "page_width_mm": f"{page_width_mm:.2f}",
+        "page_height_mm": f"{page_height_mm:.2f}",
         "x_extent_mm": f"{x_extent:.2f}",
         "y_extent_mm": f"{y_extent:.2f}",
         "laid_step_x": f"{device_profile['laid_step_x']:.0f}",
@@ -814,6 +951,7 @@ def render_washi_texture_by_section(
     section: str,
     page_width_mm: float,
     page_height_mm: float,
+    base_bg_hex: str,
 ) -> str:
     if not template_text.strip():
         return ""
@@ -822,8 +960,16 @@ def render_washi_texture_by_section(
         section=section,
         page_width_mm=page_width_mm,
         page_height_mm=page_height_mm,
+        base_bg_hex=base_bg_hex,
     )
     return render_template_block(template_text, values).strip()
+
+
+def _normalize_hex_color_for_latex(color: str, fallback: str) -> str:
+    value = str(color or "").strip().lstrip("#").upper()
+    if re.fullmatch(r"[0-9A-F]{6}", value):
+        return value
+    return fallback
 
 
 def _normalize_variant(variant: Optional[int], fallback: int = 1) -> int:
@@ -833,17 +979,11 @@ def _normalize_variant(variant: Optional[int], fallback: int = 1) -> int:
 
 
 def load_cover_texture_template(variant: int) -> str:
-    path = COVER_TEXTURE_TEMPLATE_FILES.get(_normalize_variant(variant), Path(""))
-    if path and path.exists():
-        return path.read_text(encoding="utf-8").strip()
-    return ""
+    return COVER_TEXTURE_TEMPLATES.get(_normalize_variant(variant), "").strip()
 
 
 def load_main_frame_template(variant: int) -> str:
-    path = MAIN_FRAME_TEMPLATE_FILES.get(_normalize_variant(variant), Path(""))
-    if path and path.exists():
-        return path.read_text(encoding="utf-8").strip()
-    return ""
+    return MAIN_FRAME_TEMPLATES.get(_normalize_variant(variant), "").strip()
 
 
 def _make_one_page_overlay_block(snippet: str) -> str:
@@ -985,8 +1125,8 @@ def build_colophon_body_from_html(html: str, parser: str = "html.parser") -> str
 
 def load_okuduke_template() -> str:
     """
-    Colophon (奥付) テンプレートを読み込む。
-    ファイルが存在しなければ既定値を返す。
+    Colophon (奥付) テンプレートを返す。
+    テンプレートは Python コード内の既定値を使用する。
     """
     return load_colophon_template()
 
@@ -1062,7 +1202,7 @@ LATEX_TEMPLATE_JLREQ_TATE = r"""\documentclass[%(font_size)spt,paper={%(width)sm
 def build_info_page(
     html_path: Optional[Path],
     font: str,
-    font_size: int,
+    font_size: float,
     chars: int,
     spacing: float,
     character_spacing: float,
@@ -1105,6 +1245,7 @@ def build_info_page(
     char_size_mm = font_size * 0.35278
     line_height_mm = char_size_mm * 1.7
     ruby_pt = font_size / 2.0
+    font_size_label = f"{font_size:g}"
 
     page_number_desc = "表示" if show_page_number else "非表示"
 
@@ -1118,7 +1259,7 @@ def build_info_page(
     font_line = " ・ ".join(
         [
             rf"フォント名：{escape_latex(font)}",
-            rf"本文サイズ：{font_size}pt",
+            rf"本文サイズ：{font_size_label}pt",
             rf"ルビサイズ：{ruby_pt:.1f}pt",
         ]
     )
@@ -1157,7 +1298,7 @@ def build_info_page(
 
     manual_rows = [
         "1. texファイル生成：",
-        r"\quad\texttt{python aozoratex.py data/ -{}-device iphone -{}-mode light -{}-out out/iphone}",
+        r"\quad\texttt{python -m src.aozoratex data/ -{}-device iphone -{}-mode light -{}-out out/iphone}",
         "2. PDF化（latexmkで自動コンパイル）：",
         r"\quad\texttt{latexmk -lualatex -interaction=nonstopmode -file-line-error -halt-on-error -silent -use-make -outdir=out/iphone out/iphone/file.tex}",
     ]
@@ -1168,7 +1309,7 @@ def build_info_page(
         r"\setlength{\parindent}{0pt}",
         r"\setlength{\parskip}{0pt}",
         r"\thispagestyle{empty}",
-        r"{\small\textbf{\ltjsetparameter{kanjiskip={0.10\zw plus 0.04\zw minus 0.02\zw}}Typesetting\_info}\par}",
+        r"{\small\textbf{\ltjsetparameter{kanjiskip={0.10\zw plus 0.04\zw minus 0.02\zw}}組版情報}\par}",
         r"\smallskip",
         r"\noindent\textbf{── ファイル情報 ──}\par",
         rf"\noindent {file_line}\par",
@@ -1217,7 +1358,6 @@ def build_tex_file(
     main_frame_variant: Optional[int] = None,
     cover_texture_enabled: Optional[bool] = None,
     cover_texture_variant: Optional[int] = None,
-    colophon_texture_enabled: Optional[bool] = None,
 ) -> Path:
     """
     本文（LaTeX中間）をテンプレートに埋め込み、`.tex` として保存します。
@@ -1244,6 +1384,8 @@ def build_tex_file(
     margin_left = float(device_layout["margin_left_mm"])
     margin_right = float(device_layout["margin_right_mm"])
     show_page_number = bool(device_layout["show_page_number"])
+    if device_name in {"iphone", "android"}:
+        show_page_number = False
 
     # ---- JIS X 4051 準拠 レイアウト自動調整 ----
     # ルビサイズ: 本文フォントサイズの 1/2 (JIS X 4051 §6.2)
@@ -1251,6 +1393,7 @@ def build_tex_file(
     # 行送り: JIS基準 = 字高さ × 1.7 (ルビなし行)。相対単位で指定するとフォントサイズ変更時に自動追従。
     # ルビ間隔: 0.1zh (ルビとルビ親文字の間)。ルビあり行・なし行で行間を均一に保つ。
     ruby_pt = font_size / 2.0
+    font_size_tex = f"{font_size:g}"
     kanjiskip_expr = f"{character_spacing:.3f}\\zw plus 0.1pt minus 0.1pt"
 
     layout_tweak_lines = [
@@ -1292,20 +1435,18 @@ def build_tex_file(
         page_style_block = (
             r"\NewPageStyle{aozora}{" + "\n"
             r"    nombre_position=bottom-center," + "\n"
-            r"    nombre={\small \textemdash\ \thepage{} / \pageref{LastBodyPage}\ \textemdash},"
-            + "\n"
+            r"    nombre={\small 🌱 \ \thepage{} / \pageref{LastBodyPage}\  🌳}," + "\n"
             r"}" + "\n"
             r"\ModifyPageStyle{plain}{" + "\n"
             r"    nombre_position=bottom-center," + "\n"
-            r"    nombre={\small \textemdash\ \thepage{} / \pageref{LastBodyPage}\ \textemdash},"
-            + "\n"
+            r"    nombre={\small 🌱 \ \thepage{} / \pageref{LastBodyPage}\  🌳}," + "\n"
             r"}"
         )
         pagestyle_name = "aozora"
 
     # HTML カラーコードから ``#`` を除いて渡す
-    bg_color = background_color.lstrip("#")
-    fg_color = text_color.lstrip("#")
+    bg_color = _normalize_hex_color_for_latex(background_color, fallback="FFFFFF")
+    fg_color = _normalize_hex_color_for_latex(text_color, fallback="000000")
     okuduke = (
         okuduke_override if okuduke_override is not None else load_okuduke_template()
     )
@@ -1353,11 +1494,6 @@ def build_tex_file(
         cover_texture_variant_value,
         fallback=1,
     )
-    resolved_colophon_texture_enabled = (
-        bool(colophon_texture_enabled)
-        if colophon_texture_enabled is not None
-        else bool(global_settings.get("colophon_texture_enabled", False))
-    )
 
     # iPhone / Android は本文外周の枠を常に無効化する。
     frame_allowed_devices = {"pc", "ipad", "ipad_landscape"}
@@ -1365,7 +1501,7 @@ def build_tex_file(
         resolved_main_frame_enabled = False
 
     # ---- テンプレートブロックの生成 ----
-    # 各テンプレートファイルを読み込み、プレースホルダをレンダリング
+    # Python 内に埋め込んだテンプレートをレンダリング
     frontcover_template = load_frontcover_template()
     typesetting_info_template = load_typesetting_info_template()
     main_text_template = load_main_text_template()
@@ -1380,6 +1516,15 @@ def build_tex_file(
         section="cover",
         page_width_mm=width,
         page_height_mm=height,
+        base_bg_hex=bg_color,
+    )
+    typesetting_info_washi_texture = render_washi_texture_by_section(
+        template_text=washi_texture_template,
+        device=device_name,
+        section="typesetting_info",
+        page_width_mm=width,
+        page_height_mm=height,
+        base_bg_hex=bg_color,
     )
     main_washi_texture = render_washi_texture_by_section(
         template_text=washi_texture_template,
@@ -1387,6 +1532,7 @@ def build_tex_file(
         section="main",
         page_width_mm=width,
         page_height_mm=height,
+        base_bg_hex=bg_color,
     )
     colophon_washi_texture = render_washi_texture_by_section(
         template_text=washi_texture_template,
@@ -1394,6 +1540,7 @@ def build_tex_file(
         section="colophon",
         page_width_mm=width,
         page_height_mm=height,
+        base_bg_hex=bg_color,
     )
 
     # 組版情報ページを生成
@@ -1422,13 +1569,18 @@ def build_tex_file(
     cover_blocks: list[str] = []
     if resolved_cover_texture_enabled and cover_texture:
         cover_blocks.append(_make_one_page_overlay_block(cover_texture))
-    if resolved_cover_texture_enabled and cover_washi_texture:
+    if resolved_main_washi_enabled and cover_washi_texture:
         cover_blocks.append(_make_one_page_overlay_block(cover_washi_texture))
     cover_texture_block = "".join(cover_blocks)
 
     colophon_texture_block = (
         _make_one_page_overlay_block(colophon_washi_texture)
-        if resolved_colophon_texture_enabled and colophon_washi_texture
+        if resolved_main_washi_enabled and colophon_washi_texture
+        else ""
+    )
+    typesetting_info_texture_block = (
+        _make_one_page_overlay_block(typesetting_info_washi_texture)
+        if resolved_main_washi_enabled and typesetting_info_washi_texture
         else ""
     )
 
@@ -1449,7 +1601,11 @@ def build_tex_file(
         },
     )
     typesetting_info_block = render_template_block(
-        typesetting_info_template, {"typesetting_info_body": typesetting_info_body}
+        typesetting_info_template,
+        {
+            "typesetting_info_body": typesetting_info_body,
+            "typesetting_info_texture_block": typesetting_info_texture_block,
+        },
     )
     main_text_block = render_template_block(
         main_text_template,
@@ -1471,7 +1627,7 @@ def build_tex_file(
 
     content = LATEX_TEMPLATE_JLREQ_TATE % {
         "font": font,
-        "font_size": font_size,
+        "font_size": font_size_tex,
         "docclass_extra": docclass_extra,
         "bg_color": bg_color,
         "fg_color": fg_color,
@@ -1659,23 +1815,10 @@ def main() -> None:
         default=None,
         help="cover texture template variant (1-3)",
     )
-    parser.add_argument(
-        "--colophon-texture",
-        dest="colophon_texture_enabled",
-        action="store_true",
-        help="enable texture on colophon page",
-    )
-    parser.add_argument(
-        "--no-colophon-texture",
-        dest="colophon_texture_enabled",
-        action="store_false",
-        help="disable texture on colophon page",
-    )
     parser.set_defaults(
         main_washi_enabled=None,
         main_frame_enabled=None,
         cover_texture_enabled=None,
-        colophon_texture_enabled=None,
     )
     args = parser.parse_args()
 
@@ -1721,10 +1864,6 @@ def main() -> None:
         if args.cover_texture_variant is not None:
             decoration_updates["cover_texture_variant"] = str(
                 args.cover_texture_variant
-            )
-        if args.colophon_texture_enabled is not None:
-            decoration_updates["colophon_texture_enabled"] = (
-                "true" if bool(args.colophon_texture_enabled) else "false"
             )
         if decoration_updates:
             settings_store.save_settings({"global": decoration_updates})
@@ -1785,7 +1924,6 @@ def main() -> None:
                 main_frame_variant=args.main_frame_variant,
                 cover_texture_enabled=args.cover_texture_enabled,
                 cover_texture_variant=args.cover_texture_variant,
-                colophon_texture_enabled=args.colophon_texture_enabled,
             )
             logger.info("write: %s", out_tex)
             success_count += 1  # type: ignore

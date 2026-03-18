@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color Scheme 一覧（統合版）</title>
     <link rel="stylesheet" href="colors.css">
 </head>
+
 <body>
     <main class="page">
         <h1 id="page-title">Color Scheme 一覧（統合版）</h1>
         <p class="lead">
-            旧配色ページを統合した一覧です。色相順で確認できます。
+            旧配色ページを統合した一覧です。類似色を抑えた最大100件を色相順で確認できます。
         </p>
 
         <section class="toolbar">
@@ -24,6 +26,7 @@
                     <option value="all">all</option>
                     <option value="light">light</option>
                     <option value="dark">dark</option>
+                    <option value="intermediate">intermediate</option>
                     <option value="preset">preset</option>
                 </select>
             </div>
@@ -36,8 +39,33 @@
                 </select>
             </div>
             <div class="tool">
+                <label for="font-filter">フォント</label>
+                <select id="font-filter">
+                    <option value="">読み込み中...</option>
+                </select>
+            </div>
+            <div class="tool">
+                <label for="font-refresh">フォント一覧</label>
+                <button id="font-refresh" type="button">再取得</button>
+                <small id="font-status" class="meta-note">LuaLaTeX確認中...</small>
+            </div>
+            <div class="tool">
                 <label>件数</label>
                 <div id="count">読み込み中</div>
+            </div>
+            <div class="tool">
+                <label>テーマ</label>
+                <div class="theme-switcher">
+                    <label><input type="radio" name="theme" value="light" checked> Light</label>
+                    <label><input type="radio" name="theme" value="dark"> Dark</label>
+                    <label><input type="radio" name="theme" value="intermediate"> Intermediate</label>
+                </div>
+            </div>
+            <div class="tool">
+                <label>背景</label>
+                <div class="theme-switcher">
+                    <label><input type="checkbox" id="washi-toggle"> 和紙</label>
+                </div>
             </div>
         </section>
 
@@ -47,4 +75,5 @@
     <script src="../../color-palettes.js"></script>
     <script src="colors.js"></script>
 </body>
+
 </html>

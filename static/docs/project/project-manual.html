@@ -1,46 +1,49 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>プロジェクト概要・運用</title>
   <link rel="stylesheet" href="/static/docs/docs-common.css">
 </head>
+
 <body>
   <main class="doc-wrap">
-  <h1>プロジェクト概要・運用</h1>
-  <p>本ページは以下の資料を統合した運用ガイドです。</p>
-  <ul>
-    <li>docs/manuals/指示書.md</li>
-    <li>docs/technical/Todo.md</li>
-    <li>docs/technical/*（設計資料）</li>
-  </ul>
+    <h1>プロジェクト概要・運用</h1>
+    <p>本ページは以下の資料を統合した運用ガイドです。</p>
+    <ul>
+      <li>static/docs/markdown/manuals/*.html</li>
+      <li>static/docs/markdown/technical/Todo.html</li>
+      <li>static/docs/markdown/technical/*.html（設計資料）</li>
+    </ul>
 
-  <h2>目的</h2>
-  <p>青空文庫HTMLを LuaLaTeX で PDF 化し、デバイス別の読みやすさを確保すること。Web UI から配色とデバイスを選択し、TeX/PDF 生成まで実行できます。</p>
+    <h2>目的</h2>
+    <p>青空文庫HTMLを LuaLaTeX で PDF 化し、デバイス別の読みやすさを確保すること。Web UI から配色とデバイスを選択し、TeX/PDF 生成まで実行できます。</p>
 
-  <h2>現在の構成方針</h2>
-  <ul>
-    <li>起動エントリ: aozoratex.py, app.py</li>
-    <li>設定: config/global_settings.*.ini / config/device_settings.*.ini</li>
-    <li>実装本体: src/</li>
-    <li>入力: data/</li>
-    <li>出力: out/</li>
-    <li>Web静的資産: static/</li>
-    <li>LaTeXテンプレート群: latex_templates/</li>
-    <li>HTMLテンプレート群: html_templates/</li>
-    <li>ツール群: tools/</li>
-    <li>Markdownドキュメント: docs/</li>
-  </ul>
+    <h2>現在の構成方針</h2>
+    <ul>
+      <li>起動エントリ: python -m src.aozoratex, python -m src.aozora_server</li>
+      <li>設定: config/global_settings.*.ini / config/device_settings.*.ini</li>
+      <li>実装本体: src/</li>
+      <li>入力: data/</li>
+      <li>出力: out/</li>
+      <li>Web静的資産: static/</li>
+      <li>Web UI エントリ: static/index.html</li>
+      <li>LaTeXテンプレート: src/aozoratex.py 内の埋め込みテンプレート定数で管理</li>
+      <li>ツール群: tools/</li>
+      <li>変換済みドキュメント: static/docs/markdown/</li>
+    </ul>
 
-  <h2>推奨運用</h2>
-  <ul>
-    <li>通常利用は Web UI（app.py）か CLI（aozoratex.py）を使う。</li>
-    <li>生成物の中間ログや一時ファイルは out/ 以下へ集約する。</li>
-    <li>仕様メモは docs/ 配下に追記し、必要に応じて本HTMLに反映する。</li>
-  </ul>
+    <h2>推奨運用</h2>
+    <ul>
+      <li>通常利用は Web UI（python -m src.aozora_server）か CLI（python -m src.aozoratex）を使う。</li>
+      <li>生成物の中間ログや一時ファイルは out/ 以下へ集約する。</li>
+      <li>仕様メモは static/docs/markdown 配下の該当ページを更新する。</li>
+    </ul>
 
-  <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
   </main>
 </body>
+
 </html>

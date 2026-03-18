@@ -9,11 +9,10 @@ CLEAN_TEX_FILES = $(sort $(wildcard $(OUT_DIR)/*.tex) $(wildcard $(OUT_DIR)/*/*.
 
 # 装飾オプション（空欄なら ini 設定を使用）
 # 例: make pdf-PC WASHI=1 FRAME=2
-WASHI ?=
-FRAME ?=
+WASHI ?=0
+FRAME ?=0
 COVER_TEXTURE ?=
 COVER_VARIANT ?=1
-COLOPHON_TEXTURE ?=
 
 AOZORA_DECOR_FLAGS =
 ifneq ($(strip $(WASHI)),)
@@ -37,14 +36,6 @@ ifneq ($(strip $(COVER_TEXTURE)),)
 		AOZORA_DECOR_FLAGS += --cover-texture --cover-texture-variant $(COVER_VARIANT)
 	else ifeq ($(COVER_TEXTURE),0)
 		AOZORA_DECOR_FLAGS += --no-cover-texture
-	endif
-endif
-
-ifneq ($(strip $(COLOPHON_TEXTURE)),)
-	ifeq ($(COLOPHON_TEXTURE),1)
-		AOZORA_DECOR_FLAGS += --colophon-texture
-	else ifeq ($(COLOPHON_TEXTURE),0)
-		AOZORA_DECOR_FLAGS += --no-colophon-texture
 	endif
 endif
 
@@ -104,20 +95,20 @@ install:
 # Flask サーバー起動
 server:
 	@echo Starting Flask server on http://0.0.0.0:5000
-	.venv\Scripts\python.exe app.py
+	.venv\Scripts\python.exe -m src.aozora_server
 
 # テスト実行（iPhone用、ライトモード）— .tex 生成のみ
 test:
 	@echo Converting sample HTML to iPhone LaTeX...
-	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device iphone --mode light --verbose $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/1567_14913.html --device iphone --mode light --verbose $(AOZORA_DECOR_FLAGS)
 	@echo Output: out/iphone/1567_14913.tex
 
 # 複数デバイス用テスト — .tex 生成のみ
 test-all:
 	@echo Converting to all devices...
-	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device iphone --mode light --out out/iphone $(AOZORA_DECOR_FLAGS)
-	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device android --mode light --out out/android $(AOZORA_DECOR_FLAGS)
-	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device pc --mode light --out out/pc $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/1567_14913.html --device iphone --mode light --out out/iphone $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/1567_14913.html --device android --mode light --out out/android $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/1567_14913.html --device pc --mode light --out out/pc $(AOZORA_DECOR_FLAGS)
 	@echo All conversions done
 
 # 通常のクリーンアップ (log, aux, ltjruby + out内の非pdf/tex)
@@ -144,7 +135,7 @@ clean-out:
 # iPhone用PDF生成
 pdf-iPhone:
 	@echo "Generating .tex for iphone..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device iphone --out out/iphone $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/ --device iphone --out out/iphone $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,iphone)
 	@echo "Done: out/iphone/"
@@ -152,7 +143,7 @@ pdf-iPhone:
 # Android用PDF生成
 pdf-Android:
 	@echo "Generating .tex for android..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device android --out out/android $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/ --device android --out out/android $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,android)
 	@echo "Done: out/android/"
@@ -160,7 +151,7 @@ pdf-Android:
 # PC用PDF生成
 pdf-PC:
 	@echo "Generating .tex for pc..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device pc --out out/pc $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/ --device pc --out out/pc $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,pc)
 	@echo "Done: out/pc/"
@@ -168,7 +159,7 @@ pdf-PC:
 # iPad用PDF生成（縦向き）
 pdf-iPad:
 	@echo "Generating .tex for ipad..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device ipad --out out/ipad $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/ --device ipad --out out/ipad $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,ipad)
 	@echo "Done: out/ipad/"
@@ -176,7 +167,7 @@ pdf-iPad:
 # iPad横向きPDF生成（二段組）
 pdf-iPad-TwoColumn:
 	@echo "Generating .tex for ipad_landscape..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device ipad_landscape --out out/ipad_landscape $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe -m src.aozoratex data/ --device ipad_landscape --out out/ipad_landscape $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,ipad_landscape)
 	@echo "Done: out/ipad_landscape/"

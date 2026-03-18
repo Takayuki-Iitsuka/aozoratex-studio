@@ -1,39 +1,65 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>配色設計ガイド</title>
   <link rel="stylesheet" href="/static/docs/docs-common.css">
 </head>
+
 <body>
   <main class="doc-wrap">
-  <h1>配色設計ガイド</h1>
-  <p>以下の資料を統合: 青空文庫PDF化配色提案 / 視認性の高い配色一覧と考察 / スマートフォン読書用配色バリエーション拡張 / 200配色生成メモ群。</p>
+    <h1>配色設計ガイド</h1>
+    <p>以下の資料を統合: 青空文庫PDF化配色提案 / 視認性の高い配色一覧と考察 / スマートフォン読書用配色バリエーション拡張 / 200配色生成メモ群。</p>
 
-  <h2>設計方針</h2>
-  <ul>
-    <li>背景色と文字色のコントラストは、可読性と眩しさのバランスを優先。</li>
-    <li>ライト / ダーク / セピアを中心に、色パレットJSONを単一ソースとして管理。</li>
-    <li>UI、CLI、配色一覧ページで同じJSONを参照して整合を保つ。</li>
-  </ul>
+    <h2>設計方針</h2>
+    <ul>
+      <li>背景色と文字色のコントラストは、可読性と眩しさのバランスを優先。</li>
+      <li>ライト / ダーク / 中間色（intermediate）/ セピアを中心に、色パレットJSONを単一ソースとして管理。</li>
+      <li>UI、CLI、配色一覧ページで同じJSONを参照して整合を保つ。</li>
+    </ul>
 
-  <h2>代表モード</h2>
-  <table>
-    <thead><tr><th>mode</th><th>用途</th><th>備考</th></tr></thead>
-    <tbody>
-      <tr><td>light</td><td>日中読書</td><td>明るい背景 + 暗い文字</td></tr>
-      <tr><td>dark</td><td>夜間読書</td><td>暗い背景 + 明るい文字</td></tr>
-      <tr><td>sepia</td><td>長時間読書</td><td>暖色系で刺激を抑える</td></tr>
-    </tbody>
-  </table>
+    <h2>代表モード</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>mode</th>
+          <th>用途</th>
+          <th>備考</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>light</td>
+          <td>日中読書</td>
+          <td>明るい背景 + 暗い文字</td>
+        </tr>
+        <tr>
+          <td>dark</td>
+          <td>夜間読書</td>
+          <td>暗い背景 + 明るい文字</td>
+        </tr>
+        <tr>
+          <td>intermediate</td>
+          <td>夕方・長時間読書</td>
+          <td>中明度背景 + 低刺激な濃灰文字</td>
+        </tr>
+        <tr>
+          <td>sepia</td>
+          <td>長時間読書</td>
+          <td>暖色系で刺激を抑える</td>
+        </tr>
+      </tbody>
+    </table>
 
-  <h2>参照ページ</h2>
-  <ul>
-    <li><a href="/static/docs/color/colors.html">統合配色一覧（色相順）</a></li>
-  </ul>
+    <h2>参照ページ</h2>
+    <ul>
+      <li><a href="/static/docs/color/colors.html">統合配色一覧（色相順）</a></li>
+    </ul>
 
-  <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
   </main>
 </body>
+
 </html>

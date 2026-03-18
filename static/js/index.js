@@ -1,10 +1,23 @@
 (function () {
     "use strict";
 
+    const SUPPORTED_MODES = ["light", "dark", "intermediate"];
+    const MODE_DEFAULT_COLORS = {
+        light: { bg: "#FFFFFF", fg: "#000000" },
+        dark: { bg: "#000000", fg: "#FFFFFF" },
+        intermediate: { bg: "#D3D3D3", fg: "#4F4F4F" },
+    };
+
     const state = {
         sourceFiles: [],
         devices: {},
         selectedDevice: null,
+        selectedFont: "Yu Mincho",
+        modeColors: {
+            light: { ...MODE_DEFAULT_COLORS.light },
+            dark: { ...MODE_DEFAULT_COLORS.dark },
+            intermediate: { ...MODE_DEFAULT_COLORS.intermediate },
+        },
         selectedColor: {
             name: "custom",
             bg: "#FFFFFF",
@@ -35,13 +48,40 @@
         byId("progress").style.width = `${percent}%`;
     }
 
+    function normalizeHexColor(value, fallback) {
+        const raw = String(value || "").trim().toUpperCase();
+        if (/^#[0-9A-F]{6}$/.test(raw)) {
+            return raw;
+        }
+        return fallback;
+    }
+
+    function getModeDefaults(mode) {
+        const normalized = SUPPORTED_MODES.includes(mode) ? mode : "light";
+        const saved = state.modeColors[normalized] || MODE_DEFAULT_COLORS[normalized];
+        return {
+            bg: normalizeHexColor(saved.bg, MODE_DEFAULT_COLORS[normalized].bg),
+            fg: normalizeHexColor(saved.fg, MODE_DEFAULT_COLORS[normalized].fg),
+        };
+    }
+
+    function applyModeStoredColors(mode) {
+        const normalized = SUPPORTED_MODES.includes(mode) ? mode : "light";
+        const colors = getModeDefaults(normalized);
+        byId("bgColorInput").value = colors.bg;
+        byId("fgColorInput").value = colors.fg;
+        state.selectedColor.mode = normalized;
+        state.selectedColor.name = "custom";
+        updateColorPreview();
+    }
+
     function getCurrentMode() {
         const checked = document.querySelector("input[name='colorMode']:checked");
         return checked ? checked.value : "light";
     }
 
     function setMode(mode) {
-        const value = ["light", "dark", "intermediate"].includes(mode) ? mode : "light";
+        const value = SUPPORTED_MODES.includes(mode) ? mode : "light";
         const radio = document.querySelector(`input[name='colorMode'][value='${value}']`);
         if (radio) radio.checked = true;
     }
@@ -55,6 +95,73 @@
         byId("colorMeta").textContent = `BG ${bg} / FG ${fg}`;
         state.selectedColor.bg = bg.toUpperCase();
         state.selectedColor.fg = fg.toUpperCase();
+
+        const mode = getCurrentMode();
+        state.modeColors[mode] = {
+            bg: bg.toUpperCase(),
+            fg: fg.toUpperCase(),
+        };
+        state.selectedColor.mode = mode;
+    }
+
+    function setSelectedFont(name) {
+        const value = (name || "").trim();
+        if (!value) return;
+        state.selectedFont = value;
+
+        const select = byId("fontFamilySelect");
+        const hasOption = Array.from(select.options).some((opt) => opt.value === value);
+        if (!hasOption) {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = `${value} (現在値)`;
+            select.appendChild(option);
+        }
+        select.value = value;
+        byId("colorPreview").style.fontFamily = `"${value}", "Yu Mincho", "MS Mincho", serif`;
+    }
+
+    async function loadFonts(refresh) {
+        const query = refresh ? "?refresh=1" : "";
+        const resp = await fetch(`/api/lualatex-fonts${query}`);
+        const payload = await resp.json();
+        const select = byId("fontFamilySelect");
+        const meta = byId("fontMeta");
+        const fonts = Array.isArray(payload.fonts) ? payload.fonts : [];
+
+        select.innerHTML = "";
+        if (fonts.length === 0) {
+            const fallback = state.selectedFont || "Yu Mincho";
+            const option = document.createElement("option");
+            option.value = fallback;
+            option.textContent = `${fallback} (固定)`;
+            select.appendChild(option);
+            select.value = fallback;
+            state.selectedFont = fallback;
+            meta.textContent = "フォント一覧を取得できなかったため、現在値のみ利用します。";
+            return;
+        }
+
+        fonts.forEach((font) => {
+            const option = document.createElement("option");
+            option.value = font.name;
+            option.textContent = font.recommended
+                ? `${font.display_name} ★`
+                : font.display_name;
+            select.appendChild(option);
+        });
+
+        if (state.selectedFont) {
+            setSelectedFont(state.selectedFont);
+        } else {
+            setSelectedFont(fonts[0].name);
+        }
+
+        const lualatexLabel = payload.lualatex_available
+            ? "LuaLaTeX検出: OK"
+            : "LuaLaTeX検出: NG";
+        const refreshedLabel = payload.refreshed ? " / 一覧更新済み" : "";
+        meta.textContent = `${fonts.length}件 ${lualatexLabel}${refreshedLabel}`;
     }
 
     function isFrameAllowedDevice(device) {
@@ -77,7 +184,6 @@
             main_frame_variant: Number(byId("mainFrameVariant").value || 1),
             cover_texture_enabled: byId("coverTextureEnabled").checked,
             cover_texture_variant: Number(byId("coverTextureVariant").value || 1),
-            colophon_texture_enabled: byId("colophonTextureEnabled").checked,
         };
     }
 
@@ -89,7 +195,6 @@
         byId("mainFrameVariant").value = String(globalSettings.main_frame_variant || 1);
         byId("coverTextureEnabled").checked = Boolean(globalSettings.cover_texture_enabled ?? false);
         byId("coverTextureVariant").value = String(globalSettings.cover_texture_variant || 1);
-        byId("colophonTextureEnabled").checked = Boolean(globalSettings.colophon_texture_enabled ?? false);
     }
 
     function getFilteredAndSortedSources() {
@@ -225,6 +330,13 @@
         syncDeviceDependentDecorations();
     }
 
+    async function loadSourceFiles() {
+        const resp = await fetch("/api/data-files");
+        const payload = await resp.json();
+        const files = Array.isArray(payload.files) ? payload.files : [];
+        state.sourceFiles = files;
+    }
+
     async function loadSettings() {
         const resp = await fetch("/api/settings");
         const payload = await resp.json();
@@ -233,30 +345,56 @@
         const settings = payload.settings || {};
         const globalSettings = settings.global || {};
         setMode(globalSettings.color_mode || "light");
+        if (globalSettings.font_family) {
+            state.selectedFont = String(globalSettings.font_family);
+        }
 
-        if (globalSettings.background_color) byId("bgColorInput").value = globalSettings.background_color;
-        if (globalSettings.text_color) byId("fgColorInput").value = globalSettings.text_color;
+        SUPPORTED_MODES.forEach((mode) => {
+            const bgKey = `background_color_${mode}`;
+            const fgKey = `text_color_${mode}`;
+            const defaults = MODE_DEFAULT_COLORS[mode];
+            const bgRaw =
+                globalSettings[bgKey] ||
+                (globalSettings.color_mode === mode ? globalSettings.background_color : "");
+            const fgRaw =
+                globalSettings[fgKey] ||
+                (globalSettings.color_mode === mode ? globalSettings.text_color : "");
+
+            state.modeColors[mode] = {
+                bg: normalizeHexColor(bgRaw, defaults.bg),
+                fg: normalizeHexColor(fgRaw, defaults.fg),
+            };
+        });
+
+        applyModeStoredColors(getCurrentMode());
         applyDecorationSettings(globalSettings);
         syncDeviceDependentDecorations();
         updateColorPreview();
+        setSelectedFont(state.selectedFont);
     }
 
     async function loadColors() {
         const mode = getCurrentMode();
         const paletteMode = mode === "intermediate" ? "all" : mode;
-        const resp = await fetch(`/api/colors?mode=${encodeURIComponent(paletteMode)}&limit=160`);
+        const defaults = MODE_DEFAULT_COLORS[mode] || MODE_DEFAULT_COLORS.light;
+        const currentBg = normalizeHexColor(byId("bgColorInput").value, defaults.bg);
+        const currentFg = normalizeHexColor(byId("fgColorInput").value, defaults.fg);
+        const resp = await fetch(`/api/colors?mode=${encodeURIComponent(paletteMode)}&limit=100`);
         const data = await resp.json();
         const grid = byId("colorGrid");
         grid.innerHTML = "";
 
         const schemes = data.schemes || [];
+        let matchedCard = null;
         schemes.forEach((scheme) => {
+            const schemeBg = normalizeHexColor(scheme.bg, defaults.bg);
+            const schemeFg = normalizeHexColor(scheme.fg, defaults.fg);
             const card = document.createElement("div");
             card.className = "card";
             card.innerHTML = `
-                <div class="color-swatch" style="background:${scheme.bg};color:${scheme.fg};">Aa</div>
+                <div class="color-swatch" style="background:${schemeBg};color:${schemeFg};">Aa</div>
                 <div class="card-label">${escapeHtml(scheme.name)}</div>
-                <div class="card-desc">${escapeHtml(scheme.category || "")}<br>BG ${scheme.bg} / FG ${scheme.fg}</div>
+                <div class="card-desc">${escapeHtml(scheme.category || "")}<br>BG ${schemeBg} / FG ${schemeFg}</div>
             `;
             card.addEventListener("click", () => {
                 document.querySelectorAll("#colorGrid .card").forEach((c) => c.classList.remove("active"));
@@ -264,19 +402,35 @@
                 state.selectedColor = {
                     mode,
                     name: scheme.name,
-                    bg: scheme.bg,
-                    fg: scheme.fg,
+                    bg: schemeBg,
+                    fg: schemeFg,
                 };
-                byId("bgColorInput").value = scheme.bg;
-                byId("fgColorInput").value = scheme.fg;
+                byId("bgColorInput").value = schemeBg;
+                byId("fgColorInput").value = schemeFg;
                 updateColorPreview();
                 updateProgress(68);
             });
             grid.appendChild(card);
+
+            if (schemeBg === currentBg && schemeFg === currentFg) {
+                matchedCard = card;
+            }
         });
 
-        const first = grid.querySelector(".card");
-        if (first) first.click();
+        if (matchedCard) {
+            matchedCard.click();
+            return;
+        }
+
+        byId("bgColorInput").value = currentBg;
+        byId("fgColorInput").value = currentFg;
+        state.selectedColor = {
+            mode,
+            name: "custom",
+            bg: currentBg,
+            fg: currentFg,
+        };
+        updateColorPreview();
     }
 
     async function saveColorSettings() {
@@ -292,6 +446,7 @@
         const payload = {
             global: {
                 color_mode: mode,
+                font_family: state.selectedFont,
                 background_color: bg,
                 text_color: fg,
                 ...getDecorationPayload(),
@@ -312,6 +467,7 @@
         });
         const data = await resp.json();
         if (resp.ok && data.success) {
+            state.modeColors[mode] = { bg, fg };
             const result = byId("result");
             result.className = "result success";
             result.innerHTML = "<h3>設定保存 完了</h3><p>背景色・文字色・装飾オプションをカスタム設定に保存しました。</p>";
@@ -343,6 +499,7 @@
 
         const payloadBase = {
             device: state.selectedDevice,
+            font: state.selectedFont,
             mode,
             bg_color: bg,
             fg_color: fg,
@@ -434,36 +591,61 @@
         const bg = q.get("bg");
         const fg = q.get("fg");
         const mode = q.get("mode");
+        const font = q.get("font");
         if (mode) setMode(mode);
         if (bg) byId("bgColorInput").value = bg;
         if (fg) byId("fgColorInput").value = fg;
+        if (font) setSelectedFont(font);
+
+        const activeMode = getCurrentMode();
+        const defaults = MODE_DEFAULT_COLORS[activeMode] || MODE_DEFAULT_COLORS.light;
+        state.modeColors[activeMode] = {
+            bg: normalizeHexColor(byId("bgColorInput").value, defaults.bg),
+            fg: normalizeHexColor(byId("fgColorInput").value, defaults.fg),
+        };
         updateColorPreview();
     }
 
     async function init() {
-        const sourceJson = byId("source-files-json");
-        state.sourceFiles = JSON.parse(sourceJson.textContent || "[]");
-
         byId("sourceSearch").addEventListener("input", renderSources);
         byId("sourceSort").addEventListener("change", renderSources);
         byId("sourceFile").addEventListener("change", () => updateProgress(22));
         byId("selectAllBtn").addEventListener("click", () => selectAllSources(true));
         byId("clearAllBtn").addEventListener("click", () => selectAllSources(false));
 
-        byId("bgColorInput").addEventListener("input", updateColorPreview);
-        byId("fgColorInput").addEventListener("input", updateColorPreview);
+        byId("bgColorInput").addEventListener("input", () => {
+            updateColorPreview();
+            state.selectedColor.name = "custom";
+        });
+        byId("fgColorInput").addEventListener("input", () => {
+            updateColorPreview();
+            state.selectedColor.name = "custom";
+        });
         document.querySelectorAll("input[name='colorMode']").forEach((radio) => {
             radio.addEventListener("change", () => {
-                loadColors();
+                applyModeStoredColors(getCurrentMode());
+                loadColors().catch((error) => {
+                    console.error(error);
+                });
                 updateProgress(60);
             });
         });
 
         byId("saveColorBtn").addEventListener("click", () => saveColorSettings().catch((e) => alert(e.message)));
+        byId("fontFamilySelect").addEventListener("change", () => {
+            setSelectedFont(byId("fontFamilySelect").value);
+            updateProgress(72);
+        });
+        byId("refreshFontListBtn").addEventListener("click", () => {
+            loadFonts(true).catch((e) => alert(e.message));
+        });
         byId("generateBtn").addEventListener("click", () => generate(false));
         byId("generateAllBtn").addEventListener("click", () => generate(true));
         byId("cleanupBtn").addEventListener("click", () => cleanupNonPdf().catch((e) => alert(e.message)));
-        byId("mainWashiEnabled").addEventListener("change", () => updateProgress(72));
+        byId("mainWashiEnabled").addEventListener("change", (e) => {
+            document.body.classList.toggle("washi-active", e.target.checked);
+            updateProgress(72);
+        });
         byId("mainFrameEnabled").addEventListener("change", () => {
             syncDeviceDependentDecorations();
             updateProgress(72);
@@ -471,14 +653,19 @@
         byId("mainFrameVariant").addEventListener("change", () => updateProgress(72));
         byId("coverTextureEnabled").addEventListener("change", () => updateProgress(72));
         byId("coverTextureVariant").addEventListener("change", () => updateProgress(72));
-        byId("colophonTextureEnabled").addEventListener("change", () => updateProgress(72));
 
+        await loadSourceFiles();
         renderSources();
         await loadDevices();
         await loadSettings();
+        await loadFonts(false);
         applyQueryColorPreset();
         await loadColors();
         updateProgress(76);
+
+        if (byId("mainWashiEnabled").checked) {
+            document.body.classList.add("washi-active");
+        }
     }
 
     document.addEventListener("DOMContentLoaded", () => {

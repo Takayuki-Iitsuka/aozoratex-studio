@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LaTeX組版_変換仕様</title>
+  <link rel="stylesheet" href="/static/docs/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
+    <p class="muted">source: technical/03_LaTeX組版_変換仕様.md</p>
+    <h1 id="latex_">LaTeX組版_変換仕様</h1>
+<p>このドキュメントでは、青空文庫のテキストおよびHTMLデータを、<code>jlreq</code> クラスを用いた LuaLaTeX で美しい縦書きPDFに変換するためのシステム開発方針と、ページスタイル等のレイアウト設定基準を定義します。</p>
+<hr />
+<h2 id="_1">変換パイプラインのアーキテクチャ</h2>
+<p>Windows環境で「青空文庫データ → TeX → PDF」の全自動ビルドを行うための設計方針です。</p>
+<ol>
+<li><strong>HTML/XHTMLの入力を優先</strong>
+   テキスト版（Shift_JIS＋注記）からの正規表現パースはエッジケースが多く破綻しやすいため、HTMLのタグ構造（ルビや各種見出し要素を含む）を利用して DOM ツリーから TeX へ写像（Mapping）します。</li>
+<li><strong>文字エンコーディングの正規化</strong>
+   ファイル読み込み時に、内部文字列を必ず UTF-8（Pythonの <code>str</code>）に変換します。TeX エンジンは <code>LuaLaTeX</code> を使用するため、出力される <code>.tex</code> ファイルは常に UTF-8 となります。</li>
+<li><strong>TeXテンプレートへの流し込み</strong>
+   抽出した本文データを、Python 等のテンプレートエンジン（Jinja2 など）を用いて、デバイス別（PC, Android, iPhone, iPad）のプリアンブル（設定）と結合します。</li>
+</ol>
+<h2 id="html-tex">主要な写像ルール（HTML → TeX）</h2>
+<h3 id="1">1. 段落と改行</h3>
+<ul>
+<li><code>&lt;p&gt;</code>: 空行による段落生成、または <code>\par</code> コマンドに置換</li>
+<li><code>&lt;br&gt;</code>: 基本は段落整形を優先。必要であれば <code>\\</code> を出力</li>
+</ul>
+<h3 id="2">2. ルビの処理</h3>
+<p>HTML5の <code>&lt;ruby&gt;</code> タグをパースし、<code>luatexja-ruby</code> で処理するためのコマンドへと変換します。
+- <code>ruby</code> 内の <code>&lt;rp&gt;</code>（括弧）は破棄
+- <code>&lt;rb&gt;</code>（親文字）と <code>&lt;rt&gt;</code>（ルビ文字）を抽出
+- <strong>出力先コマンド:</strong> <code>\ltjruby{親文字}{ルビ}</code></p>
+<h3 id="3">3. 見出し</h3>
+<p>青空文庫の <code>h1</code> 〜 <code>h6</code> タグや対応する CSS クラスを、LaTeX の階層構造に変換します。
+- 大見出し: <code>\section{...}</code>
+- 中見出し: <code>\subsection{...}</code>
+※ 実際の階層レベルは出力テンプレートの設定に依存します。</p>
+<h3 id="4">4. 傍点・傍線・外字</h3>
+<p>テキストの強調については、最低限の実装からスタートし、段階的に拡張します。
+- <strong>傍点:</strong> <code>\textbf{}</code>（太字）等で仮実装し、のちに対応パッケージへの変換をサポート。
+- <strong>外字（Gaiji):</strong> HTML内で <code>&lt;img class="gaiji"&gt;</code> として扱われるものをパースし、可能な限りUnicodeのテキストへ置換します。置換不可能な場合は画像をそのまま埋め込みます。</p>
+<h3 id="5">5. エスケープ処理（必須事項）</h3>
+<p>LaTeXのコンパイルエラーを防ぐため、本文中の以下の予約文字は、変換スクリプト内で必ずエスケープしてください。
+- <code># $ % &amp; _ { } \ ^ ~</code></p>
+<hr />
+<h2 id="latex-page-style">LaTeX ページレイアウト（Page Style）の設定</h2>
+<p>青空文庫の PDF 化において、「上部の横線（Header rule）を消し、ページ番号（Folio）を下部中央に配置する」という要望を実現するための組版設定です。</p>
+<h3 id="_2">設定値</h3>
+<p>LaTeX の標準機能である <code>\pagestyle</code> を変更します。<code>jlreq</code> クラスのデフォルト（<code>headings</code>）から、小説・文庫本の標準である <code>plain</code> へ切り替えます。</p>
+<pre><code class="language-latex">% Preamble ( \begin{document} の前 ) に記述
+\pagestyle{plain}
+</code></pre>
+<h3 id="_3">適用時の挙動と影響</h3>
+<ul>
+<li><strong>上部横線の非表示:</strong> 章や節の見出し、およびヘッダーの横線が完全に非表示となり、文字領域のみの静かな読書空間が確保されます。</li>
+<li><strong>ページ番号の中央化:</strong> 奇数・偶数ページによる左右の振れ（小口寄せ）がなくなり、PDF Viewer での「単一ページ表示」時に番号の位置が完全に固定されます。</li>
+<li><strong>注意点:</strong> <code>plain</code> スタイルでは現在読んでいる「章（Chapter）」のタイトル表示が消えるため、現在位置を把握するためのナビゲーション能力が下がります。</li>
+</ul>
+<p><em>※ この文書は、「LualaTexについて」「Tex化について」「LuaLaTeX PDF化の高度な読書体験」「LaTeX ページ番号と横線の設定」の4ファイルを統合したものです。</em></p>
+  </main>
+</body>
+</html>

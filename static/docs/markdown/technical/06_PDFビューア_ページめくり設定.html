@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDFビューア：スマートフォン向けページめくり設定</title>
+  <link rel="stylesheet" href="/static/docs/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
+    <p class="muted">source: technical/06_PDFビューア_ページめくり設定.md</p>
+    <h1 id="pdf">PDFビューア：スマートフォン向けページめくり設定</h1>
+<p>スマートフォンで縦書きPDFを閲覧する際の「左右スワイプによるページめくり」を実現するための、LuaLaTeX側の設定と PDF Viewer（PDFビューア）側の対応策をまとめます。</p>
+<hr />
+<h2 id="1">1. 結論：権限と役割の分離</h2>
+<table>
+<thead>
+<tr>
+<th>役割</th>
+<th>担当</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>表示制御の主役</strong></td>
+<td>PDF Viewerアプリ</td>
+<td>最終的な描画とスクロール方向の決定権はビューア側にある。</td>
+</tr>
+<tr>
+<td><strong>推奨設定の埋め込み</strong></td>
+<td>LuaLaTeX (hyperref)</td>
+<td>Viewer Preferences（ビューアの初期表示設定）を PDF Metadata（メタデータ）として埋め込み、ビューアへヒントを伝達する。</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!IMPORTANT]
+LuaLaTeX側の設定はあくまでビューアへの「<strong>推奨</strong>」であり、アプリ側のユーザー設定が常に優先されます。</p>
+</blockquote>
+<hr />
+<h2 id="2-lualatexmetadata">2. LuaLaTeX側の設定（Metadataの埋め込み）</h2>
+<p><code>hyperref</code> パッケージを使用して PDF Metadata を付与します。</p>
+<table>
+<thead>
+<tr>
+<th>設定項目</th>
+<th>キー</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>単一ページ表示</td>
+<td><code>pdfpagelayout=SinglePage</code></td>
+<td>連続スクロールをオフにし、1画面に1ページのみを表示。左右スワイプが誘発されやすくなる。</td>
+</tr>
+<tr>
+<td>見開き表示（右開き）</td>
+<td><code>pdfpagelayout=TwoPageRight</code></td>
+<td>縦書き日本語文書向け。右から左へめくる動作を想定したレイアウト。</td>
+</tr>
+<tr>
+<td>綴じ方向（右→左）</td>
+<td><code>pdfdirection=R2L</code></td>
+<td>Right-to-Left（日本語縦書き用）。</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-latex">\usepackage[
+  pdfpagelayout=SinglePage,
+  pdfpagelabels=true,
+  pdfdirection=R2L,    % 右→左（日本語縦書き）
+  pdfview=Fit,
+]{hyperref}
+</code></pre>
+<hr />
+<h2 id="3-pdf-viewer">3. PDF Viewerアプリ別の対応方法</h2>
+<table>
+<thead>
+<tr>
+<th>ビューアアプリ</th>
+<th>設定箇所</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Adobe Acrobat Reader（モバイル）</strong></td>
+<td>設定 → 表示設定 → スクロール方向 → 「横」</td>
+</tr>
+<tr>
+<td><strong>PDF Expert（iOS）</strong></td>
+<td>ツールバー → 表示モード → 横スクロール</td>
+</tr>
+<tr>
+<td><strong>Xodo</strong></td>
+<td>メニュー → 表示 → ページモード</td>
+</tr>
+<tr>
+<td><strong>GoodReader</strong></td>
+<td>表示設定 → Scroll Direction → Horizontal</td>
+</tr>
+<tr>
+<td><strong>Apple Books</strong></td>
+<td>PDF読み込み時にデフォルトで水平スクロールが適用される場合が多い。</td>
+</tr>
+<tr>
+<td><strong>Google Drive PDF Viewer</strong></td>
+<td>垂直スクロールに固定されており変更できない場合がある。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4">4. 実用的なアプローチ（推奨順）</h2>
+<h3 id="1_1">① ビューアアプリを変える（最も確実）</h3>
+<p>左右スワイプに対応したアプリを選ぶのが最も確実です。Adobe Acrobat Reader や PDF Expert は設定で切り替え可能です。</p>
+<h3 id="2-lualatexmetadata_1">② LuaLaTeXにMetadataを埋め込む（補助的）</h3>
+<pre><code class="language-latex">\hypersetup{
+  pdfpagelayout=SinglePage,
+  pdfdirection=R2L,
+}
+</code></pre>
+<p>ビューアが対応している場合に自動反映されます。</p>
+<h3 id="3">③ 配布時のガイドライン明記</h3>
+<p>読者に対して「ビューアの表示設定を『単一ページ』に変更してください」と注記することを推奨します。</p>
+<hr />
+<h2 id="5-epub">5. 別の視点：EPUBへの移行検討</h2>
+<p>スマートフォンでの「左右のページめくり動作」を最優先とするならば、固定レイアウトである PDF（Portable Document Format）自体がモバイル端末の多様な画面サイズに適合していない可能性があります。</p>
+<p>Reflow（リフロー）機能を備えた <strong>EPUB</strong> や <strong>HTML</strong> は、画面サイズに合わせてレイアウトが自動調整されるため、モバイルでの読書体験としてより合理的です。</p>
+<table>
+<thead>
+<tr>
+<th>ツール</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make4ht</code></td>
+<td>LaTeX → HTML 変換</td>
+</tr>
+<tr>
+<td><code>tex4ebook</code></td>
+<td>LaTeX → EPUB 変換</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6">6. メリット・デメリット・リスクの整理</h2>
+<table>
+<thead>
+<tr>
+<th>観点</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>メリット</strong></td>
+<td>PDF Viewerがメタデータに対応している場合、読者が設定変更なしに自動的に左右めくりで閲覧を開始できる。意図したレイアウト（1画面1ページ）で正確に情報を伝達できる。</td>
+</tr>
+<tr>
+<td><strong>デメリット</strong></td>
+<td>使用するPDF Viewerによってはメタデータが完全に無視され、作成者の意図通りに表示されない場合がある。</td>
+</tr>
+<tr>
+<td><strong>リスク</strong></td>
+<td>読者が設定変更の方法を知らない場合、「縦スクロールできない不便なファイル」と誤解され、離脱のリスクがある。作成者が特定のページめくり方向を強制した場合、読者の使い慣れたデフォルト設定（縦スクロール）を意図せず上書きしてしまう可能性がある。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>情報源・根拠:</strong>
+- Adobe PDF Reference, Sixth Edition (ViewerPreferences dictionary)
+- CTAN (The Comprehensive TeX Archive Network) hyperref manual</p>
+<p><em>※ この文書は、「LuaLaTeX PDFスマホ向け左右ページめくり.md」および「フォントのサイズ自動化.md」のPDFビューア設定部分を統合・整理したものです。</em></p>
+  </main>
+</body>
+</html>

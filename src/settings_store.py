@@ -12,10 +12,7 @@ GLOBAL_DEFAULT_FILE = CONFIG_DIR / "global_settings.default.ini"
 GLOBAL_CUSTOM_FILE = CONFIG_DIR / "global_settings.custom.ini"
 DEVICE_DEFAULT_FILE = CONFIG_DIR / "device_settings.default.ini"
 DEVICE_CUSTOM_FILE = CONFIG_DIR / "device_settings.custom.ini"
-LEGACY_SETTINGS_FILES = (
-    PROJECT_ROOT / "settings.ini",
-    CONFIG_DIR / "settings.legacy.ini",
-)
+LEGACY_SETTINGS_FILES = (PROJECT_ROOT / "settings.ini",)
 LEGACY_MIGRATION_MARKER = CONFIG_DIR / ".legacy_migrated"
 
 SUPPORTED_COLOR_MODES = ("light", "dark", "intermediate")
@@ -36,9 +33,8 @@ GLOBAL_DEFAULTS: dict[str, str] = {
     "main_washi_enabled": "false",
     "main_frame_enabled": "false",
     "main_frame_variant": "1",
-    "cover_texture_enabled": "false",
+    "cover_texture_enabled": "true",
     "cover_texture_variant": "1",
-    "colophon_texture_enabled": "false",
     "background_color": "#FFFFFF",
     "text_color": "#000000",
     "background_color_light": "#FFFFFF",
@@ -55,12 +51,14 @@ MODE_COLOR_DEFAULTS: dict[str, tuple[str, str]] = {
     "intermediate": ("#D3D3D3", "#4F4F4F"),
 }
 
+# JIS X 4051 / JLREQ に基づく組版の既定値
+JIS_LINE_SPREAD = 1.0
+JIS_KANJISKIP_ZW = 0.0
+
 DEVICE_DEFAULTS: dict[str, dict[str, Any]] = {
     "iphone": {
         "font_size": 11,
         "characters_per_line": 33,
-        "character_spacing": 0.0,
-        "line_spacing": 1.0,
         "width_mm": 65.0,
         "height_mm": 140.0,
         "margin_top_mm": 5.0,
@@ -74,8 +72,6 @@ DEVICE_DEFAULTS: dict[str, dict[str, Any]] = {
     "android": {
         "font_size": 11,
         "characters_per_line": 30,
-        "character_spacing": 0.0,
-        "line_spacing": 1.0,
         "width_mm": 70.0,
         "height_mm": 155.5,
         "margin_top_mm": 5.0,
@@ -87,10 +83,8 @@ DEVICE_DEFAULTS: dict[str, dict[str, Any]] = {
         "color_mode": "light",
     },
     "ipad": {
-        "font_size": 12,
+        "font_size": 13.5,
         "characters_per_line": 35,
-        "character_spacing": 0.0,
-        "line_spacing": 1.0,
         "width_mm": 158.0,
         "height_mm": 227.0,
         "margin_top_mm": 10.0,
@@ -102,10 +96,8 @@ DEVICE_DEFAULTS: dict[str, dict[str, Any]] = {
         "color_mode": "light",
     },
     "ipad_landscape": {
-        "font_size": 11,
+        "font_size": 13.5,
         "characters_per_line": 35,
-        "character_spacing": 0.0,
-        "line_spacing": 1.0,
         "width_mm": 227.0,
         "height_mm": 158.0,
         "margin_top_mm": 10.0,
@@ -117,10 +109,8 @@ DEVICE_DEFAULTS: dict[str, dict[str, Any]] = {
         "color_mode": "light",
     },
     "pc": {
-        "font_size": 12,
+        "font_size": 13.5,
         "characters_per_line": 40,
-        "character_spacing": 0.0,
-        "line_spacing": 1.0,
         "width_mm": 210.0,
         "height_mm": 297.0,
         "margin_top_mm": 10.0,
@@ -137,8 +127,6 @@ GLOBAL_ALLOWED_KEYS = set(GLOBAL_DEFAULTS.keys())
 DEVICE_ALLOWED_KEYS = {
     "font_size",
     "characters_per_line",
-    "character_spacing",
-    "line_spacing",
     "width_mm",
     "height_mm",
     "margin_top_mm",
@@ -212,7 +200,6 @@ def _render_global_default_ini() -> str:
         f"main_frame_variant = {GLOBAL_DEFAULTS['main_frame_variant']}",
         f"cover_texture_enabled = {GLOBAL_DEFAULTS['cover_texture_enabled']}",
         f"cover_texture_variant = {GLOBAL_DEFAULTS['cover_texture_variant']}",
-        f"colophon_texture_enabled = {GLOBAL_DEFAULTS['colophon_texture_enabled']}",
         f"background_color = {GLOBAL_DEFAULTS['background_color']}",
         f"text_color = {GLOBAL_DEFAULTS['text_color']}",
         "",
@@ -232,8 +219,6 @@ def _render_device_default_ini() -> str:
         lines.append(f"[{device}]")
         lines.append(f"font_size = {profile['font_size']}")
         lines.append(f"characters_per_line = {profile['characters_per_line']}")
-        lines.append(f"character_spacing = {profile['character_spacing']}")
-        lines.append(f"line_spacing = {profile['line_spacing']}")
         lines.append(f"width_mm = {profile['width_mm']}")
         lines.append(f"height_mm = {profile['height_mm']}")
         lines.append(f"margin_top_mm = {profile['margin_top_mm']}")
@@ -308,7 +293,6 @@ def _migrate_from_legacy_if_needed() -> None:
         key_map = {
             "font_size": "font_size",
             "characters_per_line": "characters_per_line",
-            "line_spacing": "line_spacing",
         }
         for old_key, new_key in key_map.items():
             if legacy.has_option(sec, old_key):
@@ -481,16 +465,6 @@ def get_global_settings() -> dict[str, Any]:
     if cover_texture_variant not in {1, 2, 3}:
         cover_texture_variant = 1
 
-    colophon_texture_enabled = _safe_bool(
-        _get_option(
-            cfg,
-            section,
-            "colophon_texture_enabled",
-            GLOBAL_DEFAULTS["colophon_texture_enabled"],
-        ),
-        _safe_bool(GLOBAL_DEFAULTS["colophon_texture_enabled"], False),
-    )
-
     return {
         "font_family": font_family,
         "color_mode": mode,
@@ -500,7 +474,6 @@ def get_global_settings() -> dict[str, Any]:
         "main_frame_variant": main_frame_variant,
         "cover_texture_enabled": cover_texture_enabled,
         "cover_texture_variant": cover_texture_variant,
-        "colophon_texture_enabled": colophon_texture_enabled,
         "background_color": bg,
         "text_color": fg,
         "modes": mode_colors,
@@ -526,14 +499,14 @@ def get_device_settings(device: str) -> dict[str, Any]:
 
     if cfg.has_section(normalized_device):
         section = normalized_device
-        defaults["font_size"] = _safe_int(
+        defaults["font_size"] = _safe_float(
             _get_option(
                 cfg,
                 section,
                 "font_size",
                 str(defaults["font_size"]),
             ),
-            int(defaults["font_size"]),
+            float(defaults["font_size"]),
         )
         defaults["characters_per_line"] = _safe_int(
             _get_option(
@@ -543,24 +516,6 @@ def get_device_settings(device: str) -> dict[str, Any]:
                 str(defaults["characters_per_line"]),
             ),
             int(defaults["characters_per_line"]),
-        )
-        defaults["character_spacing"] = _safe_float(
-            _get_option(
-                cfg,
-                section,
-                "character_spacing",
-                str(defaults["character_spacing"]),
-            ),
-            float(defaults["character_spacing"]),
-        )
-        defaults["line_spacing"] = _safe_float(
-            _get_option(
-                cfg,
-                section,
-                "line_spacing",
-                str(defaults["line_spacing"]),
-            ),
-            float(defaults["line_spacing"]),
         )
         defaults["width_mm"] = _safe_float(
             _get_option(cfg, section, "width_mm", str(defaults["width_mm"])),
@@ -620,6 +575,10 @@ def get_device_settings(device: str) -> dict[str, Any]:
 
     if defaults["mode"] not in {"single_column", "two_column"}:
         defaults["mode"] = "single_column"
+
+    # フォントサイズ以外の組版値は ini では持たず、JIS/JLREQ に基づいてコード側で決定する。
+    defaults["line_spacing"] = JIS_LINE_SPREAD
+    defaults["character_spacing"] = JIS_KANJISKIP_ZW
 
     return defaults
 

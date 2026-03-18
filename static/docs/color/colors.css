@@ -2,9 +2,39 @@ body {
     margin: 0;
     padding: 24px;
     font-family: "Segoe UI", "Yu Gothic", sans-serif;
+    background: #f8f9fa;
+    color: #212529;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-theme {
     background: #101419;
     color: #e6edf3;
 }
+
+body.intermediate-theme {
+    background: #d3d3d3;
+    color: #4f4f4f;
+}
+
+body.washi-active {
+    background-color: #f3f0e9;
+    color: #4a4137;
+}
+
+body.washi-active::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.12;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+}
+
 
 .page {
     max-width: 1400px;
@@ -18,12 +48,20 @@ h1 {
 
 .lead {
     margin: 0 0 20px;
-    color: #9fb1c1;
+    color: #6c757d;
+}
+
+body.dark-theme .lead,
+body.intermediate-theme .lead {
+    color: #adb5bd;
+}
+body.intermediate-theme .lead {
+    color: #5f5f5f;
 }
 
 .toolbar {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 12px;
     margin-bottom: 18px;
 }
@@ -36,23 +74,87 @@ h1 {
 
 .tool label {
     font-size: 12px;
-    color: #9fb1c1;
+    color: #6c757d;
+}
+
+body.dark-theme .tool label,
+body.intermediate-theme .tool label {
+    color: #adb5bd;
+}
+
+body.intermediate-theme .tool label {
+    color: #5a5a5a;
 }
 
 .tool input,
-.tool select {
-    border: 1px solid #334155;
-    background: #0f172a;
-    color: #e6edf3;
+.tool select,
+.tool button {
+    border: 1px solid #ced4da;
+    background: #ffffff;
+    color: #212529;
     border-radius: 8px;
     padding: 10px 12px;
     font-size: 14px;
 }
 
+body.dark-theme .tool input,
+body.dark-theme .tool select,
+body.dark-theme .tool button {
+    border-color: #334155;
+    background: #0f172a;
+    color: #e6edf3;
+}
+
+body.intermediate-theme .tool input,
+body.intermediate-theme .tool select,
+body.intermediate-theme .tool button {
+    border-color: #a9a9a9;
+    background: #e0e0e0;
+    color: #4f4f4f;
+}
+
+.tool button {
+    cursor: pointer;
+}
+
+.tool button:hover {
+    filter: brightness(0.98);
+}
+
+body.dark-theme .tool button:hover {
+    filter: brightness(1.08);
+}
+
+.meta-note {
+    font-size: 11px;
+    color: #6c757d;
+}
+
+body.dark-theme .meta-note {
+    color: #9fb1c1;
+}
+
+.theme-switcher {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.theme-switcher label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px !important;
+    color: inherit !important;
+}
+
 .summary {
     margin: 0 0 12px;
-    color: #c3d2df;
     font-size: 14px;
+    color: #495057;
+}
+
+body.dark-theme .summary {
+    color: #c3d2df;
 }
 
 .grid {
@@ -63,18 +165,34 @@ h1 {
 
 .card {
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid #dee2e6;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     min-height: 240px;
 }
 
+body.dark-theme .card {
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+body.intermediate-theme .card {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
 .meta {
-    background: rgba(0, 0, 0, 0.22);
+    background: rgba(0, 0, 0, 0.03);
     padding: 12px;
     font-size: 13px;
     line-height: 1.5;
+}
+
+body.dark-theme .meta {
+    background: rgba(0, 0, 0, 0.22);
+}
+
+body.intermediate-theme .meta {
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .meta strong {
@@ -95,7 +213,15 @@ h1 {
     padding: 12px;
     display: flex;
     gap: 8px;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+body.dark-theme .actions {
     background: rgba(0, 0, 0, 0.25);
+}
+
+body.intermediate-theme .actions {
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .actions a {
@@ -104,6 +230,11 @@ h1 {
     border: 1px solid currentColor;
     border-radius: 6px;
     padding: 5px 8px;
+    opacity: 0.8;
+}
+
+.actions a:hover {
+    opacity: 1;
 }
 
 @media (max-width: 760px) {
@@ -115,4 +246,3 @@ h1 {
         font-size: 24px;
     }
 }
-

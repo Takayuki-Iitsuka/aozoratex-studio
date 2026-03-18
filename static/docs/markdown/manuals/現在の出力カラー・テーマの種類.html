@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>現在の出力カラー・テーマの種類</title>
+  <link rel="stylesheet" href="/static/docs/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
+    <p class="muted">source: manuals/現在の出力カラー・テーマの種類.md</p>
+    <h2 id="_1">現在の出力カラー・テーマの種類</h2>
+<p>色の指定には <strong>3つの層</strong> があります。</p>
+<hr />
+<h3 id="1-mode-4">🎨 第1層：<code>--mode</code>（基本モード） — <strong>4 種類</strong></h3>
+<p>コマンドラインや WebUI から指定する大枠のモードです。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>モード名</th>
+<th>概要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>light</code></td>
+<td>明るい背景 × 暗い文字</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>dark</code></td>
+<td>暗い背景 × 明るい文字</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>intermediate</code></td>
+<td><a href="cci:7://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/settings.ini:0:0-0:0">settings.ini</a> の <code>background_color_intermediate</code> / <code>text_color_intermediate</code> 値を使用（デフォルト：薄灰 <code>#D3D3D3</code> × 濃灰 <code>#4F4F4F</code>）</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>sepia</code></td>
+<td>プリセット（<a href="cci:7://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/static/color-palettes.json:0:0-0:0">color-palettes.json</a> の <code>preset_modes</code>）。Kindle Sepia・古紙色の 2 パターン</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!NOTE]
+<code>sepia</code> は <a href="cci:7://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/aozoratex.py:0:0-0:0">aozoratex.py</a> の <code>--mode</code> 引数の <code>choices</code> には列挙されていませんが、<a href="cci:7://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/app.py:0:0-0:0">app.py</a> の <a href="cci:1://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/app.py:81:0-123:18">_build_color_schemes()</a> でプリセットとして処理されます。<strong>WebUI 専用のモード</strong>です。</p>
+</blockquote>
+<hr />
+<h3 id="2color-palettesjson-5">🎨 第2層：<a href="cci:7://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/static/color-palettes.json:0:0-0:0">color-palettes.json</a> のカテゴリ — <strong>5 カテゴリ</strong></h3>
+<p><code>light</code> / <code>dark</code> モード選択時に、コントラスト比 ≥ 4.5 を満たす組み合わせが自動生成されます。</p>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>Light パレット（背景候補）</th>
+<th>Dark パレット（前景候補）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>和色</strong></td>
+<td>白練・桜色・白緑・鳥の子・生成・枯色（6色）</td>
+<td>墨・呂色・鉄御納戸・海松色・黒檀・紫黒（6色）</td>
+</tr>
+<tr>
+<td><strong>漢色</strong></td>
+<td>玉色・竹簡・帛書・象牙・浅黄・胡麻（6色）</td>
+<td>甲骨・朱砂・瑠璃・青銅・翡翠・黒茶（6色）</td>
+</tr>
+<tr>
+<td><strong>将棋</strong></td>
+<td>榧の盤・黄楊の駒・桂の盤・駒台・和紙の棋譜（5色）</td>
+<td>漆の文字・彫埋駒の陰・盛上駒の艶・布盤・桑の駒箱（5色）</td>
+</tr>
+<tr>
+<td><strong>自然</strong></td>
+<td>春の空・薄荷・朝露・象牙・麦穂・砂浜（6色）</td>
+<td>スレート岩・オリーブ・サドルレザー・真夜中・海の底・大樹（6色）</td>
+</tr>
+<tr>
+<td><strong>UI/端末</strong></td>
+<td>Pure White・Gray 50/100・Light Blue・OLED Light（5色）</td>
+<td>Gray 700/800/900・Material Dark・AMOLED Black（5色）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="3-bg-color-fg-color">🎨 第3層：<code>--bg-color</code> / <code>--fg-color</code>（完全自由指定）</h3>
+<p><code>#RRGGBB</code> 形式で <strong>任意の色を直接指定</strong> できます。パレット外の色も使用可能です。</p>
+<hr />
+<h3 id="_2">📝 まとめ</h3>
+<table>
+<thead>
+<tr>
+<th>選択方法</th>
+<th>種類</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基本モード (<code>--mode</code>)</td>
+<td><code>light</code> / <code>dark</code> / <code>intermediate</code> / <code>sepia</code>（WebUI限定）</td>
+</tr>
+<tr>
+<td>パレットカテゴリ</td>
+<td>5 カテゴリ（和色・漢色・将棋・自然・UI/端末）</td>
+</tr>
+<tr>
+<td>自由指定 (<code>--bg-color</code> / <code>--fg-color</code>)</td>
+<td>無制限（任意の <code>#RRGGBB</code>）</td>
+</tr>
+</tbody>
+</table>
+  </main>
+</body>
+</html>

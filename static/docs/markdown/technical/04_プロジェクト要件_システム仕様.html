@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロジェクト要件およびシステム仕様書</title>
+  <link rel="stylesheet" href="/static/docs/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
+    <p class="muted">source: technical/04_プロジェクト要件_システム仕様.md</p>
+    <h1 id="_1">プロジェクト要件およびシステム仕様書</h1>
+<h2 id="1">1. 目的</h2>
+<p>青空文庫の HTML ファイルから LuaLaTeX を用いて縦書き・高品質な PDF を生成するツールを開発する。各デバイス向けに最適化された PDF を提供し、読みやすさと没入環境を追求する。</p>
+<h2 id="2">2. システム・アーキテクチャ要件</h2>
+<ul>
+<li><strong>コア言語:</strong> Python（DOM 解析、ファイルI/O、システムコール、ローカルサーバー構築）</li>
+<li><strong>バックエンド（ローカルサーバー）:</strong> カスタマイズ用フロントエンドのエンドポイントとして、Pythonの軽量フレームワーク（Flask または FastAPI 等。※要選定）を使用してローカルサーバーを立ち上げる。</li>
+<li><strong>フロントエンド:</strong> <ul>
+<li><code>colors.html</code> 等の HTML/JS/CSS で UI を構築する。</li>
+<li>サイズや背景色・文字色のカスタマイズを容易にする。</li>
+<li>デバイスに応じた用紙サイズ選択に <code>device-paper-size-map.html</code> を活用する。</li>
+</ul>
+</li>
+<li><strong>コンパイラ:</strong> LuaLaTeX (<code>lualatex</code>)。必要に応じて Lua スクリプトを活用。</li>
+<li><strong>ビルドツール:</strong> 状況に応じて <code>make</code> や Python の <code>subprocess</code> でパイプラインを組む。</li>
+<li><strong>設定ファイル:</strong> 端末別設定、フォント設定などは <code>settings.ini</code> に分離しカスタマイズを容易にする。</li>
+</ul>
+<h2 id="3">3. 入力データ仕様とエンコーディング方針</h2>
+<p>公式ドキュメント（<code>https://www.aozora.gr.jp/KOSAKU/textfile_checklist/</code>）に準拠したテキスト版（Shift_JIS + CRLF）の存在も考慮するが、<strong>HTML/XHTML を優先的に入力に用いる</strong>（ルビや構造が DOM ツリーから取得できるため）。</p>
+<ul>
+<li><strong>文字コードの正規化:</strong> 入力ファイルから読み込む際、内部表現を必ず UTF-8 (Pythonの <code>str</code>) に変換してから扱う。</li>
+<li><strong>外字と注記ルール:</strong> 青空文庫の公式注記一覧・外字注記辞書に従い、LaTeX 用のコマンドや画像埋め込みに変換する実装を構築する。</li>
+</ul>
+<h2 id="4-pdf">4. PDF 出力の対象</h2>
+<p>以下の4種類のデバイスサイズに分岐して出力できるようにする。</p>
+<ol>
+<li><strong>PC用:</strong> A4用紙（白背景・黒文字）。上下2段組レイアウトで読みやすくする。</li>
+<li><strong>iPhone11用:</strong> 実寸サイズ（カスタマイズ配色）。</li>
+<li><strong>Android（スマホ）用:</strong> モダンサイズ（カスタマイズ配色）。</li>
+<li><strong>iPad用:</strong> 横向き見開き2段組サイズ（カスタマイズ配色）。</li>
+</ol>
+<h2 id="5-tex">5. TeX ファイル（テンプレート）の構造と組版ルール</h2>
+<p>出力される TeX コードのメンテナンス性を高めるため、出力コンポーネントを3層に分離する。
+1. <strong>表紙 (Title Page):</strong> タイトル、著者名等。
+2. <strong>本文ページ (Body Content):</strong> 青空文庫テキストのパース内容。
+    * ページスタイルは「書籍用レイアウトの横線（headings）」を廃止し、通常スタイル（番号を下部中央に表示する <code>plain</code>）を使用する。
+3. <strong>最終ページ (Colophon / 奥付):</strong> 青空文庫の HTML 最終ページにある原典情報等も LaTeX 化して流し込む。</p>
+<h2 id="6">6. コーディング規約</h2>
+<p>以後の拡張性（フォント追加や新規テーマ追加など）を考慮し、<strong>カスタマイズが容易になるよう、プログラミング言語に詳細なコメントブロックを持たせて実装すること。</strong></p>
+<hr />
+<p><em>※ この文書は、「指示書.md」「青空文庫について.md」「文字コードについて.md」「ファイルのエンコードについて.md」に記載されていた要求仕様を包括し、開発要件として整理したものです。</em></p>
+  </main>
+</body>
+</html>

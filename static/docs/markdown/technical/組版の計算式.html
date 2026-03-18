@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruby size（ルビサイズ）: 親文字の半分</title>
+  <link rel="stylesheet" href="/static/docs/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
+    <p class="muted">source: technical/組版の計算式.md</p>
+    <h3 id="_1">思考プロセス</h3>
+<ol>
+<li><strong>基準の特定:</strong> 日本語の組版（Typesetting）において、文字の配置やサイズを決定する計算式は、JIS X 4051（日本語文書の組版方法）および W3C の「日本語組版処理の要件（JLREQ）」が標準的な基準となります。</li>
+<li><strong>変数の定義:</strong> 計算の基礎となる Base font size（基準フォントサイズ） を $S$ と定義します。</li>
+<li><strong>各要素の算出:</strong></li>
+</ol>
+<ul>
+<li><strong>Ruby（ルビ）:</strong> 伝統的に親文字の半分のサイズとされます。</li>
+<li><strong>Line gap / Leading（行間）:</strong> 読みやすさを確保するため、文字サイズの半分から1倍の隙間を設けるのが標準です。</li>
+<li><strong>Letter spacing / Tracking（字間）:</strong> 日本語は原則として Solid typesetting（ベタ組み：字間ゼロ）を基準とします。</li>
+</ul>
+<ol>
+<li><strong>スクリプトへの適用:</strong> スクリプト側で絶対値（ptやmmなど）を計算してTeXに出力する方法と、TeXの相対単位（zwやemなど）をスクリプトから出力させる方法を比較検討します。</li>
+</ol>
+<hr />
+<h3 id="_2">組版の計算式</h3>
+<p>W3C「日本語組版処理の要件（JLREQ）」を根拠とした標準的な計算式は以下の通り作成できます。Base font size（基準フォントサイズ） を $S$ とします。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>English（専門用語）</th>
+<th>計算式（LaTeX記述）</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ルビサイズ</strong></td>
+<td>Ruby size</td>
+<td>$R = \frac{1}{2} S$</td>
+<td>親文字に対して1/2（二分）の大きさが原則です。</td>
+</tr>
+<tr>
+<td><strong>行間</strong></td>
+<td>Line gap / Leading</td>
+<td>$L = 0.5 S \sim 1.0 S$</td>
+<td>スマホ用など画面が狭い場合は $0.5 S$（半角アキ）、ゆったり読ませる場合は $1.0 S$（全角アキ）が推奨されます。</td>
+</tr>
+<tr>
+<td><strong>行送り</strong></td>
+<td>Line feed / Line height</td>
+<td>$F = S + L$</td>
+<td>行のベースラインから次のベースラインまでの距離です。行間 $0.5 S$ の場合、$F = 1.5 S$ となります。</td>
+</tr>
+<tr>
+<td><strong>字間</strong></td>
+<td>Letter spacing / Tracking</td>
+<td>$C = 0$</td>
+<td>日本語は Solid typesetting（ベタ組み）が基本です。約物（句読点や括弧）の前後のみ、TeXエンジン側で自動調整されます。</td>
+</tr>
+</tbody>
+</table>
+<p>情報源・根拠:</p>
+<ul>
+<li>W3C Working Group Note: Requirements for Japanese Text Layout (JLREQ)</li>
+<li>JIS X 4051:2004 Formatting rules for Japanese documents</li>
+</ul>
+<hr />
+<h3 id="vs">スクリプト作成時の提案：絶対値計算 vs 相対単位出力</h3>
+<p>スクリプトでTeXを自動生成する場合、<strong>スクリプト内で絶対値を計算しない（TeXの相対単位を出力させる）</strong> アプローチを提案します。</p>
+<p>TeXには、現在のフォントサイズを基準とした Relative units（相対単位） が存在します。</p>
+<ul>
+<li><code>zw</code> または <code>em</code>: 全角幅（フォントサイズ $S$ と同等）</li>
+<li><code>zh</code>: 全角高さ（和文フォントサイズ $S$ と同等）</li>
+</ul>
+<p><strong>提案する出力例:</strong>
+スクリプトから <code>\setlength{\baselineskip}{1.5zh}</code>（行送りをフォントの1.5倍にする）や、ルビパッケージ（<code>luatexja-ruby</code>など）のデフォルト設定（親文字の0.5倍）をそのまま出力させます。</p>
+<ul>
+<li><strong>メリット:</strong> * スクリプト内で複雑な浮動小数点計算を行う必要がなくなります。</li>
+<li>
+<p>後からTeX側で基準フォントサイズ $S$ を変更した場合、ルビや行間も自動的に追従してスケーリング（Scaling）されます。</p>
+</li>
+<li>
+<p><strong>デメリット:</strong> * スクリプトの出力結果（TeXソースコード）を見ただけでは、最終的な絶対値（何ptになるのか）が直感的に分かりにくくなります。</p>
+</li>
+<li><strong>リスク:</strong> * LuaLaTeXにおける <code>luatexja</code> などの Package（パッケージ） の仕様変更により、<code>zw</code> や <code>zh</code> の解釈が微妙に変わる可能性があります（最新環境でのテストが必要です）。</li>
+</ul>
+<hr />
+<h3 id="_3">別の視点・潜在的なリスク（反論）</h3>
+<ul>
+<li><strong>別の視点（数式による機械的な計算の限界）:</strong>
+計算式によって $R = 0.5 S$ や $C = 0$ と機械的に割り出すアプローチは、プログラムの処理としては最適ですが、Typography（タイポグラフィ）の観点からは不十分であるという反論が成り立ちます。フォントの Visual weight（視覚的なウェイト・黒み）や、ひらがな・漢字の比率によって、数学的に正しい行間が視覚的にも美しいとは限りません。</li>
+<li><strong>潜在的なリスク（スマホ描画時の端数処理）:</strong>
+スクリプトで厳密に計算した数値をTeXに渡しても、最終的にスマートフォン用の PDF Viewer（PDFビューア） で表示される際、画面の Pixel density（画素密度） によって Rendering（レンダリング） 時に端数処理（丸め誤差）が発生します。特にルビのような極小の文字は、計算上のサイズがそのまま綺麗に表示されず、潰れたりかすれたりするリスクがあります。</li>
+</ul>
+<hr />
+<p>スクリプト（例えばPythonやC++など）でTeXソースを生成・出力するための、具体的なコードのアルゴリズムや実装例を作成しましょうか？</p>
+<h3 id="_4">思考プロセス</h3>
+<ol>
+<li><strong>計算ロジックの整理:</strong> 日本語組版の標準要件（JIS X 4051およびJLREQ）に基づき、基準となるフォントサイズからルビ、行間、字間を導き出す計算式を定義します。</li>
+<li><strong>Python関数の設計:</strong> 任意のBase font size（基準フォントサイズ）を引数として受け取り、計算結果をDictionary（辞書型）で返す関数を設計します。Windows OS環境でPythonを実行し、結果をLuaLaTeXのソースコード生成に利用できる形にします。</li>
+<li><strong>TeX出力への連携方法の検討:</strong> スクリプトで計算した絶対値（ptやmmなど）をそのままTeXのコマンド（例：<code>\fontsize{10pt}{15pt}\selectfont</code>）に埋め込むことを想定した出力フォーマットを考慮します。</li>
+</ol>
+<hr />
+<h3 id="_5">組版要素の計算式</h3>
+<p>W3C「日本語組版処理の要件（JLREQ）」に基づく標準的な計算式です。Base font size（基準フォントサイズ）を $S$ とします。</p>
+<ul>
+<li>
+<p><strong>Ruby size（ルビサイズ）:</strong>
+$$R = 0.5 \times S$$</p>
+</li>
+<li>
+<p><strong>Line gap（行間）:</strong> 狭め（半角アキ）の場合は
+$$L_{narrow} = 0.5 \times S$$</p>
+</li>
+</ul>
+<p>、広め（全角アキ）の場合は
+$$L_{wide} = 1.0 \times S$$</p>
+<ul>
+<li>
+<p><strong>Line height / Line feed（行送り）:</strong>
+$$F = S + L$$</p>
+</li>
+<li>
+<p><strong>Letter spacing / Tracking（字間）:</strong>
+$$C = 0$$</p>
+</li>
+</ul>
+<p>（Solid typesetting（ベタ組み）が原則）</p>
+<p>情報源・根拠:</p>
+<ul>
+<li>W3C Working Group Note: Requirements for Japanese Text Layout (JLREQ)</li>
+<li>JIS X 4051:2004 Formatting rules for Japanese documents</li>
+</ul>
+<hr />
+<h3 id="python">Pythonスクリプト実装例</h3>
+<pre><code class="language-python">def calculate_typography_settings(base_font_size: float) -&gt; dict:
+    &quot;&quot;&quot;
+    基準フォントサイズから組版に必要な各要素のサイズを計算します。
+
+    Parameters:
+        base_font_size (float): Base font size（基準フォントサイズ） (単位は任意, 例: pt)
+
+    Returns:
+        dict: 計算された各要素のサイズを含む辞書
+    &quot;&quot;&quot;
+    # Ruby size（ルビサイズ）: 親文字の半分
+    ruby_size = base_font_size * 0.5
+
+    # Line gap（行間）: 半角アキ(0.5) と 全角アキ(1.0)
+    line_gap_narrow = base_font_size * 0.5
+    line_gap_wide = base_font_size * 1.0
+
+    # Line height（行送り）: フォントサイズ + 行間
+    line_height_narrow = base_font_size + line_gap_narrow
+    line_height_wide = base_font_size + line_gap_wide
+
+    # Letter spacing（字間）: ベタ組み
+    letter_spacing = 0.0
+
+    return {
+        &quot;Base_font_size&quot;: base_font_size,
+        &quot;Ruby_size&quot;: ruby_size,
+        &quot;Line_gap_narrow&quot;: line_gap_narrow,
+        &quot;Line_gap_wide&quot;: line_gap_wide,
+        &quot;Line_height_narrow&quot;: line_height_narrow,
+        &quot;Line_height_wide&quot;: line_height_wide,
+        &quot;Letter_spacing&quot;: letter_spacing
+    }
+
+# --- 使用例 (Windows OS上のコマンドプロンプト等で実行結果を確認) ---
+if __name__ == &quot;__main__&quot;:
+    # 基準フォントサイズを10ptに設定した場合
+    target_size = 10.0
+    settings = calculate_typography_settings(target_size)
+
+    print(f&quot;--- Typography Settings (Base = {target_size}pt) ---&quot;)
+    print(f&quot;Ruby size（ルビサイズ）: {settings['Ruby_size']}pt&quot;)
+    print(f&quot;Line height（行送り/狭め）: {settings['Line_height_narrow']}pt (行間: {settings['Line_gap_narrow']}pt)&quot;)
+    print(f&quot;Line height（行送り/広め）: {settings['Line_height_wide']}pt (行間: {settings['Line_gap_wide']}pt)&quot;)
+    print(f&quot;Letter spacing（字間）: {settings['Letter_spacing']}pt&quot;)
+
+</code></pre>
+<hr />
+<h3 id="pythontex">Pythonで絶対値を計算してTeXを生成する提案</h3>
+<p>スクリプトで計算した絶対値を文字列フォーマット（f-stringなど）を用いてLaTeXのコマンドに流し込む運用を提案します。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>メリット</strong></td>
+<td>・LuaLaTeXに渡す時点でサイズが固定されているため、TeXエンジン側での相対単位の解釈違いによるレイアウト崩れを防ぐことができます。<br></td>
+</tr>
+</tbody>
+</table>
+<p><br>・Python側で端末（スマホ画面）の解像度やアスペクト比を計算し、動的にフォントサイズ $S$ 自体を変更する拡張が容易です。 |
+| <strong>デメリット</strong> | ・TeXソースコード上に <code>\fontsize{10pt}{15pt}</code> のような絶対値（Hard-coded values（ハードコードされた値））が散乱し、後からTeXファイル単体で微調整を行うのが困難になります。 |
+| <strong>リスク</strong> | ・Floating point arithmetic（浮動小数点演算）による微小な丸め誤差が発生し、例えば行送りが <code>14.9999pt</code> のように出力され、TeXのコンパイル時に意図しない警告（Underfull/Overfull hbox）を引き起こす可能性があります。 |</p>
+<hr />
+<h3 id="_6">別の視点・潜在的なリスク（反論）</h3>
+<ul>
+<li><strong>別の視点（TeXの組版エンジンへの委譲）:</strong>
+Python側でルビや行送りの絶対値を計算してTeXに渡すのではなく、Pythonは「基準フォントサイズ $S$」のみをTeXに渡し、ルビや行間はLuaLaTeXのパッケージ（<code>luatexja-ruby</code>など）が持つ Relative units（相対単位：<code>zw</code>, <code>zh</code>）や内部計算マクロに任せるべきである、という反論が成り立ちます。これにより、約物（句読点）周辺の Dynamic spacing（動的なスペース調整）がTeXの高度なアルゴリズムによって最適化されます。</li>
+<li><strong>潜在的なリスク（フォント固有のメトリクス）:</strong>
+数式
+$$R = 0.5 \times S$$</li>
+</ul>
+<p>による計算はあくまで理論値です。使用する和文フォント（游明朝、Noto Sans JPなど）の Font metrics（フォントメトリクス：実際の字面（じづら）の大きさやベースラインの位置）によっては、理論値通りにルビを配置すると親文字と衝突したり、行間が詰まって見えたりするリスクがあります。特にスマートフォン閲覧時は、画面の Glare（グレア：反射）や輝度によって視認性が変化するため、機械的な計算値が人間の目に最適とは限りません。</p>
+  </main>
+</body>
+</html>

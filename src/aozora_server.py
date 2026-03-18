@@ -10,7 +10,6 @@ aozoratex Web Server
 
 from flask import (
     Flask,
-    render_template,
     request,
     jsonify,
     send_from_directory,
@@ -21,17 +20,17 @@ import subprocess
 import logging
 import json
 import shutil
-import sys
+import csv
 from datetime import datetime
 from typing import Optional
 
 from src import settings_store
+from src.aozoratex_generate import generate_tex_for_source
 
 # ---- 設定 ----
 WORKDIR = Path(__file__).resolve().parent.parent
 app = Flask(
     __name__,
-    template_folder=str(WORKDIR / "html_templates"),
     static_folder=None,
 )
 DATA_DIR = WORKDIR / "data"
@@ -42,7 +41,9 @@ SESSION_WORK_DIR = SESSION_DIR / "work"
 STATIC_DIR = WORKDIR / "static"
 DOCS_DIR = STATIC_DIR / "docs"
 COLOR_PALETTE_FILE = STATIC_DIR / "color-palettes.json"
-AOZORATEX_ENTRY = WORKDIR / "aozoratex.py"
+FONT_LIST_ENTRY = WORKDIR / "tools" / "fonts" / "texlive_font_list.py"
+FONT_LIST_CSV = WORKDIR / "tools" / "fonts" / "texlive_fonts.csv"
+MAX_COLOR_SCHEMES = 100
 
 settings_store.ensure_config_files()
 
@@ -90,15 +91,241 @@ def _contrast(c1: str, c2: str) -> float:
     return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05)
 
 
+def _hex_to_hsv(hex_color: str) -> tuple[float, float, float]:
+    h = hex_color.lstrip("#")
+    r = int(h[0:2], 16) / 255.0
+    g = int(h[2:4], 16) / 255.0
+    b = int(h[4:6], 16) / 255.0
+
+    max_v = max(r, g, b)
+    min_v = min(r, g, b)
+    delta = max_v - min_v
+
+    hue = 0.0
+    if delta != 0:
+        if max_v == r:
+            hue = 60.0 * (((g - b) / delta) % 6)
+        elif max_v == g:
+            hue = 60.0 * (((b - r) / delta) + 2)
+        else:
+            hue = 60.0 * (((r - g) / delta) + 4)
+
+    sat = 0.0 if max_v == 0 else (delta / max_v)
+    val = max_v
+    return hue, sat, val
+
+
+def _scheme_hue(scheme: dict) -> float:
+    try:
+        hue, _sat, _val = _hex_to_hsv(str(scheme.get("bg", "#000000")))
+        return hue
+    except Exception:
+        return 0.0
+
+
+def _limit_color_schemes_balanced(schemes: list[dict], limit: int) -> list[dict]:
+    if limit <= 0:
+        return []
+
+    deduped: list[dict] = []
+    seen_exact: set[str] = set()
+    for item in schemes:
+        key = f"{item.get('category', '')}|{item.get('mode', '')}|{item.get('bg', '')}|{item.get('fg', '')}"
+        if key in seen_exact:
+            continue
+        seen_exact.add(key)
+        deduped.append(item)
+
+    if len(deduped) <= limit:
+        return deduped
+
+    groups: dict[str, list[dict]] = {}
+    for item in deduped:
+        group_key = f"{item.get('category', 'Unknown')}|{item.get('mode', 'unknown')}"
+        groups.setdefault(group_key, []).append(item)
+
+    ordered_group_keys = sorted(groups.keys())
+    for key in ordered_group_keys:
+        groups[key].sort(
+            key=lambda item: (
+                _scheme_hue(item),
+                -_contrast(
+                    str(item.get("bg", "#000000")), str(item.get("fg", "#FFFFFF"))
+                ),
+                str(item.get("name", "")),
+            )
+        )
+
+    base = max(1, limit // max(1, len(ordered_group_keys)))
+    quotas = {key: min(len(groups[key]), base) for key in ordered_group_keys}
+    assigned = sum(quotas.values())
+
+    while assigned < limit:
+        progressed = False
+        for key in ordered_group_keys:
+            if assigned >= limit:
+                break
+            if quotas[key] >= len(groups[key]):
+                continue
+            quotas[key] += 1
+            assigned += 1
+            progressed = True
+        if not progressed:
+            break
+
+    picked_by_group: dict[str, list[dict]] = {}
+    for key in ordered_group_keys:
+        bucket = groups[key]
+        quota = quotas[key]
+        if quota <= 0:
+            picked_by_group[key] = []
+            continue
+        if quota >= len(bucket):
+            picked_by_group[key] = list(bucket)
+            continue
+        if quota == 1:
+            picked_by_group[key] = [bucket[len(bucket) // 2]]
+            continue
+
+        sampled: list[dict] = []
+        max_idx = len(bucket) - 1
+        for i in range(quota):
+            idx = round(i * max_idx / (quota - 1))
+            sampled.append(bucket[idx])
+        picked_by_group[key] = sampled
+
+    selected: list[dict] = []
+    cursor = {key: 0 for key in ordered_group_keys}
+    while len(selected) < limit:
+        progressed = False
+        for key in ordered_group_keys:
+            idx = cursor[key]
+            bucket = picked_by_group[key]
+            if idx >= len(bucket):
+                continue
+            selected.append(bucket[idx])
+            cursor[key] = idx + 1
+            progressed = True
+            if len(selected) >= limit:
+                break
+        if not progressed:
+            break
+
+    return selected[:limit]
+
+
+def _str_to_bool_flag(raw: Optional[str]) -> bool:
+    if raw is None:
+        return False
+    value = raw.strip().lower()
+    return value in {"1", "true", "yes", "on", "y", "t", "✓"}
+
+
+def _run_font_list_export() -> tuple[bool, str]:
+    if not FONT_LIST_ENTRY.exists():
+        return False, f"font list script not found: {FONT_LIST_ENTRY}"
+
+    cmd = [
+        _resolve_python_executable(),
+        str(FONT_LIST_ENTRY),
+        "--output",
+        str(FONT_LIST_CSV),
+        "--japanese-only",
+    ]
+    try:
+        proc = subprocess.run(cmd, capture_output=True, timeout=120, cwd=WORKDIR)
+    except subprocess.TimeoutExpired:
+        return False, "font list export timeout"
+
+    stdout_text = _decode_output(proc.stdout).strip()
+    stderr_text = _decode_output(proc.stderr).strip()
+    if proc.returncode != 0:
+        msg = stderr_text or stdout_text or "unknown error"
+        return False, f"font list export failed: {msg}"
+
+    return True, stdout_text or "font list export completed"
+
+
+def _load_lualatex_fonts(refresh: bool) -> tuple[list[dict], dict]:
+    message = ""
+    refreshed = False
+
+    if refresh or not FONT_LIST_CSV.exists():
+        refreshed = True
+        ok, message = _run_font_list_export()
+        if not ok:
+            logger.warning("%s", message)
+
+    fonts: list[dict] = []
+    seen_names: set[str] = set()
+
+    if FONT_LIST_CSV.exists():
+        with FONT_LIST_CSV.open("r", encoding="utf-8-sig", newline="") as fh:
+            reader = csv.DictReader(fh)
+            for row in reader:
+                family = (row.get("latex_name") or row.get("family") or "").strip()
+                display_name = (row.get("display_name") or family).strip()
+                style = (row.get("style") or "Regular").strip()
+                latex_command = (
+                    row.get("latex_command") or row.get("latex_cmd") or ""
+                ).strip()
+
+                is_japanese = _str_to_bool_flag(
+                    row.get("japanese_candidate")
+                ) or _str_to_bool_flag(row.get("is_japanese"))
+                if not is_japanese:
+                    continue
+
+                if not family:
+                    continue
+
+                recommended = _str_to_bool_flag(
+                    row.get("recommended_for_aozoratex")
+                ) or _str_to_bool_flag(row.get("recommended"))
+
+                normalized = family.lower()
+                if normalized in seen_names:
+                    continue
+                seen_names.add(normalized)
+
+                fonts.append(
+                    {
+                        "name": family,
+                        "display_name": display_name,
+                        "style": style,
+                        "recommended": recommended,
+                        "latex_command": latex_command,
+                    }
+                )
+
+    fonts.sort(
+        key=lambda item: (0 if item["recommended"] else 1, item["display_name"].lower())
+    )
+
+    meta = {
+        "refreshed": refreshed,
+        "message": message,
+        "csv_path": str(FONT_LIST_CSV.relative_to(WORKDIR))
+        if FONT_LIST_CSV.exists()
+        else "",
+        "lualatex_available": bool(shutil.which("lualatex")),
+    }
+    return fonts, meta
+
+
 def _build_color_schemes(mode: str) -> list[dict]:
+    normalized_mode = str(mode or "light").strip().lower()
+    if normalized_mode == "intermediate":
+        normalized_mode = "all"
+
     data = _load_color_data()
     palettes = data.get("palettes", {})
     categories = data.get("categories", [])
     preset_modes = data.get("preset_modes", {})
 
     # 例: sepia は固定プリセットを返す
-    if mode in preset_modes:
-        return list(preset_modes.get(mode, []))
+    if normalized_mode in preset_modes:
+        return list(preset_modes.get(normalized_mode, []))
 
     schemes: list[dict] = []
     for category in categories:
@@ -106,7 +333,7 @@ def _build_color_schemes(mode: str) -> list[dict]:
         lights = palettes.get(category.get("lights", ""), [])
         darks = palettes.get(category.get("darks", ""), [])
 
-        if mode in ("light", "all"):
+        if normalized_mode in ("light", "all"):
             for bg in lights:
                 for fg in darks:
                     if _contrast(bg["c"], fg["c"]) >= 4.5:
@@ -114,12 +341,13 @@ def _build_color_schemes(mode: str) -> list[dict]:
                             {
                                 "name": f"{bg['n']} × {fg['n']}",
                                 "category": f"{cat_name} (Light Mode)",
+                                "mode": "light",
                                 "bg": bg["c"],
                                 "fg": fg["c"],
                             }
                         )
 
-        if mode in ("dark", "all"):
+        if normalized_mode in ("dark", "all"):
             for bg in darks:
                 for fg in lights:
                     if _contrast(bg["c"], fg["c"]) >= 4.5:
@@ -127,6 +355,7 @@ def _build_color_schemes(mode: str) -> list[dict]:
                             {
                                 "name": f"{bg['n']} × {fg['n']}",
                                 "category": f"{cat_name} (Dark Mode)",
+                                "mode": "dark",
                                 "bg": bg["c"],
                                 "fg": fg["c"],
                             }
@@ -213,10 +442,6 @@ def _resolve_decoration_options(payload: dict) -> dict[str, object]:
             "cover_texture_variant",
             read_variant_default("cover_texture_variant", 1),
         ),
-        "colophon_texture_enabled": pick_bool(
-            "colophon_texture_enabled",
-            _to_bool(global_settings.get("colophon_texture_enabled"), default=False),
-        ),
     }
 
 
@@ -225,6 +450,7 @@ def _save_generation_preferences(
     mode: str,
     bg_color: str,
     fg_color: str,
+    font_family: Optional[str] = None,
     decorations: Optional[dict[str, object]] = None,
 ) -> None:
     global_updates: dict[str, object] = {
@@ -234,6 +460,8 @@ def _save_generation_preferences(
         f"background_color_{mode}": bg_color,
         f"text_color_{mode}": fg_color,
     }
+    if font_family:
+        global_updates["font_family"] = font_family
     if decorations:
         if "main_washi_enabled" in decorations:
             value = _to_bool(decorations.get("main_washi_enabled"), default=False)
@@ -244,7 +472,6 @@ def _save_generation_preferences(
             "main_frame_variant",
             "cover_texture_enabled",
             "cover_texture_variant",
-            "colophon_texture_enabled",
         ):
             if key in decorations:
                 global_updates[key] = decorations[key]
@@ -261,7 +488,7 @@ def _resolve_python_executable() -> str:
     venv_python = WORKDIR / ".venv" / "Scripts" / "python.exe"
     if venv_python.exists():
         return str(venv_python)
-    return sys.executable
+    return shutil.which("python") or "python"
 
 
 def _decode_output(data: Optional[bytes]) -> str:
@@ -418,6 +645,7 @@ def _generate_single(
     mode: str,
     bg_color: str,
     fg_color: str,
+    font_family: Optional[str],
     compile_pdf: bool,
     decorations: Optional[dict[str, object]] = None,
 ) -> tuple[bool, dict, int]:
@@ -428,73 +656,70 @@ def _generate_single(
     SESSION_WORK_DIR.mkdir(parents=True, exist_ok=True)
     SESSION_PDF_DIR.mkdir(parents=True, exist_ok=True)
 
-    cmd = [
-        _resolve_python_executable(),
-        str(AOZORATEX_ENTRY),
-        str(source_path),
-        "--device",
-        device,
-        "--mode",
-        mode,
-        "--bg-color",
-        bg_color,
-        "--fg-color",
-        fg_color,
-        "--out",
-        "out/session/work",
-    ]
+    # mode は保存設定更新に使われる。tex 生成そのものは色コードで決定する。
+    _ = mode
+
+    main_washi_enabled: Optional[bool] = None
+    main_frame_enabled: Optional[bool] = None
+    cover_texture_enabled: Optional[bool] = None
+    main_frame_variant: Optional[int] = None
+    cover_texture_variant: Optional[int] = None
 
     if decorations:
-        if _to_bool(decorations.get("main_washi_enabled"), default=False):
-            cmd.append("--main-washi")
-        else:
-            cmd.append("--no-main-washi")
+        main_washi_enabled = _to_bool(
+            decorations.get("main_washi_enabled"),
+            default=False,
+        )
+        main_frame_enabled = _to_bool(
+            decorations.get("main_frame_enabled"),
+            default=False,
+        )
+        cover_texture_enabled = _to_bool(
+            decorations.get("cover_texture_enabled"),
+            default=False,
+        )
 
-        if _to_bool(decorations.get("main_frame_enabled"), default=False):
-            cmd.append("--main-frame")
-        else:
-            cmd.append("--no-main-frame")
+        try:
+            raw_variant = decorations.get("main_frame_variant")
+            if raw_variant is not None:
+                main_frame_variant = int(raw_variant)
+        except (TypeError, ValueError):
+            main_frame_variant = None
 
-        if _to_bool(decorations.get("cover_texture_enabled"), default=False):
-            cmd.append("--cover-texture")
-        else:
-            cmd.append("--no-cover-texture")
+        try:
+            raw_variant = decorations.get("cover_texture_variant")
+            if raw_variant is not None:
+                cover_texture_variant = int(raw_variant)
+        except (TypeError, ValueError):
+            cover_texture_variant = None
 
-        if _to_bool(decorations.get("colophon_texture_enabled"), default=False):
-            cmd.append("--colophon-texture")
-        else:
-            cmd.append("--no-colophon-texture")
-
-        main_frame_variant = decorations.get("main_frame_variant")
-        if main_frame_variant is not None:
-            cmd.extend(["--main-frame-variant", str(main_frame_variant)])
-
-        cover_texture_variant = decorations.get("cover_texture_variant")
-        if cover_texture_variant is not None:
-            cmd.extend(["--cover-texture-variant", str(cover_texture_variant)])
-
-    logger.info("Running: %s", " ".join(cmd))
     try:
-        result = subprocess.run(cmd, capture_output=True, timeout=60)
-    except subprocess.TimeoutExpired:
-        return False, {"error": "aozoratex.py execution timeout"}, 500
-
-    result_stdout = _decode_output(result.stdout)
-    result_stderr = _decode_output(result.stderr)
-
-    if result.returncode != 0:
-        logger.error("aozoratex.py failed: %s", result_stderr)
+        generation = generate_tex_for_source(
+            source_path=source_path,
+            out_dir=SESSION_WORK_DIR,
+            device=device,
+            font_override=font_family,
+            background_color=bg_color,
+            text_color=fg_color,
+            main_washi_enabled=main_washi_enabled,
+            main_frame_enabled=main_frame_enabled,
+            main_frame_variant=main_frame_variant,
+            cover_texture_enabled=cover_texture_enabled,
+            cover_texture_variant=cover_texture_variant,
+        )
+    except Exception as exc:
+        logger.exception("src.aozoratex failed: %s", exc)
         return (
             False,
             {
-                "error": f"Conversion failed: {result_stderr}",
-                "stdout": result_stdout,
-                "stderr": result_stderr,
+                "error": f"Conversion failed: {exc}",
+                "stdout": "",
+                "stderr": str(exc),
             },
             500,
         )
 
-    out_tex = SESSION_WORK_DIR / f"{source_path.stem}.tex"
+    out_tex = generation.tex_file
     out_pdf_in_work = SESSION_WORK_DIR / f"{source_path.stem}.pdf"
     out_pdf_final = SESSION_PDF_DIR / f"{source_path.stem}.pdf"
 
@@ -543,8 +768,10 @@ def _generate_single(
             "tex_file": str(out_tex.relative_to(WORKDIR)),
             "pdf_file": pdf_file,
             "pdf_url": pdf_url,
-            "stdout": result_stdout,
-            "stderr": result_stderr,
+            "font": font_family or "",
+            "encoding": generation.encoding_used,
+            "stdout": "",
+            "stderr": "",
             "compile_log": compile_log,
         },
         200,
@@ -563,9 +790,8 @@ except PermissionError as exc:
 
 @app.route("/")
 def index():
-    """メイン画面 - HTML/XHTML選択"""
-    files_data = _list_source_files()
-    return render_template("index.html", files=files_data)
+    """メイン画面"""
+    return send_from_directory(STATIC_DIR, "index.html")
 
 
 @app.route("/api/data-files")
@@ -583,12 +809,21 @@ def api_colors():
 
     if limit_raw:
         try:
-            limit = max(1, int(limit_raw))
-            schemes = schemes[:limit]
+            limit = max(1, min(int(limit_raw), MAX_COLOR_SCHEMES))
+            schemes = _limit_color_schemes_balanced(schemes, limit)
         except ValueError:
             pass
+    else:
+        schemes = _limit_color_schemes_balanced(schemes, MAX_COLOR_SCHEMES)
 
     return jsonify({"mode": mode, "schemes": schemes})
+
+
+@app.route("/api/lualatex-fonts")
+def api_lualatex_fonts():
+    refresh = _to_bool(request.args.get("refresh"), default=False)
+    fonts, meta = _load_lualatex_fonts(refresh)
+    return jsonify({"success": True, "fonts": fonts, **meta})
 
 
 @app.route("/api/devices")
@@ -647,12 +882,21 @@ def api_generate():
         data.get("fg_color"),
     )
     compile_pdf = _to_bool(data.get("compile_pdf"), default=True)
+    font_family_raw = str(data.get("font") or "").strip()
+    font_family = font_family_raw or None
     decorations = _resolve_decoration_options(data)
 
     if not source:
         return jsonify({"success": False, "error": "source is required"}), 400
 
-    _save_generation_preferences(device, mode, bg_color, fg_color, decorations)
+    _save_generation_preferences(
+        device,
+        mode,
+        bg_color,
+        fg_color,
+        font_family=font_family,
+        decorations=decorations,
+    )
 
     ok, payload, status = _generate_single(
         source=source,
@@ -660,6 +904,7 @@ def api_generate():
         mode=mode,
         bg_color=bg_color,
         fg_color=fg_color,
+        font_family=font_family,
         compile_pdf=compile_pdf,
         decorations=decorations,
     )
@@ -679,6 +924,8 @@ def api_generate_batch():
         data.get("fg_color"),
     )
     compile_pdf = _to_bool(data.get("compile_pdf"), default=True)
+    font_family_raw = str(data.get("font") or "").strip()
+    font_family = font_family_raw or None
     generate_all = _to_bool(data.get("generate_all"), default=False)
     decorations = _resolve_decoration_options(data)
 
@@ -692,7 +939,14 @@ def api_generate_batch():
     if not sources:
         return jsonify({"success": False, "error": "sources is empty"}), 400
 
-    _save_generation_preferences(device, mode, bg_color, fg_color, decorations)
+    _save_generation_preferences(
+        device,
+        mode,
+        bg_color,
+        fg_color,
+        font_family=font_family,
+        decorations=decorations,
+    )
 
     results: list[dict] = []
     failures: list[dict] = []
@@ -704,6 +958,7 @@ def api_generate_batch():
             mode=mode,
             bg_color=bg_color,
             fg_color=fg_color,
+            font_family=font_family,
             compile_pdf=compile_pdf,
             decorations=decorations,
         )

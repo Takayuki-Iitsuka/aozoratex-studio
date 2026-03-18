@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AozoraTeX Studio</title>
     <link rel="stylesheet" href="/static/css/index.css">
 </head>
+
 <body>
     <div class="container">
         <h1>青空文庫 → LuaLaTeX PDF 変換</h1>
@@ -19,9 +21,6 @@
             <h2>ステップ 1: 入力ファイル選択</h2>
             <select id="sourceFile">
                 <option value="">-- ファイルを選択 --</option>
-                {% for file in files %}
-                <option value="{{ file.path }}">{{ file.name }}</option>
-                {% endfor %}
             </select>
 
             <p class="muted source-hint">複数生成は下の一覧から選択してください。</p>
@@ -59,7 +58,8 @@
             <div class="mode-picker">
                 <label class="mode-option"><input type="radio" name="colorMode" value="light" checked> light</label>
                 <label class="mode-option"><input type="radio" name="colorMode" value="dark"> dark</label>
-                <label class="mode-option"><input type="radio" name="colorMode" value="intermediate"> intermediate</label>
+                <label class="mode-option"><input type="radio" name="colorMode" value="intermediate">
+                    intermediate</label>
             </div>
 
             <div class="card-grid color-grid" id="colorGrid"></div>
@@ -86,7 +86,22 @@
         </section>
 
         <section class="section">
-            <h2>ステップ 4: 出力サイズ確認</h2>
+            <h2>ステップ 4: フォント選択</h2>
+            <p class="muted">LuaLaTeX で使用可能な日本語フォントを一覧から選択します。</p>
+            <div class="font-picker">
+                <div class="field">
+                    <label for="fontFamilySelect">フォント</label>
+                    <select id="fontFamilySelect">
+                        <option value="">読み込み中...</option>
+                    </select>
+                </div>
+                <button id="refreshFontListBtn" class="btn-secondary" type="button">フォント一覧を再取得</button>
+            </div>
+            <p class="muted" id="fontMeta">フォント一覧を取得しています...</p>
+        </section>
+
+        <section class="section">
+            <h2>ステップ 5: 出力サイズ確認</h2>
             <div class="size-preview">
                 <div class="size-card">
                     <p class="muted" id="deviceMeta">device: -</p>
@@ -99,7 +114,7 @@
         </section>
 
         <section class="section">
-            <h2>ステップ 5: 装飾オプション</h2>
+            <h2>ステップ 6: 装飾オプション</h2>
             <p class="muted">和紙背景・枠・表紙/奥付の描画を切り替えます。枠は PC/iPad 系デバイスのみ有効です。</p>
 
             <div class="decorate-grid">
@@ -128,13 +143,11 @@
                         </select>
                     </label>
                 </div>
-
-                <label class="toggle-row"><input type="checkbox" id="colophonTextureEnabled"> 奥付に和紙背景を適用</label>
             </div>
         </section>
 
         <section class="section">
-            <h2>ステップ 6: 生成</h2>
+            <h2>ステップ 7: 生成</h2>
             <div class="button-group">
                 <button class="btn-primary" id="generateBtn" type="button">選択をPDF化</button>
                 <button class="btn-primary" id="generateAllBtn" type="button">data全件をPDF化</button>
@@ -151,7 +164,7 @@
         <div class="result" id="result"></div>
     </div>
 
-    <script id="source-files-json" type="application/json">{{ files|tojson }}</script>
     <script src="/static/js/index.js"></script>
 </body>
+
 </html>
