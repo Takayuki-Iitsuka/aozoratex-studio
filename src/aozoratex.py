@@ -40,6 +40,16 @@ TYPESETTING_INFO_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Typesetting_info.tex"
 MAIN_TEXT_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Main_text.tex"
 COLOPHON_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "Colophon.tex"
 WASHI_TEXTURE_TEMPLATE_FILE = LATEX_TEMPLATE_DIR / "washi_texture.tex"
+COVER_TEXTURE_TEMPLATE_FILES: dict[int, Path] = {
+    1: LATEX_TEMPLATE_DIR / "FrontCover_texture1.tex",
+    2: LATEX_TEMPLATE_DIR / "FrontCover_texture2.tex",
+    3: LATEX_TEMPLATE_DIR / "FrontCover_texture3.tex",
+}
+MAIN_FRAME_TEMPLATE_FILES: dict[int, Path] = {
+    1: LATEX_TEMPLATE_DIR / "Main_Frame1.tex",
+    2: LATEX_TEMPLATE_DIR / "Main_Frame2.tex",
+    3: LATEX_TEMPLATE_DIR / "Main_Frame3.tex",
+}
 
 # よく使う青空外字注記のうち、Unicode へ安全に置換できるもの
 GAIJI_ALT_TO_UNICODE: dict[str, str] = {
@@ -508,6 +518,7 @@ def normalize_src_path(src: str) -> str:
 # -----------------------
 
 DEFAULT_FRONTCOVER_TEMPLATE = r"""%% ---- FrontCover ----
+{{cover_texture_block}}
 \begin{titlepage}
 \csname thispagestyle\endcsname{empty}
   \centering
@@ -528,12 +539,15 @@ DEFAULT_MAIN_TEXT_TEMPLATE = r"""%% ---- Main_text ----
 \setcounter{page}{1}
 \pagestyle{{{pagestyle_name}}}
 {{pre_main_text_layout}}
+{{main_overlay_start}}
 {{main_text_body}}
+{{main_overlay_end}}
 \label{LastBodyPage}
 """
 
 DEFAULT_COLOPHON_TEMPLATE = r"""%% ---- Colophon ----
 \clearpage
+{{colophon_texture_block}}
 \thispagestyle{empty}
 \begingroup
 \small
@@ -598,6 +612,270 @@ def load_colophon_template() -> str:
 
 def load_washi_texture_template() -> str:
     return _load_text_template(WASHI_TEXTURE_TEMPLATE_FILE, "")
+
+
+WASHI_DEVICE_PROFILES: dict[str, dict[str, float]] = {
+    "iphone": {
+        "patch_density": 0.00020,
+        "fiber_density": 0.00750,
+        "speck_density": 0.01300,
+        "fiber_len_min": 4.0,
+        "fiber_len_max": 14.0,
+        "fiber_bend_max": 2.4,
+        "laid_step_x": 5.0,
+        "laid_step_y": 10.0,
+    },
+    "android": {
+        "patch_density": 0.00022,
+        "fiber_density": 0.00780,
+        "speck_density": 0.01350,
+        "fiber_len_min": 4.5,
+        "fiber_len_max": 15.0,
+        "fiber_bend_max": 2.6,
+        "laid_step_x": 6.0,
+        "laid_step_y": 10.0,
+    },
+    "ipad": {
+        "patch_density": 0.00018,
+        "fiber_density": 0.00620,
+        "speck_density": 0.01100,
+        "fiber_len_min": 6.0,
+        "fiber_len_max": 20.0,
+        "fiber_bend_max": 3.3,
+        "laid_step_x": 7.0,
+        "laid_step_y": 11.0,
+    },
+    "ipad_landscape": {
+        "patch_density": 0.00018,
+        "fiber_density": 0.00600,
+        "speck_density": 0.01050,
+        "fiber_len_min": 6.5,
+        "fiber_len_max": 21.0,
+        "fiber_bend_max": 3.5,
+        "laid_step_x": 7.0,
+        "laid_step_y": 11.0,
+    },
+    "pc": {
+        "patch_density": 0.00014,
+        "fiber_density": 0.00480,
+        "speck_density": 0.00800,
+        "fiber_len_min": 8.0,
+        "fiber_len_max": 24.0,
+        "fiber_bend_max": 4.2,
+        "laid_step_x": 8.0,
+        "laid_step_y": 12.0,
+    },
+}
+
+WASHI_SECTION_PROFILES: dict[str, dict[str, float]] = {
+    "cover": {
+        "patch_scale": 0.58,
+        "fiber_scale": 0.52,
+        "speck_scale": 0.50,
+        "length_scale": 0.86,
+        "opacity_scale": 0.90,
+    },
+    "main": {
+        "patch_scale": 1.00,
+        "fiber_scale": 1.00,
+        "speck_scale": 1.00,
+        "length_scale": 1.00,
+        "opacity_scale": 1.00,
+    },
+    "colophon": {
+        "patch_scale": 0.72,
+        "fiber_scale": 0.68,
+        "speck_scale": 0.66,
+        "length_scale": 0.90,
+        "opacity_scale": 0.85,
+    },
+}
+
+WASHI_SECTION_COLORS: dict[str, dict[str, str]] = {
+    "cover": {
+        "cloud_a": "F3E8D2",
+        "cloud_b": "EADABC",
+        "cloud_c": "D7C2A0",
+        "fiber_a": "9B8460",
+        "fiber_b": "7D6747",
+        "fiber_c": "5E4C36",
+        "speck_a": "735A40",
+        "speck_b": "4F3E2D",
+    },
+    "main": {
+        "cloud_a": "F4ECD9",
+        "cloud_b": "E9DFC7",
+        "cloud_c": "D9CCAF",
+        "fiber_a": "927C59",
+        "fiber_b": "766146",
+        "fiber_c": "5A4936",
+        "speck_a": "6A533C",
+        "speck_b": "473727",
+    },
+    "colophon": {
+        "cloud_a": "F7F1E2",
+        "cloud_b": "EEE5CF",
+        "cloud_c": "DED2B6",
+        "fiber_a": "8A7658",
+        "fiber_b": "6E5C44",
+        "fiber_c": "534332",
+        "speck_a": "65503B",
+        "speck_b": "423427",
+    },
+}
+
+
+def _build_washi_render_values(
+    device: str,
+    section: str,
+    page_width_mm: float,
+    page_height_mm: float,
+) -> dict[str, str]:
+    device_profile = WASHI_DEVICE_PROFILES.get(device, WASHI_DEVICE_PROFILES["iphone"])
+    section_profile = WASHI_SECTION_PROFILES.get(
+        section,
+        WASHI_SECTION_PROFILES["main"],
+    )
+    colors = WASHI_SECTION_COLORS.get(section, WASHI_SECTION_COLORS["main"])
+
+    area = max(page_width_mm * page_height_mm, 1.0)
+    patch_count = max(
+        10, int(area * device_profile["patch_density"] * section_profile["patch_scale"])
+    )
+    fiber_count = max(
+        80, int(area * device_profile["fiber_density"] * section_profile["fiber_scale"])
+    )
+    speck_count = max(
+        110,
+        int(area * device_profile["speck_density"] * section_profile["speck_scale"]),
+    )
+
+    x_extent = page_width_mm * 0.5 + 8.0
+    y_extent = page_height_mm * 0.5 + 8.0
+
+    length_scale = section_profile["length_scale"]
+    opacity_scale = section_profile["opacity_scale"]
+
+    patch_rx_min = 8.0 * length_scale
+    patch_rx_max = 30.0 * length_scale
+    patch_ry_min = 5.0 * length_scale
+    patch_ry_max = 22.0 * length_scale
+
+    fiber_len_min = device_profile["fiber_len_min"] * length_scale
+    fiber_len_max = device_profile["fiber_len_max"] * length_scale
+    fiber_bend_max = device_profile["fiber_bend_max"] * length_scale
+
+    values: dict[str, str] = {
+        "section_label": section,
+        "x_extent_mm": f"{x_extent:.2f}",
+        "y_extent_mm": f"{y_extent:.2f}",
+        "laid_step_x": f"{device_profile['laid_step_x']:.0f}",
+        "laid_step_y": f"{device_profile['laid_step_y']:.0f}",
+        "laid_x_max": f"{page_width_mm + 14.0:.0f}",
+        "laid_y_max": f"{page_height_mm + 20.0:.0f}",
+        "patch_count": str(patch_count),
+        "patch_rx_min_mm": f"{patch_rx_min:.2f}",
+        "patch_rx_max_mm": f"{patch_rx_max:.2f}",
+        "patch_ry_min_mm": f"{patch_ry_min:.2f}",
+        "patch_ry_max_mm": f"{patch_ry_max:.2f}",
+        "patch_op_min": f"{0.012 * opacity_scale:.4f}",
+        "patch_op_max": f"{0.032 * opacity_scale:.4f}",
+        "fiber_count": str(fiber_count),
+        "fiber_len_min_mm": f"{fiber_len_min:.2f}",
+        "fiber_len_max_mm": f"{fiber_len_max:.2f}",
+        "fiber_bend_max_mm": f"{fiber_bend_max:.2f}",
+        "fiber_op_min": f"{0.028 * opacity_scale:.4f}",
+        "fiber_op_max": f"{0.090 * opacity_scale:.4f}",
+        "fiber_lw_min_mm": f"{0.035 * opacity_scale:.3f}",
+        "fiber_lw_max_mm": f"{0.145 * opacity_scale:.3f}",
+        "speck_count": str(speck_count),
+        "speck_radius_min_mm": "0.08",
+        "speck_radius_max_mm": f"{0.62 * length_scale:.3f}",
+        "speck_op_min": f"{0.014 * opacity_scale:.4f}",
+        "speck_op_max": f"{0.068 * opacity_scale:.4f}",
+        "base_fill_opacity": f"{0.23 * opacity_scale:.3f}",
+        "line_x_opacity": f"{0.045 * opacity_scale:.3f}",
+        "line_y_opacity": f"{0.036 * opacity_scale:.3f}",
+        "cloud_color_a": colors["cloud_a"],
+        "cloud_color_b": colors["cloud_b"],
+        "cloud_color_c": colors["cloud_c"],
+        "fiber_color_a": colors["fiber_a"],
+        "fiber_color_b": colors["fiber_b"],
+        "fiber_color_c": colors["fiber_c"],
+        "speck_color_a": colors["speck_a"],
+        "speck_color_b": colors["speck_b"],
+    }
+    return values
+
+
+def render_washi_texture_by_section(
+    template_text: str,
+    device: str,
+    section: str,
+    page_width_mm: float,
+    page_height_mm: float,
+) -> str:
+    if not template_text.strip():
+        return ""
+    values = _build_washi_render_values(
+        device=device,
+        section=section,
+        page_width_mm=page_width_mm,
+        page_height_mm=page_height_mm,
+    )
+    return render_template_block(template_text, values).strip()
+
+
+def _normalize_variant(variant: Optional[int], fallback: int = 1) -> int:
+    if variant in (1, 2, 3):
+        return int(variant)
+    return fallback
+
+
+def load_cover_texture_template(variant: int) -> str:
+    path = COVER_TEXTURE_TEMPLATE_FILES.get(_normalize_variant(variant), Path(""))
+    if path and path.exists():
+        return path.read_text(encoding="utf-8").strip()
+    return ""
+
+
+def load_main_frame_template(variant: int) -> str:
+    path = MAIN_FRAME_TEMPLATE_FILES.get(_normalize_variant(variant), Path(""))
+    if path and path.exists():
+        return path.read_text(encoding="utf-8").strip()
+    return ""
+
+
+def _make_one_page_overlay_block(snippet: str) -> str:
+    body = snippet.strip()
+    if not body:
+        return ""
+    return (
+        "\\AddToShipoutPictureBG*{%\n"
+        "\\begin{tikzpicture}[remember picture, overlay]\n"
+        + body
+        + "\n\\end{tikzpicture}%\n"
+        "}\n"
+    )
+
+
+def _make_multi_page_overlay_start(snippet: str) -> str:
+    body = snippet.strip()
+    if not body:
+        return ""
+    return (
+        "\\AddToShipoutPictureBG{%\n"
+        "\\begin{tikzpicture}[remember picture, overlay]\n"
+        + body
+        + "\n\\end{tikzpicture}%\n"
+        "}\n"
+    )
+
+
+def _make_multi_page_overlay_end(has_overlay: bool) -> str:
+    if not has_overlay:
+        return ""
+    return "\\ClearShipoutPictureBG\n"
 
 
 def _extract_meta_content(soup: BeautifulSoup, key: str) -> str:
@@ -728,6 +1006,10 @@ LATEX_TEMPLATE_JLREQ_TATE = r"""\documentclass[%(font_size)spt,paper={%(width)sm
 \usepackage{graphicx}
 \usepackage[unicode=true,pdfpagelayout=SinglePage]{hyperref}
 \usepackage{xcolor}
+\usepackage{eso-pic}
+\usepackage{tikz}
+\usepackage{lltjext}
+\usetikzlibrary{calc}
 \usepackage[top=%(margin_top)smm,bottom=%(margin_bottom)smm,left=%(margin_left)smm,right=%(margin_right)smm]{geometry}
 \linespread{%(spacing)s}
 
@@ -930,6 +1212,12 @@ def build_tex_file(
     author: str = "作者名をここに記入",
     okuduke_override: Optional[str] = None,
     html_path: Optional[Path] = None,
+    main_washi_enabled: Optional[bool] = None,
+    main_frame_enabled: Optional[bool] = None,
+    main_frame_variant: Optional[int] = None,
+    cover_texture_enabled: Optional[bool] = None,
+    cover_texture_variant: Optional[int] = None,
+    colophon_texture_enabled: Optional[bool] = None,
 ) -> Path:
     """
     本文（LaTeX中間）をテンプレートに埋め込み、`.tex` として保存します。
@@ -1022,9 +1310,59 @@ def build_tex_file(
         okuduke_override if okuduke_override is not None else load_okuduke_template()
     )
 
-    # ---- 和紙テーマ設定の取得 ----
     global_settings = settings_store.get_global_settings()
-    washi_enabled = global_settings.get("washi_theme_enabled", False)
+    legacy_washi = bool(global_settings.get("washi_theme_enabled", False))
+
+    resolved_main_washi_enabled = (
+        bool(main_washi_enabled)
+        if main_washi_enabled is not None
+        else bool(global_settings.get("main_washi_enabled", legacy_washi))
+    )
+    resolved_main_frame_enabled = (
+        bool(main_frame_enabled)
+        if main_frame_enabled is not None
+        else bool(global_settings.get("main_frame_enabled", False))
+    )
+    main_frame_variant_raw = (
+        main_frame_variant
+        if main_frame_variant is not None
+        else global_settings.get("main_frame_variant", 1)
+    )
+    try:
+        main_frame_variant_value = int(main_frame_variant_raw)
+    except (TypeError, ValueError):
+        main_frame_variant_value = 1
+    resolved_main_frame_variant = _normalize_variant(
+        main_frame_variant_value, fallback=1
+    )
+    resolved_cover_texture_enabled = (
+        bool(cover_texture_enabled)
+        if cover_texture_enabled is not None
+        else bool(global_settings.get("cover_texture_enabled", False))
+    )
+    cover_texture_variant_raw = (
+        cover_texture_variant
+        if cover_texture_variant is not None
+        else global_settings.get("cover_texture_variant", 1)
+    )
+    try:
+        cover_texture_variant_value = int(cover_texture_variant_raw)
+    except (TypeError, ValueError):
+        cover_texture_variant_value = 1
+    resolved_cover_texture_variant = _normalize_variant(
+        cover_texture_variant_value,
+        fallback=1,
+    )
+    resolved_colophon_texture_enabled = (
+        bool(colophon_texture_enabled)
+        if colophon_texture_enabled is not None
+        else bool(global_settings.get("colophon_texture_enabled", False))
+    )
+
+    # iPhone / Android は本文外周の枠を常に無効化する。
+    frame_allowed_devices = {"pc", "ipad", "ipad_landscape"}
+    if device_name not in frame_allowed_devices:
+        resolved_main_frame_enabled = False
 
     # ---- テンプレートブロックの生成 ----
     # 各テンプレートファイルを読み込み、プレースホルダをレンダリング
@@ -1032,7 +1370,31 @@ def build_tex_file(
     typesetting_info_template = load_typesetting_info_template()
     main_text_template = load_main_text_template()
     colophon_template = load_colophon_template()
-    washi_texture = load_washi_texture_template()
+    washi_texture_template = load_washi_texture_template()
+    cover_texture = load_cover_texture_template(resolved_cover_texture_variant)
+    main_frame_texture = load_main_frame_template(resolved_main_frame_variant)
+
+    cover_washi_texture = render_washi_texture_by_section(
+        template_text=washi_texture_template,
+        device=device_name,
+        section="cover",
+        page_width_mm=width,
+        page_height_mm=height,
+    )
+    main_washi_texture = render_washi_texture_by_section(
+        template_text=washi_texture_template,
+        device=device_name,
+        section="main",
+        page_width_mm=width,
+        page_height_mm=height,
+    )
+    colophon_washi_texture = render_washi_texture_by_section(
+        template_text=washi_texture_template,
+        device=device_name,
+        section="colophon",
+        page_width_mm=width,
+        page_height_mm=height,
+    )
 
     # 組版情報ページを生成
     if html_path is not None:
@@ -1057,8 +1419,34 @@ def build_tex_file(
         typesetting_info_body = ""
 
     # 各ブロックのテンプレートをレンダリング
+    cover_blocks: list[str] = []
+    if resolved_cover_texture_enabled and cover_texture:
+        cover_blocks.append(_make_one_page_overlay_block(cover_texture))
+    if resolved_cover_texture_enabled and cover_washi_texture:
+        cover_blocks.append(_make_one_page_overlay_block(cover_washi_texture))
+    cover_texture_block = "".join(cover_blocks)
+
+    colophon_texture_block = (
+        _make_one_page_overlay_block(colophon_washi_texture)
+        if resolved_colophon_texture_enabled and colophon_washi_texture
+        else ""
+    )
+
+    overlays: list[str] = []
+    if resolved_main_washi_enabled and main_washi_texture:
+        overlays.append(_make_multi_page_overlay_start(main_washi_texture))
+    if resolved_main_frame_enabled and main_frame_texture:
+        overlays.append(_make_multi_page_overlay_start(main_frame_texture))
+    main_overlay_start = "".join(overlays)
+    main_overlay_end = _make_multi_page_overlay_end(has_overlay=len(overlays) > 0)
+
     frontcover_block = render_template_block(
-        frontcover_template, {"title": title, "author": author}
+        frontcover_template,
+        {
+            "title": title,
+            "author": author,
+            "cover_texture_block": cover_texture_block,
+        },
     )
     typesetting_info_block = render_template_block(
         typesetting_info_template, {"typesetting_info_body": typesetting_info_body}
@@ -1069,14 +1457,16 @@ def build_tex_file(
             "pre_main_text_layout": pre_body_layout,
             "main_text_body": latex_body,
             "pagestyle_name": pagestyle_name,
+            "main_overlay_start": main_overlay_start,
+            "main_overlay_end": main_overlay_end,
         },
     )
     colophon_block = render_template_block(
-        colophon_template, {"colophon_body": okuduke}
-    )
-    # 和紙テーマが有効な場合のみテクスチャを読み込む
-    washi_texture_block = (
-        washi_texture.strip() if (washi_enabled and washi_texture) else ""
+        colophon_template,
+        {
+            "colophon_body": okuduke,
+            "colophon_texture_block": colophon_texture_block,
+        },
     )
 
     content = LATEX_TEMPLATE_JLREQ_TATE % {
@@ -1107,7 +1497,7 @@ def build_tex_file(
         "typesetting_info_block": typesetting_info_block,
         "main_text_block": main_text_block,
         "colophon_block": colophon_block,
-        "washi_texture_block": washi_texture_block,
+        "washi_texture_block": "",
     }
 
     out_tex.write_text(content, encoding="utf-8")
@@ -1219,6 +1609,74 @@ def main() -> None:
         action="store_true",
         help="reset custom config files back to default values before generation",
     )
+    parser.add_argument(
+        "--main-washi",
+        dest="main_washi_enabled",
+        action="store_true",
+        help="enable washi background on main text pages",
+    )
+    parser.add_argument(
+        "--no-main-washi",
+        dest="main_washi_enabled",
+        action="store_false",
+        help="disable washi background on main text pages",
+    )
+    parser.add_argument(
+        "--main-frame",
+        dest="main_frame_enabled",
+        action="store_true",
+        help="enable decorative frame on main text pages (pc/ipad only)",
+    )
+    parser.add_argument(
+        "--no-main-frame",
+        dest="main_frame_enabled",
+        action="store_false",
+        help="disable decorative frame on main text pages",
+    )
+    parser.add_argument(
+        "--main-frame-variant",
+        type=int,
+        choices=[1, 2, 3],
+        default=None,
+        help="main frame template variant (1-3)",
+    )
+    parser.add_argument(
+        "--cover-texture",
+        dest="cover_texture_enabled",
+        action="store_true",
+        help="enable texture on cover page",
+    )
+    parser.add_argument(
+        "--no-cover-texture",
+        dest="cover_texture_enabled",
+        action="store_false",
+        help="disable texture on cover page",
+    )
+    parser.add_argument(
+        "--cover-texture-variant",
+        type=int,
+        choices=[1, 2, 3],
+        default=None,
+        help="cover texture template variant (1-3)",
+    )
+    parser.add_argument(
+        "--colophon-texture",
+        dest="colophon_texture_enabled",
+        action="store_true",
+        help="enable texture on colophon page",
+    )
+    parser.add_argument(
+        "--no-colophon-texture",
+        dest="colophon_texture_enabled",
+        action="store_false",
+        help="disable texture on colophon page",
+    )
+    parser.set_defaults(
+        main_washi_enabled=None,
+        main_frame_enabled=None,
+        cover_texture_enabled=None,
+        colophon_texture_enabled=None,
+    )
     args = parser.parse_args()
 
     if args.reset_settings:
@@ -1244,6 +1702,32 @@ def main() -> None:
             text_color=text_color,
             font_override=args.font,
         )
+
+        decoration_updates: dict[str, Any] = {}
+        if args.main_washi_enabled is not None:
+            value = "true" if bool(args.main_washi_enabled) else "false"
+            decoration_updates["main_washi_enabled"] = value
+            decoration_updates["washi_theme_enabled"] = value
+        if args.main_frame_enabled is not None:
+            decoration_updates["main_frame_enabled"] = (
+                "true" if bool(args.main_frame_enabled) else "false"
+            )
+        if args.main_frame_variant is not None:
+            decoration_updates["main_frame_variant"] = str(args.main_frame_variant)
+        if args.cover_texture_enabled is not None:
+            decoration_updates["cover_texture_enabled"] = (
+                "true" if bool(args.cover_texture_enabled) else "false"
+            )
+        if args.cover_texture_variant is not None:
+            decoration_updates["cover_texture_variant"] = str(
+                args.cover_texture_variant
+            )
+        if args.colophon_texture_enabled is not None:
+            decoration_updates["colophon_texture_enabled"] = (
+                "true" if bool(args.colophon_texture_enabled) else "false"
+            )
+        if decoration_updates:
+            settings_store.save_settings({"global": decoration_updates})
 
     src_path = Path(args.source)
     outdir = (WORKDIR / args.out).resolve()
@@ -1296,6 +1780,12 @@ def main() -> None:
                 author=author,
                 okuduke_override=okuduke,
                 html_path=in_path,
+                main_washi_enabled=args.main_washi_enabled,
+                main_frame_enabled=args.main_frame_enabled,
+                main_frame_variant=args.main_frame_variant,
+                cover_texture_enabled=args.cover_texture_enabled,
+                cover_texture_variant=args.cover_texture_variant,
+                colophon_texture_enabled=args.colophon_texture_enabled,
             )
             logger.info("write: %s", out_tex)
             success_count += 1  # type: ignore

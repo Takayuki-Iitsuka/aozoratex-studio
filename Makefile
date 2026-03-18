@@ -7,17 +7,60 @@ LATEXMK_FLAGS = -interaction=nonstopmode -file-line-error -halt-on-error -silent
 LATEXMK_CLEAN_EXT = ltjruby out_ext out gz fls fdb_latexmk synctex.gz
 CLEAN_TEX_FILES = $(sort $(wildcard $(OUT_DIR)/*.tex) $(wildcard $(OUT_DIR)/*/*.tex) $(wildcard $(OUT_DIR)/*/*/*.tex))
 
+# 装飾オプション（空欄なら ini 設定を使用）
+# 例: make pdf-PC WASHI=1 FRAME=2
+WASHI ?=
+FRAME ?=
+COVER_TEXTURE ?=
+COVER_VARIANT ?=1
+COLOPHON_TEXTURE ?=
+
+AOZORA_DECOR_FLAGS =
+ifneq ($(strip $(WASHI)),)
+	ifeq ($(WASHI),1)
+		AOZORA_DECOR_FLAGS += --main-washi
+	else ifeq ($(WASHI),0)
+		AOZORA_DECOR_FLAGS += --no-main-washi
+	endif
+endif
+
+ifneq ($(strip $(FRAME)),)
+	ifeq ($(FRAME),0)
+		AOZORA_DECOR_FLAGS += --no-main-frame
+	else
+		AOZORA_DECOR_FLAGS += --main-frame --main-frame-variant $(FRAME)
+	endif
+endif
+
+ifneq ($(strip $(COVER_TEXTURE)),)
+	ifeq ($(COVER_TEXTURE),1)
+		AOZORA_DECOR_FLAGS += --cover-texture --cover-texture-variant $(COVER_VARIANT)
+	else ifeq ($(COVER_TEXTURE),0)
+		AOZORA_DECOR_FLAGS += --no-cover-texture
+	endif
+endif
+
+ifneq ($(strip $(COLOPHON_TEXTURE)),)
+	ifeq ($(COLOPHON_TEXTURE),1)
+		AOZORA_DECOR_FLAGS += --colophon-texture
+	else ifeq ($(COLOPHON_TEXTURE),0)
+		AOZORA_DECOR_FLAGS += --no-colophon-texture
+	endif
+endif
+
 # `make` が `sh` で実行されても動くように OS 分岐
 ifeq ($(OS),Windows_NT)
   RM_INTERMEDIATE = cmd /c del /s /q *.log *.aux *.ltjruby 2>nul || exit 0
   RM_PDF          = powershell -NoProfile -Command "Get-ChildItem -Recurse -Filter '*.pdf' | Remove-Item -Force"
+	RM_OUT_AUX_ONLY = powershell -NoProfile -Command "if (Test-Path '$(OUT_DIR)') { Get-ChildItem -LiteralPath '$(OUT_DIR)' -Recurse -File | Where-Object Extension -notin '.pdf', '.tex' | Remove-Item -Force }"
   RM_OUT_CONTENTS = powershell -NoProfile -Command "if (Test-Path '$(OUT_DIR)') { Get-ChildItem -LiteralPath '$(OUT_DIR)' -Force | Remove-Item -Recurse -Force } ; New-Item -ItemType Directory -Path '$(OUT_DIR)' -Force | Out-Null"
   define MOVE_LTJRUBY_TO_OUT
-	@powershell -NoProfile -Command "Get-ChildItem -LiteralPath '.' -Filter '*.ltjruby' -File | ForEach-Object { Move-Item -LiteralPath $$_.FullName -Destination (Join-Path 'out/$(1)' $$_.Name) -Force }"
+	@powershell -NoProfile -Command "Get-ChildItem -LiteralPath '.' -Filter '*.ltjruby' -File | Move-Item -Destination 'out/$(1)' -Force"
   endef
 else
   RM_INTERMEDIATE = find . -type f \( -name "*.log" -o -name "*.aux" -o -name "*.ltjruby" \) -delete
   RM_PDF          = find . -type f -name "*.pdf" -delete
+	RM_OUT_AUX_ONLY = test ! -d "$(OUT_DIR)" || find "$(OUT_DIR)" -type f ! -name "*.pdf" ! -name "*.tex" -delete
   RM_OUT_CONTENTS = mkdir -p $(OUT_DIR) && find $(OUT_DIR) -mindepth 1 -delete
   define MOVE_LTJRUBY_TO_OUT
 	@for f in *.ltjruby; do [ -f "$$f" ] && mv "$$f" out/$(1)/; done
@@ -43,13 +86,14 @@ help:
 	@printf '%s\n' '  make server              - Start Flask server (port 5000)'
 	@printf '%s\n' '  make test                - Run sample conversion test (.tex only)'
 	@printf '%s\n' '  make test-all            - Run conversion tests for multiple devices'
-	@printf '%s\n' '  make clean               - Remove intermediate files'
+	@printf '%s\n' '  make clean               - Remove intermediate files (keep out/*.pdf and out/*.tex)'
 	@printf '%s\n' '  make clean-out           - Empty only the contents of out/'
 	@printf '%s\n' '  make pdf-iPhone          - Generate iPhone PDF  (out/iphone/)'
 	@printf '%s\n' '  make pdf-Android         - Generate Android PDF (out/android/)'
 	@printf '%s\n' '  make pdf-PC              - Generate PC/A4 PDF   (out/pc/)'
 	@printf '%s\n' '  make pdf-iPad            - Generate iPad portrait PDF (out/ipad/)'
 	@printf '%s\n' '  make pdf-iPad-TwoColumn  - Generate iPad landscape PDF (out/ipad_landscape/)'
+	@printf '%s\n' '  option: WASHI=1 FRAME=2  - Enable main washi + frame variant 2'
 	@printf "\n"
 
 # インストール
@@ -65,22 +109,23 @@ server:
 # テスト実行（iPhone用、ライトモード）— .tex 生成のみ
 test:
 	@echo Converting sample HTML to iPhone LaTeX...
-	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device iphone --mode light --verbose
+	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device iphone --mode light --verbose $(AOZORA_DECOR_FLAGS)
 	@echo Output: out/iphone/1567_14913.tex
 
 # 複数デバイス用テスト — .tex 生成のみ
 test-all:
 	@echo Converting to all devices...
-	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device iphone --mode light --out out/iphone
-	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device android --mode light --out out/android
-	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device pc --mode light --out out/pc
+	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device iphone --mode light --out out/iphone $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device android --mode light --out out/android $(AOZORA_DECOR_FLAGS)
+	.venv\Scripts\python.exe aozoratex.py data/1567_14913.html --device pc --mode light --out out/pc $(AOZORA_DECOR_FLAGS)
 	@echo All conversions done
 
-# 通常のクリーンアップ (log, aux, ltjruby)
+# 通常のクリーンアップ (log, aux, ltjruby + out内の非pdf/tex)
 clean:
 	@echo "Removing intermediate files with latexmk (-c)..."
 	-@$(LATEXMK_BASE) -c -silent -f -e "\$$clean_ext='\$$clean_ext $(LATEXMK_CLEAN_EXT)'" $(CLEAN_TEX_FILES)
 	-@$(RM_INTERMEDIATE)
+	-@$(RM_OUT_AUX_ONLY)
 
 # すべてのクリーンアップ (PDFを含む)
 clean-all: clean
@@ -99,7 +144,7 @@ clean-out:
 # iPhone用PDF生成
 pdf-iPhone:
 	@echo "Generating .tex for iphone..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device iphone --out out/iphone
+	.venv\Scripts\python.exe aozoratex.py data/ --device iphone --out out/iphone $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,iphone)
 	@echo "Done: out/iphone/"
@@ -107,7 +152,7 @@ pdf-iPhone:
 # Android用PDF生成
 pdf-Android:
 	@echo "Generating .tex for android..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device android --out out/android
+	.venv\Scripts\python.exe aozoratex.py data/ --device android --out out/android $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,android)
 	@echo "Done: out/android/"
@@ -115,7 +160,7 @@ pdf-Android:
 # PC用PDF生成
 pdf-PC:
 	@echo "Generating .tex for pc..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device pc --out out/pc
+	.venv\Scripts\python.exe aozoratex.py data/ --device pc --out out/pc $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,pc)
 	@echo "Done: out/pc/"
@@ -123,7 +168,7 @@ pdf-PC:
 # iPad用PDF生成（縦向き）
 pdf-iPad:
 	@echo "Generating .tex for ipad..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device ipad --out out/ipad
+	.venv\Scripts\python.exe aozoratex.py data/ --device ipad --out out/ipad $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,ipad)
 	@echo "Done: out/ipad/"
@@ -131,7 +176,7 @@ pdf-iPad:
 # iPad横向きPDF生成（二段組）
 pdf-iPad-TwoColumn:
 	@echo "Generating .tex for ipad_landscape..."
-	.venv\Scripts\python.exe aozoratex.py data/ --device ipad_landscape --out out/ipad_landscape
+	.venv\Scripts\python.exe aozoratex.py data/ --device ipad_landscape --out out/ipad_landscape $(AOZORA_DECOR_FLAGS)
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,ipad_landscape)
 	@echo "Done: out/ipad_landscape/"

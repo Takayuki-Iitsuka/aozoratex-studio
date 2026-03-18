@@ -1,9 +1,12 @@
-%% ---- 奥付 ----
-\newpage
+%% ---- Colophon ----
+\clearpage
+{{colophon_texture_block}}
 \thispagestyle{empty}
-\begin{center}
-  \vspace*{\fill}
-  {\Large お読みいただきありがとうございました。} \\[1cm]
-  {\small 本書の著作権は著者に帰属します。}
-  \vspace*{\fill}
-\end{center}
+\begingroup
+\small
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.2\baselineskip}
+\begin{flushleft}
+{{colophon_body}}
+\end{flushleft}
+\endgroup

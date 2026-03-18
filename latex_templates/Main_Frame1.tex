@@ -1,0 +1,10 @@
+\def\mg{12mm}
+\draw[line width=0.5pt]
+  ([xshift=\mg, yshift=-\mg]current page.north west)
+  rectangle
+  ([xshift=-\mg, yshift=\mg]current page.south east);
+\tikzset{dia/.style={rotate=45, minimum size=5pt, fill=black, inner sep=0pt}}
+\node[dia] at ([xshift=\mg,  yshift=-\mg]current page.north west) {};
+\node[dia] at ([xshift=-\mg, yshift=-\mg]current page.north east) {};
+\node[dia] at ([xshift=\mg,  yshift=\mg] current page.south west) {};
+\node[dia] at ([xshift=-\mg, yshift=\mg] current page.south east) {};

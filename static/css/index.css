@@ -96,6 +96,31 @@ h1 {
     gap: 4px;
 }
 
+.decorate-grid {
+    margin-top: 12px;
+    display: grid;
+    gap: 10px;
+}
+
+.decorate-inline {
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    gap: 10px;
+    align-items: center;
+}
+
+.toggle-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1e293b;
+}
+
+.field.compact {
+    gap: 4px;
+}
+
 .source-actions {
     display: flex;
     gap: 8px;
@@ -357,7 +382,8 @@ button:hover {
 
     .grid-2,
     .size-preview,
-    .color-controls {
+    .color-controls,
+    .decorate-inline {
         grid-template-columns: 1fr;
     }
 }

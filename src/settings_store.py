@@ -33,6 +33,12 @@ GLOBAL_DEFAULTS: dict[str, str] = {
     "font_family": "Yu Mincho",
     "color_mode": "light",
     "washi_theme_enabled": "false",
+    "main_washi_enabled": "false",
+    "main_frame_enabled": "false",
+    "main_frame_variant": "1",
+    "cover_texture_enabled": "false",
+    "cover_texture_variant": "1",
+    "colophon_texture_enabled": "false",
     "background_color": "#FFFFFF",
     "text_color": "#000000",
     "background_color_light": "#FFFFFF",
@@ -201,6 +207,12 @@ def _render_global_default_ini() -> str:
         f"font_family = {GLOBAL_DEFAULTS['font_family']}",
         f"color_mode = {GLOBAL_DEFAULTS['color_mode']}",
         f"washi_theme_enabled = {GLOBAL_DEFAULTS['washi_theme_enabled']}",
+        f"main_washi_enabled = {GLOBAL_DEFAULTS['main_washi_enabled']}",
+        f"main_frame_enabled = {GLOBAL_DEFAULTS['main_frame_enabled']}",
+        f"main_frame_variant = {GLOBAL_DEFAULTS['main_frame_variant']}",
+        f"cover_texture_enabled = {GLOBAL_DEFAULTS['cover_texture_enabled']}",
+        f"cover_texture_variant = {GLOBAL_DEFAULTS['cover_texture_variant']}",
+        f"colophon_texture_enabled = {GLOBAL_DEFAULTS['colophon_texture_enabled']}",
         f"background_color = {GLOBAL_DEFAULTS['background_color']}",
         f"text_color = {GLOBAL_DEFAULTS['text_color']}",
         "",
@@ -252,14 +264,19 @@ def _migrate_from_legacy_if_needed() -> None:
     if legacy_file is None:
         LEGACY_MIGRATION_MARKER.write_text("no_legacy\n", encoding="utf-8")
         return
-    if not (_is_empty_or_missing(GLOBAL_CUSTOM_FILE) and _is_empty_or_missing(DEVICE_CUSTOM_FILE)):
+    if not (
+        _is_empty_or_missing(GLOBAL_CUSTOM_FILE)
+        and _is_empty_or_missing(DEVICE_CUSTOM_FILE)
+    ):
         LEGACY_MIGRATION_MARKER.write_text("custom_exists\n", encoding="utf-8")
         return
 
     legacy = _new_parser()
     legacy.read(legacy_file, encoding="utf-8")
     if not legacy.has_section("PDF"):
-        LEGACY_MIGRATION_MARKER.write_text("legacy_pdf_section_missing\n", encoding="utf-8")
+        LEGACY_MIGRATION_MARKER.write_text(
+            "legacy_pdf_section_missing\n", encoding="utf-8"
+        )
         return
 
     global_updates: dict[str, Any] = {}
@@ -278,7 +295,9 @@ def _migrate_from_legacy_if_needed() -> None:
     }
     for old_key, new_key in mapping.items():
         if legacy.has_option(section, old_key):
-            global_updates[new_key] = _strip_inline_comment(legacy.get(section, old_key))
+            global_updates[new_key] = _strip_inline_comment(
+                legacy.get(section, old_key)
+            )
 
     device_updates: dict[str, dict[str, Any]] = {}
     for device in SUPPORTED_DEVICES:
@@ -360,7 +379,9 @@ def _load_merged(default_file: Path, custom_file: Path) -> configparser.ConfigPa
     return cfg
 
 
-def _get_option(cfg: configparser.ConfigParser, section: str, key: str, fallback: str) -> str:
+def _get_option(
+    cfg: configparser.ConfigParser, section: str, key: str, fallback: str
+) -> str:
     return _strip_inline_comment(cfg.get(section, key, fallback=fallback))
 
 
@@ -396,9 +417,10 @@ def get_global_settings() -> dict[str, Any]:
         selected["text_color"],
     )
 
-    font_family = _get_option(
-        cfg, section, "font_family", GLOBAL_DEFAULTS["font_family"]
-    ) or GLOBAL_DEFAULTS["font_family"]
+    font_family = (
+        _get_option(cfg, section, "font_family", GLOBAL_DEFAULTS["font_family"])
+        or GLOBAL_DEFAULTS["font_family"]
+    )
     washi_theme_enabled = _safe_bool(
         _get_option(
             cfg,
@@ -408,11 +430,77 @@ def get_global_settings() -> dict[str, Any]:
         ),
         _safe_bool(GLOBAL_DEFAULTS["washi_theme_enabled"], False),
     )
+    main_washi_enabled = _safe_bool(
+        _get_option(
+            cfg,
+            section,
+            "main_washi_enabled",
+            "true" if washi_theme_enabled else "false",
+        ),
+        washi_theme_enabled,
+    )
+    main_frame_enabled = _safe_bool(
+        _get_option(
+            cfg,
+            section,
+            "main_frame_enabled",
+            GLOBAL_DEFAULTS["main_frame_enabled"],
+        ),
+        _safe_bool(GLOBAL_DEFAULTS["main_frame_enabled"], False),
+    )
+    main_frame_variant = _safe_int(
+        _get_option(
+            cfg,
+            section,
+            "main_frame_variant",
+            GLOBAL_DEFAULTS["main_frame_variant"],
+        ),
+        1,
+    )
+    if main_frame_variant not in {1, 2, 3}:
+        main_frame_variant = 1
+
+    cover_texture_enabled = _safe_bool(
+        _get_option(
+            cfg,
+            section,
+            "cover_texture_enabled",
+            GLOBAL_DEFAULTS["cover_texture_enabled"],
+        ),
+        _safe_bool(GLOBAL_DEFAULTS["cover_texture_enabled"], False),
+    )
+    cover_texture_variant = _safe_int(
+        _get_option(
+            cfg,
+            section,
+            "cover_texture_variant",
+            GLOBAL_DEFAULTS["cover_texture_variant"],
+        ),
+        1,
+    )
+    if cover_texture_variant not in {1, 2, 3}:
+        cover_texture_variant = 1
+
+    colophon_texture_enabled = _safe_bool(
+        _get_option(
+            cfg,
+            section,
+            "colophon_texture_enabled",
+            GLOBAL_DEFAULTS["colophon_texture_enabled"],
+        ),
+        _safe_bool(GLOBAL_DEFAULTS["colophon_texture_enabled"], False),
+    )
 
     return {
         "font_family": font_family,
         "color_mode": mode,
+        "main_washi_enabled": main_washi_enabled,
         "washi_theme_enabled": washi_theme_enabled,
+        "main_frame_enabled": main_frame_enabled,
+        "main_frame_variant": main_frame_variant,
+        "cover_texture_enabled": cover_texture_enabled,
+        "cover_texture_variant": cover_texture_variant,
+        "colophon_texture_enabled": colophon_texture_enabled,
         "background_color": bg,
         "text_color": fg,
         "modes": mode_colors,
@@ -496,7 +584,9 @@ def get_device_settings(device: str) -> dict[str, Any]:
             float(defaults["margin_bottom_mm"]),
         )
         defaults["margin_left_mm"] = _safe_float(
-            _get_option(cfg, section, "margin_left_mm", str(defaults["margin_left_mm"])),
+            _get_option(
+                cfg, section, "margin_left_mm", str(defaults["margin_left_mm"])
+            ),
             float(defaults["margin_left_mm"]),
         )
         defaults["margin_right_mm"] = _safe_float(

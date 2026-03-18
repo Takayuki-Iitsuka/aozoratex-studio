@@ -1,0 +1,24 @@
+\fill[fill={rgb,255:red,246;green,229;blue,204},opacity=0.38]
+  (current page.south west) rectangle (current page.north east);
+\begin{scope}[opacity=0.14]
+  \foreach \x in {0,2,...,20} {
+    \foreach \y in {0,2,4} {
+      \fill[blue!45!black]
+        ($(current page.north west)+(\x*5mm,-\y*5mm)$) rectangle ++(5mm,-5mm);
+      \fill[blue!45!black]
+        ($(current page.north west)+(\x*5mm+5mm,-\y*5mm-5mm)$) rectangle ++(5mm,-5mm);
+      \fill[blue!45!black]
+        ($(current page.south west)+(\x*5mm,\y*5mm)$) rectangle ++(5mm,5mm);
+      \fill[blue!45!black]
+        ($(current page.south west)+(\x*5mm+5mm,\y*5mm+5mm)$) rectangle ++(5mm,5mm);
+    }
+  }
+\end{scope}
+\draw[line width=1.2pt, color=blue!65!black]
+  ($(current page.south west)+(6mm,6mm)$)
+  rectangle
+  ($(current page.north east)-(6mm,6mm)$);
+\draw[line width=0.3pt, color=blue!65!black]
+  ($(current page.south west)+(7.5mm,7.5mm)$)
+  rectangle
+  ($(current page.north east)-(7.5mm,7.5mm)$);

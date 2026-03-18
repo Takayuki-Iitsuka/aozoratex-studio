@@ -165,21 +165,93 @@ def _resolve_generation_defaults(
     )
 
 
+def _resolve_decoration_options(payload: dict) -> dict[str, object]:
+    global_settings = settings_store.get_global_settings()
+
+    def read_variant_default(key: str, fallback: int = 1) -> int:
+        try:
+            value = int(global_settings.get(key, fallback))
+        except (TypeError, ValueError):
+            value = fallback
+        return value if value in (1, 2, 3) else fallback
+
+    def pick_bool(key: str, fallback: bool) -> bool:
+        if key in payload:
+            return _to_bool(payload.get(key), default=fallback)
+        return fallback
+
+    def pick_variant(key: str, fallback: int) -> int:
+        if key in payload:
+            try:
+                v = int(payload.get(key))
+            except (TypeError, ValueError):
+                v = fallback
+        else:
+            v = fallback
+        return v if v in (1, 2, 3) else fallback
+
+    legacy_washi = _to_bool(global_settings.get("washi_theme_enabled"), default=False)
+    main_washi_default = _to_bool(
+        global_settings.get("main_washi_enabled"), default=legacy_washi
+    )
+
+    return {
+        "main_washi_enabled": pick_bool("main_washi_enabled", main_washi_default),
+        "main_frame_enabled": pick_bool(
+            "main_frame_enabled",
+            _to_bool(global_settings.get("main_frame_enabled"), default=False),
+        ),
+        "main_frame_variant": pick_variant(
+            "main_frame_variant",
+            read_variant_default("main_frame_variant", 1),
+        ),
+        "cover_texture_enabled": pick_bool(
+            "cover_texture_enabled",
+            _to_bool(global_settings.get("cover_texture_enabled"), default=False),
+        ),
+        "cover_texture_variant": pick_variant(
+            "cover_texture_variant",
+            read_variant_default("cover_texture_variant", 1),
+        ),
+        "colophon_texture_enabled": pick_bool(
+            "colophon_texture_enabled",
+            _to_bool(global_settings.get("colophon_texture_enabled"), default=False),
+        ),
+    }
+
+
 def _save_generation_preferences(
     device: str,
     mode: str,
     bg_color: str,
     fg_color: str,
+    decorations: Optional[dict[str, object]] = None,
 ) -> None:
+    global_updates: dict[str, object] = {
+        "color_mode": mode,
+        "background_color": bg_color,
+        "text_color": fg_color,
+        f"background_color_{mode}": bg_color,
+        f"text_color_{mode}": fg_color,
+    }
+    if decorations:
+        if "main_washi_enabled" in decorations:
+            value = _to_bool(decorations.get("main_washi_enabled"), default=False)
+            global_updates["main_washi_enabled"] = value
+            global_updates["washi_theme_enabled"] = value
+        for key in (
+            "main_frame_enabled",
+            "main_frame_variant",
+            "cover_texture_enabled",
+            "cover_texture_variant",
+            "colophon_texture_enabled",
+        ):
+            if key in decorations:
+                global_updates[key] = decorations[key]
+
     settings_store.save_settings(
         {
-            "global": {
-                "color_mode": mode,
-                "background_color": bg_color,
-                "text_color": fg_color,
-                f"background_color_{mode}": bg_color,
-                f"text_color_{mode}": fg_color,
-            },
+            "global": global_updates,
             "devices": {device: {"color_mode": mode}},
         }
     )
@@ -347,6 +419,7 @@ def _generate_single(
     bg_color: str,
     fg_color: str,
     compile_pdf: bool,
+    decorations: Optional[dict[str, object]] = None,
 ) -> tuple[bool, dict, int]:
     source_path = _resolve_source_path(source)
     if not source_path:
@@ -370,6 +443,35 @@ def _generate_single(
         "--out",
         "out/session/work",
     ]
+
+    if decorations:
+        if _to_bool(decorations.get("main_washi_enabled"), default=False):
+            cmd.append("--main-washi")
+        else:
+            cmd.append("--no-main-washi")
+
+        if _to_bool(decorations.get("main_frame_enabled"), default=False):
+            cmd.append("--main-frame")
+        else:
+            cmd.append("--no-main-frame")
+
+        if _to_bool(decorations.get("cover_texture_enabled"), default=False):
+            cmd.append("--cover-texture")
+        else:
+            cmd.append("--no-cover-texture")
+
+        if _to_bool(decorations.get("colophon_texture_enabled"), default=False):
+            cmd.append("--colophon-texture")
+        else:
+            cmd.append("--no-colophon-texture")
+
+        main_frame_variant = decorations.get("main_frame_variant")
+        if main_frame_variant is not None:
+            cmd.extend(["--main-frame-variant", str(main_frame_variant)])
+
+        cover_texture_variant = decorations.get("cover_texture_variant")
+        if cover_texture_variant is not None:
+            cmd.extend(["--cover-texture-variant", str(cover_texture_variant)])
 
     logger.info("Running: %s", " ".join(cmd))
     try:
@@ -545,11 +647,12 @@ def api_generate():
         data.get("fg_color"),
     )
     compile_pdf = _to_bool(data.get("compile_pdf"), default=True)
+    decorations = _resolve_decoration_options(data)
 
     if not source:
         return jsonify({"success": False, "error": "source is required"}), 400
 
-    _save_generation_preferences(device, mode, bg_color, fg_color)
+    _save_generation_preferences(device, mode, bg_color, fg_color, decorations)
 
     ok, payload, status = _generate_single(
         source=source,
@@ -558,6 +661,7 @@ def api_generate():
         bg_color=bg_color,
         fg_color=fg_color,
         compile_pdf=compile_pdf,
+        decorations=decorations,
     )
     payload["success"] = ok
     return jsonify(payload), status
@@ -576,6 +680,7 @@ def api_generate_batch():
     )
     compile_pdf = _to_bool(data.get("compile_pdf"), default=True)
     generate_all = _to_bool(data.get("generate_all"), default=False)
+    decorations = _resolve_decoration_options(data)
 
     sources = data.get("sources") or []
     if not isinstance(sources, list):
@@ -587,7 +692,7 @@ def api_generate_batch():
     if not sources:
         return jsonify({"success": False, "error": "sources is empty"}), 400
 
-    _save_generation_preferences(device, mode, bg_color, fg_color)
+    _save_generation_preferences(device, mode, bg_color, fg_color, decorations)
 
     results: list[dict] = []
     failures: list[dict] = []
@@ -600,6 +705,7 @@ def api_generate_batch():
             bg_color=bg_color,
             fg_color=fg_color,
             compile_pdf=compile_pdf,
+            decorations=decorations,
         )
         payload["success"] = ok
         results.append(payload)

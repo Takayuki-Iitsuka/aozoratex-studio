@@ -57,6 +57,41 @@
         state.selectedColor.fg = fg.toUpperCase();
     }
 
+    function isFrameAllowedDevice(device) {
+        return ["pc", "ipad", "ipad_landscape"].includes(device);
+    }
+
+    function syncDeviceDependentDecorations() {
+        const frameAllowed = isFrameAllowedDevice(state.selectedDevice);
+        const frameCheck = byId("mainFrameEnabled");
+        const frameVariant = byId("mainFrameVariant");
+        frameCheck.disabled = !frameAllowed;
+        frameVariant.disabled = !frameAllowed || !frameCheck.checked;
+        if (!frameAllowed) frameCheck.checked = false;
+    }
+
+    function getDecorationPayload() {
+        return {
+            main_washi_enabled: byId("mainWashiEnabled").checked,
+            main_frame_enabled: byId("mainFrameEnabled").checked,
+            main_frame_variant: Number(byId("mainFrameVariant").value || 1),
+            cover_texture_enabled: byId("coverTextureEnabled").checked,
+            cover_texture_variant: Number(byId("coverTextureVariant").value || 1),
+            colophon_texture_enabled: byId("colophonTextureEnabled").checked,
+        };
+    }
+
+    function applyDecorationSettings(globalSettings) {
+        byId("mainWashiEnabled").checked = Boolean(
+            globalSettings.main_washi_enabled ?? globalSettings.washi_theme_enabled ?? false
+        );
+        byId("mainFrameEnabled").checked = Boolean(globalSettings.main_frame_enabled ?? false);
+        byId("mainFrameVariant").value = String(globalSettings.main_frame_variant || 1);
+        byId("coverTextureEnabled").checked = Boolean(globalSettings.cover_texture_enabled ?? false);
+        byId("coverTextureVariant").value = String(globalSettings.cover_texture_variant || 1);
+        byId("colophonTextureEnabled").checked = Boolean(globalSettings.colophon_texture_enabled ?? false);
+    }
+
     function getFilteredAndSortedSources() {
         const search = (byId("sourceSearch").value || "").trim().toLowerCase();
         const sort = byId("sourceSort").value || "name-asc";
@@ -171,6 +206,7 @@
                 state.selectedDevice = key;
                 updateProgress(45);
                 updateDevicePreview();
+                syncDeviceDependentDecorations();
             });
             grid.appendChild(card);
 
@@ -186,6 +222,7 @@
             if (first) first.classList.add("active");
         }
         updateDevicePreview();
+        syncDeviceDependentDecorations();
     }
 
     async function loadSettings() {
@@ -199,6 +236,8 @@
 
         if (globalSettings.background_color) byId("bgColorInput").value = globalSettings.background_color;
         if (globalSettings.text_color) byId("fgColorInput").value = globalSettings.text_color;
+        applyDecorationSettings(globalSettings);
+        syncDeviceDependentDecorations();
         updateColorPreview();
     }
 
@@ -255,6 +294,7 @@
                 color_mode: mode,
                 background_color: bg,
                 text_color: fg,
+                ...getDecorationPayload(),
             },
             devices: {
                 [state.selectedDevice]: {
@@ -274,7 +314,7 @@
         if (resp.ok && data.success) {
             const result = byId("result");
             result.className = "result success";
-            result.innerHTML = "<h3>設定保存 完了</h3><p>背景色・文字色をカスタム設定に保存しました。</p>";
+            result.innerHTML = "<h3>設定保存 完了</h3><p>背景色・文字色・装飾オプションをカスタム設定に保存しました。</p>";
             result.style.display = "block";
         } else {
             throw new Error(data.error || "save failed");
@@ -307,6 +347,7 @@
             bg_color: bg,
             fg_color: fg,
             compile_pdf: true,
+            ...getDecorationPayload(),
         };
 
         const results = [];
@@ -422,6 +463,15 @@
         byId("generateBtn").addEventListener("click", () => generate(false));
         byId("generateAllBtn").addEventListener("click", () => generate(true));
         byId("cleanupBtn").addEventListener("click", () => cleanupNonPdf().catch((e) => alert(e.message)));
+        byId("mainWashiEnabled").addEventListener("change", () => updateProgress(72));
+        byId("mainFrameEnabled").addEventListener("change", () => {
+            syncDeviceDependentDecorations();
+            updateProgress(72);
+        });
+        byId("mainFrameVariant").addEventListener("change", () => updateProgress(72));
+        byId("coverTextureEnabled").addEventListener("change", () => updateProgress(72));
+        byId("coverTextureVariant").addEventListener("change", () => updateProgress(72));
+        byId("colophonTextureEnabled").addEventListener("change", () => updateProgress(72));
 
         renderSources();
         await loadDevices();
