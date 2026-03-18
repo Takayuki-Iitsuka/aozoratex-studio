@@ -25,7 +25,7 @@
 </li>
 <li><strong>コンパイラ:</strong> LuaLaTeX (<code>lualatex</code>)。必要に応じて Lua スクリプトを活用。</li>
 <li><strong>ビルドツール:</strong> 状況に応じて <code>make</code> や Python の <code>subprocess</code> でパイプラインを組む。</li>
-<li><strong>設定ファイル:</strong> 端末別設定、フォント設定などは <code>settings.ini</code> に分離しカスタマイズを容易にする。</li>
+<li><strong>設定ファイル:</strong> 端末別設定、フォント設定などは <code>config/*.ini</code> に分離しカスタマイズを容易にする。</li>
 </ul>
 <h2 id="3">3. 入力データ仕様とエンコーディング方針</h2>
 <p>公式ドキュメント（<code>https://www.aozora.gr.jp/KOSAKU/textfile_checklist/</code>）に準拠したテキスト版（Shift_JIS + CRLF）の存在も考慮するが、<strong>HTML/XHTML を優先的に入力に用いる</strong>（ルビや構造が DOM ツリーから取得できるため）。</p>

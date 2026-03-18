@@ -11,36 +11,42 @@
 <body>
   <div class="wrap">
     <h1>AozoraTeX Studio ドキュメント</h1>
-    <p class="lead">似た資料を用途別に統合した解説ページです。旧 docs の原稿は HTML 化して static/docs/markdown に移植済みです。</p>
+    <p class="lead">本ページは、AozoraTeX Studio の運用・設定・実装を段階的に参照するための <strong>公式ナビゲーション</strong> です。日常運用は概要ガイドから、調整・保守時は詳細ガイドへ進む構成に統一しています。</p>
 
     <div class="grid">
       <section class="card">
         <h2>プロジェクト概要・運用</h2>
-        <p>指示書、Todo、青空文庫概要、全体方針を統合。</p>
+        <p>目的、構成、推奨運用、保守フローを整理した起点ページです。まず最初に参照してください。</p>
         <a href="/static/docs/project/project-manual.html">開く</a>
       </section>
 
       <section class="card">
         <h2>デバイス別組版</h2>
-        <p>iPhone / Android / iPad / PC の推奨サイズと使い分け。</p>
+        <p>標準デバイス5種のサイズ・行数・調整方針をまとめています。可読性調整時の基準として利用します。</p>
         <a href="/static/docs/device/device-manual.html">開く</a>
       </section>
 
       <section class="card">
         <h2>変換・文字コード・LaTeX設定</h2>
-        <p>Tex化、文字コード、エンコード、ページ設定、実装指針を統合。</p>
+        <p>HTML/XHTML から TEX/PDF 生成までの変換パイプライン、文字コード運用、失敗時の確認手順を解説します。</p>
         <a href="/static/docs/conversion/conversion-manual.html">開く</a>
       </section>
 
       <section class="card">
         <h2>配色設計ガイド</h2>
-        <p>配色提案、視認性、200+パターンの扱い方を統合。</p>
+        <p>配色方針、コントラスト基準、モード別の運用ルールを説明します。長時間読書向けの調整基準を含みます。</p>
         <a href="/static/docs/color/color-manual.html">開く</a>
       </section>
 
       <section class="card">
-        <h2>参照HTML（原本）</h2>
-        <p>移動した既存の参照ページです。</p>
+        <h2>フォント選定ガイド</h2>
+        <p>本文・見出し向けフォントの選定基準と、学術用途での使い分け方針をまとめています。</p>
+        <a href="/static/docs/markdown/manuals/フォント選定.html">開く</a>
+      </section>
+
+      <section class="card">
+        <h2>参照ページ（一覧/可視化）</h2>
+        <p>配色一覧とデバイスサイズ比較を可視化する補助ページです。設計判断の確認に使用します。</p>
         <ul>
           <li><a href="/static/docs/color/colors.html">colors.html</a></li>
           <li><a href="/static/docs/device/device-paper-size-map.html">device-paper-size-map.html</a></li>
@@ -48,8 +54,8 @@
       </section>
 
       <section class="card">
-        <h2>Markdown 全変換版</h2>
-        <p>旧 docs 配下の Markdown を HTML 化した一覧です。</p>
+        <h2>Markdown 変換版</h2>
+        <p>設計メモを含む詳細資料の変換版です。仕様の背景や検討経緯を追う際に参照してください。</p>
         <a href="/static/docs/markdown/index.html">開く</a>
       </section>
     </div>

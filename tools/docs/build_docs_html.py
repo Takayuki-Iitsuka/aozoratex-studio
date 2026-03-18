@@ -16,6 +16,12 @@ DOCS_OUT_DIR = ROOT_DIR / "static" / "docs" / "markdown"
 
 MD_LINK_PATTERN = re.compile(r"\]\(([^)#]+\.md)(#[^)]+)?\)", flags=re.IGNORECASE)
 TITLE_PATTERN = re.compile(r"^\s*#\s+(.+?)\s*$", flags=re.MULTILINE)
+LEGACY_TERM_MAP = {
+    # 旧設定説明を現行の config/*.ini 体系へ寄せる
+    "settings.ini": "config/*.ini",
+    "washi_theme_enabled": "main_washi_enabled",
+    "android_legacy": "android",
+}
 
 
 @dataclass(frozen=True)
@@ -39,6 +45,13 @@ def normalize_md_links(text: str) -> str:
         return "](" + out + frag + ")"
 
     return MD_LINK_PATTERN.sub(repl, text)
+
+
+def normalize_legacy_terms(text: str) -> str:
+    normalized = text
+    for before, after in LEGACY_TERM_MAP.items():
+        normalized = normalized.replace(before, after)
+    return normalized
 
 
 def extract_title(text: str, fallback: str) -> str:
@@ -142,7 +155,7 @@ def convert_docs(entries: list[DocEntry]) -> None:
         entry.output_html.parent.mkdir(parents=True, exist_ok=True)
 
         src = entry.source.read_text(encoding="utf-8")
-        normalized = normalize_md_links(src)
+        normalized = normalize_legacy_terms(normalize_md_links(src))
         converter = markdown.Markdown(
             extensions=[
                 "tables",

@@ -1,7 +1,9 @@
 (function () {
     "use strict";
 
+    // UI state is intentionally centralized so customization points are easy to track.
     const SUPPORTED_MODES = ["light", "dark", "intermediate"];
+    const RECOMMENDED_FONT = "IPAmjMincho";
     const MODE_DEFAULT_COLORS = {
         light: { bg: "#FFFFFF", fg: "#000000" },
         dark: { bg: "#000000", fg: "#FFFFFF" },
@@ -12,7 +14,7 @@
         sourceFiles: [],
         devices: {},
         selectedDevice: null,
-        selectedFont: "Yu Mincho",
+        selectedFont: RECOMMENDED_FONT,
         modeColors: {
             light: { ...MODE_DEFAULT_COLORS.light },
             dark: { ...MODE_DEFAULT_COLORS.dark },
@@ -46,6 +48,28 @@
 
     function updateProgress(percent) {
         byId("progress").style.width = `${percent}%`;
+    }
+
+    async function fetchJson(url, options) {
+        const resp = await fetch(url, options);
+        const text = await resp.text();
+        let payload = {};
+        if (text) {
+            try {
+                payload = JSON.parse(text);
+            } catch (_parseErr) {
+                if (!resp.ok) {
+                    throw new Error(`HTTP ${resp.status}: ${text.slice(0, 200)}`);
+                }
+                throw new Error("サーバーからJSON形式のレスポンスを取得できませんでした。");
+            }
+        }
+
+        if (!resp.ok) {
+            const message = payload.error || payload.message || `HTTP ${resp.status}`;
+            throw new Error(message);
+        }
+        return payload;
     }
 
     function normalizeHexColor(value, fallback) {
@@ -118,20 +142,19 @@
             select.appendChild(option);
         }
         select.value = value;
-        byId("colorPreview").style.fontFamily = `"${value}", "Yu Mincho", "MS Mincho", serif`;
+        byId("colorPreview").style.fontFamily = `"${value}", "${RECOMMENDED_FONT}", "Yu Mincho", "MS Mincho", serif`;
     }
 
     async function loadFonts(refresh) {
         const query = refresh ? "?refresh=1" : "";
-        const resp = await fetch(`/api/lualatex-fonts${query}`);
-        const payload = await resp.json();
+        const payload = await fetchJson(`/api/lualatex-fonts${query}`);
         const select = byId("fontFamilySelect");
         const meta = byId("fontMeta");
         const fonts = Array.isArray(payload.fonts) ? payload.fonts : [];
 
         select.innerHTML = "";
         if (fonts.length === 0) {
-            const fallback = state.selectedFont || "Yu Mincho";
+            const fallback = state.selectedFont || RECOMMENDED_FONT;
             const option = document.createElement("option");
             option.value = fallback;
             option.textContent = `${fallback} (固定)`;
@@ -188,9 +211,7 @@
     }
 
     function applyDecorationSettings(globalSettings) {
-        byId("mainWashiEnabled").checked = Boolean(
-            globalSettings.main_washi_enabled ?? globalSettings.washi_theme_enabled ?? false
-        );
+        byId("mainWashiEnabled").checked = Boolean(globalSettings.main_washi_enabled ?? false);
         byId("mainFrameEnabled").checked = Boolean(globalSettings.main_frame_enabled ?? false);
         byId("mainFrameVariant").value = String(globalSettings.main_frame_variant || 1);
         byId("coverTextureEnabled").checked = Boolean(globalSettings.cover_texture_enabled ?? false);
@@ -261,11 +282,15 @@
     }
 
     function getSelectedSources(forceAll) {
-        const all = Array.from(document.querySelectorAll(".source-check")).map((cb) => cb.value);
-        if (forceAll) return all;
+        const all = Array.from(document.querySelectorAll(".source-check"))
+            .map((cb) => cb.value)
+            .filter(Boolean);
+        if (forceAll) return Array.from(new Set(all));
 
-        const selected = Array.from(document.querySelectorAll(".source-check:checked")).map((cb) => cb.value);
-        if (selected.length > 0) return selected;
+        const selected = Array.from(document.querySelectorAll(".source-check:checked"))
+            .map((cb) => cb.value)
+            .filter(Boolean);
+        if (selected.length > 0) return Array.from(new Set(selected));
 
         const single = byId("sourceFile").value;
         return single ? [single] : [];
@@ -292,8 +317,7 @@
     }
 
     async function loadDevices() {
-        const resp = await fetch("/api/devices");
-        const devices = await resp.json();
+        const devices = await fetchJson("/api/devices");
         state.devices = devices;
 
         const grid = byId("deviceGrid");
@@ -331,15 +355,13 @@
     }
 
     async function loadSourceFiles() {
-        const resp = await fetch("/api/data-files");
-        const payload = await resp.json();
+        const payload = await fetchJson("/api/data-files");
         const files = Array.isArray(payload.files) ? payload.files : [];
         state.sourceFiles = files;
     }
 
     async function loadSettings() {
-        const resp = await fetch("/api/settings");
-        const payload = await resp.json();
+        const payload = await fetchJson("/api/settings");
         if (!payload.success) return;
 
         const settings = payload.settings || {};
@@ -379,8 +401,7 @@
         const defaults = MODE_DEFAULT_COLORS[mode] || MODE_DEFAULT_COLORS.light;
         const currentBg = normalizeHexColor(byId("bgColorInput").value, defaults.bg);
         const currentFg = normalizeHexColor(byId("fgColorInput").value, defaults.fg);
-        const resp = await fetch(`/api/colors?mode=${encodeURIComponent(paletteMode)}&limit=100`);
-        const data = await resp.json();
+        const data = await fetchJson(`/api/colors?mode=${encodeURIComponent(paletteMode)}&limit=100`);
         const grid = byId("colorGrid");
         grid.innerHTML = "";
 
@@ -440,8 +461,9 @@
         }
 
         const mode = getCurrentMode();
-        const bg = (byId("bgColorInput").value || "#FFFFFF").toUpperCase();
-        const fg = (byId("fgColorInput").value || "#000000").toUpperCase();
+        const defaults = MODE_DEFAULT_COLORS[mode] || MODE_DEFAULT_COLORS.light;
+        const bg = normalizeHexColor(byId("bgColorInput").value, defaults.bg);
+        const fg = normalizeHexColor(byId("fgColorInput").value, defaults.fg);
 
         const payload = {
             global: {
@@ -460,13 +482,12 @@
         payload.global[`background_color_${mode}`] = bg;
         payload.global[`text_color_${mode}`] = fg;
 
-        const resp = await fetch("/api/settings", {
+        const data = await fetchJson("/api/settings", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
-        const data = await resp.json();
-        if (resp.ok && data.success) {
+        if (data.success) {
             state.modeColors[mode] = { bg, fg };
             const result = byId("result");
             result.className = "result success";
@@ -489,8 +510,9 @@
         }
 
         const mode = getCurrentMode();
-        const bg = byId("bgColorInput").value || "#FFFFFF";
-        const fg = byId("fgColorInput").value || "#000000";
+        const defaults = MODE_DEFAULT_COLORS[mode] || MODE_DEFAULT_COLORS.light;
+        const bg = normalizeHexColor(byId("bgColorInput").value, defaults.bg);
+        const fg = normalizeHexColor(byId("fgColorInput").value, defaults.fg);
 
         byId("loading").style.display = "block";
         const resultDiv = byId("result");
@@ -513,12 +535,11 @@
             byId("loadingText").textContent = `生成中... ${i + 1}/${selectedSources.length}`;
             const source = selectedSources[i];
             try {
-                const resp = await fetch("/api/generate", {
+                const data = await fetchJson("/api/generate", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ ...payloadBase, source }),
                 });
-                const data = await resp.json();
                 data.source = source;
                 data.success = Boolean(data.success);
                 results.push(data);
@@ -539,7 +560,7 @@
                 resultDiv.innerHTML = `
                     <h3>生成成功</h3>
                     <p>TEX: <code>${escapeHtml(item.tex_file || "")}</code></p>
-                    ${item.pdf_url ? `<p><a href="${item.pdf_url}" target="_blank">PDFを開く</a></p>` : ""}
+                    ${item.pdf_url ? `<p><a href="${item.pdf_url}" target="_blank" rel="noopener noreferrer">PDFを開く</a></p>` : ""}
                 `;
             } else {
                 resultDiv.className = "result error";
@@ -551,7 +572,7 @@
 
         const links = results
             .filter((r) => r.success && r.pdf_url)
-            .map((r) => `<li><a href="${r.pdf_url}" target="_blank">${escapeHtml(r.source)} の PDF</a></li>`)
+            .map((r) => `<li><a href="${r.pdf_url}" target="_blank" rel="noopener noreferrer">${escapeHtml(r.source)} の PDF</a></li>`)
             .join("");
         const errors = results
             .filter((r) => !r.success)
@@ -569,12 +590,11 @@
     }
 
     async function cleanupNonPdf() {
-        const resp = await fetch("/api/session/cleanup-nonpdf", {
+        const data = await fetchJson("/api/session/cleanup-nonpdf", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: "{}",
         });
-        const data = await resp.json();
         const result = byId("result");
         if (data.success) {
             result.className = "result success";
@@ -583,6 +603,33 @@
             result.className = "result error";
             result.innerHTML = `<h3>クリーンアップ失敗</h3><p>${escapeHtml(data.error || "unknown")}</p>`;
         }
+        result.style.display = "block";
+    }
+
+    async function resetSettingsToDefault() {
+        const confirmed = window.confirm(
+            "保存済みのカスタム設定を削除して、デフォルト設定へ戻します。よろしいですか？"
+        );
+        if (!confirmed) return;
+
+        const data = await fetchJson("/api/settings/reset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: "{}",
+        });
+        if (!data.success) {
+            throw new Error(data.error || "設定の初期化に失敗しました。");
+        }
+
+        await loadSettings();
+        await loadFonts(false);
+        await loadColors();
+        updateProgress(52);
+
+        const result = byId("result");
+        result.className = "result success";
+        result.innerHTML =
+            "<h3>初期化 完了</h3><p>設定をデフォルト値（推奨フォント含む）へ戻しました。</p>";
         result.style.display = "block";
     }
 
@@ -642,6 +689,9 @@
         byId("generateBtn").addEventListener("click", () => generate(false));
         byId("generateAllBtn").addEventListener("click", () => generate(true));
         byId("cleanupBtn").addEventListener("click", () => cleanupNonPdf().catch((e) => alert(e.message)));
+        byId("resetSettingsBtn").addEventListener("click", () =>
+            resetSettingsToDefault().catch((e) => alert(e.message))
+        );
         byId("mainWashiEnabled").addEventListener("change", (e) => {
             document.body.classList.toggle("washi-active", e.target.checked);
             updateProgress(72);
@@ -675,4 +725,3 @@
         });
     });
 })();
-

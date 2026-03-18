@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Thin generation facade shared by Web API and future batch jobs."""
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -9,6 +11,8 @@ from src import aozoratex
 
 @dataclass(frozen=True, slots=True)
 class TexGenerationResult:
+    """Generation outputs needed by the Web API response."""
+
     tex_file: Path
     encoding_used: str
     title: str
@@ -31,6 +35,14 @@ def generate_tex_for_source(
     cover_texture_enabled: Optional[bool] = None,
     cover_texture_variant: Optional[int] = None,
 ) -> TexGenerationResult:
+    """
+    Convert one local HTML/XHTML source into a `.tex` file.
+
+    Notes for customization:
+    - `device` controls size/layout profile selection
+    - color/decorations are passed through to `build_tex_file`
+    - this function intentionally does not compile PDF
+    """
     html, encoding_used = aozoratex.fetch_html_local(
         str(source_path),
         preferred_encoding=preferred_encoding,

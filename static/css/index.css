@@ -4,26 +4,39 @@
     box-sizing: border-box;
 }
 
+:root {
+    /* Theme variables for quick customization */
+    --page-grad-start: #0f172a;
+    --page-grad-mid: #1d4ed8;
+    --page-grad-end: #155e75;
+    --panel-bg: #ffffff;
+    --panel-shadow: rgba(2, 6, 23, 0.42);
+    --text-strong: #0f172a;
+    --text-muted: #64748b;
+    --accent-primary: #2563eb;
+    --accent-success: #0f766e;
+}
+
 body {
     font-family: "Yu Gothic", "Segoe UI", sans-serif;
-    background: linear-gradient(130deg, #0f172a 0%, #1d4ed8 45%, #155e75 100%);
+    background: linear-gradient(130deg, var(--page-grad-start) 0%, var(--page-grad-mid) 45%, var(--page-grad-end) 100%);
     min-height: 100vh;
     padding: 22px;
-    color: #0f172a;
+    color: var(--text-strong);
 }
 
 .container {
     max-width: 1100px;
     margin: 0 auto;
-    background: #ffffff;
+    background: var(--panel-bg);
     border-radius: 14px;
-    box-shadow: 0 18px 60px rgba(2, 6, 23, 0.42);
+    box-shadow: 0 18px 60px var(--panel-shadow);
     padding: 30px;
 }
 
 h1 {
     font-size: 30px;
-    color: #0f172a;
+    color: var(--text-strong);
     margin-bottom: 6px;
 }
 
@@ -45,7 +58,7 @@ h1 {
 .progress-bar {
     height: 100%;
     width: 0;
-    background: linear-gradient(90deg, #2563eb, #0f766e);
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-success));
     transition: width 0.3s ease;
 }
 
@@ -65,7 +78,7 @@ h1 {
 }
 
 .muted {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 12px;
 }
 
@@ -326,7 +339,7 @@ button:hover {
 }
 
 .btn-primary {
-    background: #2563eb;
+    background: var(--accent-primary);
     color: #ffffff;
 }
 
@@ -336,7 +349,7 @@ button:hover {
 }
 
 .btn-success {
-    background: #0f766e;
+    background: var(--accent-success);
     color: #ffffff;
 }
 
@@ -399,7 +412,10 @@ button:hover {
     .font-picker {
         grid-template-columns: 1fr;
     }
-}body.washi-active {
+}
+
+/* Optional visual cue when washi background option is enabled in UI */
+body.washi-active {
     background: #f3f0e9;
 }
 body.washi-active .container {

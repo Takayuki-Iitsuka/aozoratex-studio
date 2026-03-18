@@ -21,6 +21,7 @@ import logging
 import json
 import shutil
 import csv
+import os
 from datetime import datetime
 from typing import Optional
 
@@ -44,6 +45,9 @@ COLOR_PALETTE_FILE = STATIC_DIR / "color-palettes.json"
 FONT_LIST_ENTRY = WORKDIR / "tools" / "fonts" / "texlive_font_list.py"
 FONT_LIST_CSV = WORKDIR / "tools" / "fonts" / "texlive_fonts.csv"
 MAX_COLOR_SCHEMES = 100
+_FONT_CACHE_MTIME: Optional[float] = None
+_FONT_CACHE_FONTS: list[dict] = []
+_FONT_CACHE_META: dict[str, object] = {}
 
 settings_store.ensure_config_files()
 
@@ -236,6 +240,8 @@ def _run_font_list_export() -> tuple[bool, str]:
         proc = subprocess.run(cmd, capture_output=True, timeout=120, cwd=WORKDIR)
     except subprocess.TimeoutExpired:
         return False, "font list export timeout"
+    except OSError as exc:
+        return False, f"font list export failed to start: {exc}"
 
     stdout_text = _decode_output(proc.stdout).strip()
     stderr_text = _decode_output(proc.stderr).strip()
@@ -247,6 +253,15 @@ def _run_font_list_export() -> tuple[bool, str]:
 
 
 def _load_lualatex_fonts(refresh: bool) -> tuple[list[dict], dict]:
+    global _FONT_CACHE_MTIME, _FONT_CACHE_FONTS, _FONT_CACHE_META
+
+    if not refresh and FONT_LIST_CSV.exists():
+        current_mtime = FONT_LIST_CSV.stat().st_mtime
+        if _FONT_CACHE_MTIME == current_mtime and _FONT_CACHE_FONTS:
+            cached_meta = dict(_FONT_CACHE_META)
+            cached_meta["refreshed"] = False
+            return list(_FONT_CACHE_FONTS), cached_meta
+
     message = ""
     refreshed = False
 
@@ -260,43 +275,47 @@ def _load_lualatex_fonts(refresh: bool) -> tuple[list[dict], dict]:
     seen_names: set[str] = set()
 
     if FONT_LIST_CSV.exists():
-        with FONT_LIST_CSV.open("r", encoding="utf-8-sig", newline="") as fh:
-            reader = csv.DictReader(fh)
-            for row in reader:
-                family = (row.get("latex_name") or row.get("family") or "").strip()
-                display_name = (row.get("display_name") or family).strip()
-                style = (row.get("style") or "Regular").strip()
-                latex_command = (
-                    row.get("latex_command") or row.get("latex_cmd") or ""
-                ).strip()
+        try:
+            with FONT_LIST_CSV.open("r", encoding="utf-8-sig", newline="") as fh:
+                reader = csv.DictReader(fh)
+                for row in reader:
+                    family = (row.get("latex_name") or row.get("family") or "").strip()
+                    display_name = (row.get("display_name") or family).strip()
+                    style = (row.get("style") or "Regular").strip()
+                    latex_command = (
+                        row.get("latex_command") or row.get("latex_cmd") or ""
+                    ).strip()
 
-                is_japanese = _str_to_bool_flag(
-                    row.get("japanese_candidate")
-                ) or _str_to_bool_flag(row.get("is_japanese"))
-                if not is_japanese:
-                    continue
+                    is_japanese = _str_to_bool_flag(
+                        row.get("japanese_candidate")
+                    ) or _str_to_bool_flag(row.get("is_japanese"))
+                    if not is_japanese:
+                        continue
 
-                if not family:
-                    continue
+                    if not family:
+                        continue
 
-                recommended = _str_to_bool_flag(
-                    row.get("recommended_for_aozoratex")
-                ) or _str_to_bool_flag(row.get("recommended"))
+                    recommended = _str_to_bool_flag(
+                        row.get("recommended_for_aozoratex")
+                    ) or _str_to_bool_flag(row.get("recommended"))
 
-                normalized = family.lower()
-                if normalized in seen_names:
-                    continue
-                seen_names.add(normalized)
+                    normalized = family.lower()
+                    if normalized in seen_names:
+                        continue
+                    seen_names.add(normalized)
 
-                fonts.append(
-                    {
-                        "name": family,
-                        "display_name": display_name,
-                        "style": style,
-                        "recommended": recommended,
-                        "latex_command": latex_command,
-                    }
-                )
+                    fonts.append(
+                        {
+                            "name": family,
+                            "display_name": display_name,
+                            "style": style,
+                            "recommended": recommended,
+                            "latex_command": latex_command,
+                        }
+                    )
+        except (OSError, csv.Error) as exc:
+            logger.exception("Failed to read font CSV %s: %s", FONT_LIST_CSV, exc)
+            message = message or f"font csv read failed: {exc}"
 
     fonts.sort(
         key=lambda item: (0 if item["recommended"] else 1, item["display_name"].lower())
@@ -310,6 +329,12 @@ def _load_lualatex_fonts(refresh: bool) -> tuple[list[dict], dict]:
         else "",
         "lualatex_available": bool(shutil.which("lualatex")),
     }
+
+    if FONT_LIST_CSV.exists():
+        _FONT_CACHE_MTIME = FONT_LIST_CSV.stat().st_mtime
+        _FONT_CACHE_FONTS = list(fonts)
+        _FONT_CACHE_META = dict(meta)
+
     return fonts, meta
 
 
@@ -419,9 +444,9 @@ def _resolve_decoration_options(payload: dict) -> dict[str, object]:
             v = fallback
         return v if v in (1, 2, 3) else fallback
 
-    legacy_washi = _to_bool(global_settings.get("washi_theme_enabled"), default=False)
     main_washi_default = _to_bool(
-        global_settings.get("main_washi_enabled"), default=legacy_washi
+        global_settings.get("main_washi_enabled"),
+        default=False,
     )
 
     return {
@@ -466,7 +491,6 @@ def _save_generation_preferences(
         if "main_washi_enabled" in decorations:
             value = _to_bool(decorations.get("main_washi_enabled"), default=False)
             global_updates["main_washi_enabled"] = value
-            global_updates["washi_theme_enabled"] = value
         for key in (
             "main_frame_enabled",
             "main_frame_variant",
@@ -544,7 +568,13 @@ def _run_latexmk(tex_file: Path, output_dir: Path) -> tuple[bool, str]:
         "-auxdir=" + str(output_dir),
         str(tex_file),
     ]
-    proc = subprocess.run(cmd, capture_output=True, timeout=180, cwd=WORKDIR)
+    try:
+        proc = subprocess.run(cmd, capture_output=True, timeout=180, cwd=WORKDIR)
+    except subprocess.TimeoutExpired:
+        return False, "latexmk timeout (180s)"
+    except OSError as exc:
+        return False, f"latexmk failed to start: {exc}"
+
     stdout_text = _decode_output(proc.stdout)
     stderr_text = _decode_output(proc.stderr)
     log_text = f"[latexmk] return_code={proc.returncode}\n{stdout_text}\n{stderr_text}"
@@ -566,7 +596,11 @@ def _list_source_files() -> list[dict]:
 
 def _resolve_source_path(source: str) -> Optional[Path]:
     """source が data 配下の安全なファイルか検証して返す。"""
-    source_path = (WORKDIR / source).resolve()
+    normalized_source = _normalize_source_input(source)
+    if not normalized_source:
+        return None
+
+    source_path = (WORKDIR / normalized_source).resolve()
     data_dir = DATA_DIR.resolve()
     try:
         source_path.relative_to(data_dir)
@@ -575,6 +609,20 @@ def _resolve_source_path(source: str) -> Optional[Path]:
     if not source_path.exists() or not source_path.is_file():
         return None
     return source_path
+
+
+def _normalize_source_input(source: object) -> Optional[str]:
+    """
+    API 入力の source を正規化する。
+
+    - 文字列以外は拒否
+    - 前後空白を除去
+    - パス区切りを `/` に統一（Windows/Unix 混在対応）
+    """
+    if not isinstance(source, str):
+        return None
+    normalized = source.strip().replace("\\", "/")
+    return normalized or None
 
 
 def _organize_session_outputs() -> dict:
@@ -655,9 +703,6 @@ def _generate_single(
 
     SESSION_WORK_DIR.mkdir(parents=True, exist_ok=True)
     SESSION_PDF_DIR.mkdir(parents=True, exist_ok=True)
-
-    # mode は保存設定更新に使われる。tex 生成そのものは色コードで決定する。
-    _ = mode
 
     main_washi_enabled: Optional[bool] = None
     main_frame_enabled: Optional[bool] = None
@@ -765,6 +810,7 @@ def _generate_single(
         True,
         {
             "source": source,
+            "mode": mode,
             "tex_file": str(out_tex.relative_to(WORKDIR)),
             "pdf_file": pdf_file,
             "pdf_url": pdf_url,
@@ -873,8 +919,10 @@ def api_generate():
     戻り値: {"success": true, "tex_file": "...", "log": "..."}
     """
     data = request.get_json() or {}
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "payload must be a JSON object"}), 400
 
-    source = data.get("source")
+    source = _normalize_source_input(data.get("source"))
     device, mode, bg_color, fg_color = _resolve_generation_defaults(
         data.get("device"),
         data.get("mode"),
@@ -916,6 +964,8 @@ def api_generate():
 def api_generate_batch():
     """data 内の複数HTMLを選択または全件で PDF 生成する。"""
     data = request.get_json() or {}
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "payload must be a JSON object"}), 400
 
     device, mode, bg_color, fg_color = _resolve_generation_defaults(
         data.get("device"),
@@ -929,15 +979,33 @@ def api_generate_batch():
     generate_all = _to_bool(data.get("generate_all"), default=False)
     decorations = _resolve_decoration_options(data)
 
-    sources = data.get("sources") or []
-    if not isinstance(sources, list):
+    sources_raw = data.get("sources") or []
+    if not isinstance(sources_raw, list):
         return jsonify({"success": False, "error": "sources must be a list"}), 400
 
+    sources: list[str] = []
     if generate_all:
         sources = [entry["path"] for entry in _list_source_files()]
+    else:
+        for idx, source_raw in enumerate(sources_raw):
+            normalized = _normalize_source_input(source_raw)
+            if not normalized:
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "error": f"sources[{idx}] must be a non-empty string",
+                        }
+                    ),
+                    400,
+                )
+            sources.append(normalized)
 
     if not sources:
         return jsonify({"success": False, "error": "sources is empty"}), 400
+
+    # 同一ファイル指定の重複コンパイルを防止する。
+    sources = list(dict.fromkeys(sources))
 
     _save_generation_preferences(
         device,
@@ -1034,7 +1102,8 @@ def main() -> None:
     logger.info(f"Starting server (WORKDIR={WORKDIR})")
     logger.info(f"DATA_DIR={DATA_DIR}")
     logger.info(f"OUT_DIR={OUT_DIR}")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    debug = os.getenv("AOZORATEX_DEBUG", "1").strip().lower() in {"1", "true", "yes"}
+    app.run(debug=debug, host="0.0.0.0", port=5000)
 
 
 if __name__ == "__main__":

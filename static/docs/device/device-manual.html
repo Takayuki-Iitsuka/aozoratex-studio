@@ -1,39 +1,55 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>デバイス別組版ガイド</title>
   <link rel="stylesheet" href="/static/docs/docs-common.css">
 </head>
+
 <body>
   <main class="doc-wrap">
-  <h1>デバイス別組版ガイド</h1>
-  <p>以下の資料を統合: iPhone/Android/iPad/PC 各検討メモ。</p>
+    <h1>デバイス別組版ガイド</h1>
+    <p>本ページは、デバイスごとのページサイズ・行数・組版モードを統一基準で運用するための詳細ガイドです。設定値の調整時は、まず本ページの標準プロファイルを基準にしてください。</p>
 
-  <table>
-    <thead>
-      <tr><th>device</th><th>サイズ(mm)</th><th>用途</th><th>備考</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>iphone</td><td>65 x 140</td><td>iPhone 11 相当</td><td>片手読書向け</td></tr>
-      <tr><td>android</td><td>70 x 156</td><td>9:20系 Android</td><td>現行機向け</td></tr>
-      <tr><td>android_legacy</td><td>74.7 x 132.8</td><td>9:16系 Android</td><td>比較用</td></tr>
-      <tr><td>ipad</td><td>158 x 227</td><td>iPad 縦向き</td><td>単段組</td></tr>
-      <tr><td>ipad_landscape</td><td>227 x 158</td><td>iPad 横向き</td><td>自動2段組（twocolumn）</td></tr>
-      <tr><td>pc</td><td>210 x 297</td><td>A4</td><td>既定のPC向け</td></tr>
-    </tbody>
-  </table>
+    <h2>1. 標準プロファイル</h2>
+    <table>
+      <thead>
+        <tr><th>device</th><th>サイズ(mm)</th><th>文字数目安</th><th>用途</th><th>備考</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>iphone</td><td>65 x 140</td><td>33</td><td>スマートフォン既定</td><td>片手読書を優先</td></tr>
+        <tr><td>android</td><td>70 x 155.5</td><td>30</td><td>Android 現代型</td><td>縦長画面向け</td></tr>
+        <tr><td>ipad</td><td>158 x 227</td><td>35</td><td>iPad 縦向き</td><td>単段組</td></tr>
+        <tr><td>ipad_landscape</td><td>227 x 158</td><td>35</td><td>iPad 横向き</td><td>本文で二段組</td></tr>
+        <tr><td>pc</td><td>210 x 297</td><td>40</td><td>A4</td><td>印刷/閲覧両対応</td></tr>
+      </tbody>
+    </table>
 
-  <h2>実装上のポイント</h2>
-  <ul>
-    <li>CLI/API の device 指定は config/device_settings.default.ini と整合させる。</li>
-    <li>iPad 横向きのみテンプレート側で twocolumn を追加する。</li>
-    <li>色と文字サイズは読み環境に応じて調整する。</li>
-  </ul>
+    <h2>2. 運用ルール</h2>
+    <ul>
+      <li>設定ソースは <code>config/device_settings.default.ini</code> を基準にし、環境差分は <code>config/device_settings.custom.ini</code> で上書きする。</li>
+      <li><code>ipad_landscape</code> は <code>two_column</code> を前提とし、本文開始時に <code>\twocolumn</code>、奥付前で <code>\onecolumn</code> を適用する。</li>
+      <li>余白や文字数の変更は、まず 1 デバイスで効果確認後に他デバイスへ展開する。</li>
+    </ul>
 
-  <p><a href="/static/docs/device/device-paper-size-map.html">サイズ対応図を開く</a></p>
-  <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+    <h2>3. 調整手順（推奨）</h2>
+    <ol>
+      <li>対象デバイスを決め、現行値を確認する。</li>
+      <li><code>device_settings.custom.ini</code> に最小差分で上書きする。</li>
+      <li>Web UI でプレビューし、改ページ・可読性・装飾表示を確認する。</li>
+      <li>必要なら CLI でも同条件生成して再現性を確認する。</li>
+    </ol>
+
+    <h2>4. 関連ページ</h2>
+    <ul>
+      <li><a href="/static/docs/device/device-paper-size-map.html">サイズ対応図（可視化）</a></li>
+      <li><a href="/static/docs/markdown/manuals/現在の出力サイズ（デバイス）の種類.html">出力サイズ一覧（詳細）</a></li>
+    </ul>
+
+    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
   </main>
 </body>
+
 </html>

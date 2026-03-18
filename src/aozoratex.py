@@ -668,12 +668,11 @@ DEFAULT_MAIN_TEXT_TEMPLATE = r"""%% ---- Main_text ----
 {{pre_main_text_layout}}
 {{main_overlay_start}}
 {{main_text_body}}
-{{main_overlay_end}}
 \label{LastBodyPage}
 """
 
 DEFAULT_COLOPHON_TEMPLATE = r"""%% ---- Colophon ----
-\clearpage
+{{main_overlay_end}}
 {{colophon_texture_block}}
 \thispagestyle{empty}
 \begingroup
@@ -1373,11 +1372,13 @@ def build_tex_file(
         font = font_override
 
     use_two_column = str(device_layout.get("mode", "single_column")) == "two_column"
-    docclass_extra = ",twocolumn" if use_two_column else ""
+    # two_column は本文開始時の \twocolumn / 奥付前の \onecolumn で明示制御する。
+    # class option に twocolumn を入れると one/two の切替が不安定になるケースがあるため避ける。
+    docclass_extra = ""
     columns = 2 if use_two_column else 1
-    pre_info_layout = r"\onecolumn" if use_two_column else ""
+    pre_info_layout = ""
     pre_body_layout = r"\twocolumn" if use_two_column else ""
-    pre_okuduke_layout = r"\onecolumn" if use_two_column else ""
+    pre_okuduke_layout = r"\onecolumn" if use_two_column else r"\clearpage"
 
     margin_top = float(device_layout["margin_top_mm"])
     margin_bottom = float(device_layout["margin_bottom_mm"])
@@ -1421,28 +1422,12 @@ def build_tex_file(
 
     layout_tweak = "\n".join(layout_tweak_lines)
 
-    # ---- ページスタイル設定 ----
-    # スマホ: ページ番号なし（empty スタイル）
-    # PC/iPad: ページ番号あり（aozora スタイル）
-    if not show_page_number:
-        page_style_block = (
-            r"\NewPageStyle{aozora}{nombre_position=bottom-center,nombre={}}" + "\n"
-            r"\ModifyPageStyle{plain}{nombre_position=bottom-center,nombre={}}"
-        )
-        pagestyle_name = "empty"
-    else:
-        # ページ番号あり
-        page_style_block = (
-            r"\NewPageStyle{aozora}{" + "\n"
-            r"    nombre_position=bottom-center," + "\n"
-            r"    nombre={\small 🌱 \ \thepage{} / \pageref{LastBodyPage}\  🌳}," + "\n"
-            r"}" + "\n"
-            r"\ModifyPageStyle{plain}{" + "\n"
-            r"    nombre_position=bottom-center," + "\n"
-            r"    nombre={\small 🌱 \ \thepage{} / \pageref{LastBodyPage}\  🌳}," + "\n"
-            r"}"
-        )
-        pagestyle_name = "aozora"
+    # 初期値（装飾設定解決後に上書きする）
+    page_style_block = (
+        r"\NewPageStyle{aozora}{nombre_position=bottom-center,nombre={}}" + "\n"
+        r"\ModifyPageStyle{plain}{nombre_position=bottom-center,nombre={}}"
+    )
+    pagestyle_name = "empty"
 
     # HTML カラーコードから ``#`` を除いて渡す
     bg_color = _normalize_hex_color_for_latex(background_color, fallback="FFFFFF")
@@ -1452,12 +1437,11 @@ def build_tex_file(
     )
 
     global_settings = settings_store.get_global_settings()
-    legacy_washi = bool(global_settings.get("washi_theme_enabled", False))
 
     resolved_main_washi_enabled = (
         bool(main_washi_enabled)
         if main_washi_enabled is not None
-        else bool(global_settings.get("main_washi_enabled", legacy_washi))
+        else bool(global_settings.get("main_washi_enabled", False))
     )
     resolved_main_frame_enabled = (
         bool(main_frame_enabled)
@@ -1499,6 +1483,30 @@ def build_tex_file(
     frame_allowed_devices = {"pc", "ipad", "ipad_landscape"}
     if device_name not in frame_allowed_devices:
         resolved_main_frame_enabled = False
+
+    # ---- 枠とページ番号を考慮した本文字数・ページスタイル調整 ----
+    # 枠有効時はページ番号を少し上へ持ち上げ、本文字数を減らして見栄えを改善する。
+    effective_chars = chars
+    if show_page_number:
+        if resolved_main_frame_enabled:
+            effective_chars = max(20, chars - 2)
+            nombre_value = (
+                r"\raisebox{2.8mm}[0pt][0pt]{\small \thepage{} / \pageref{LastBodyPage}}"
+            )
+        else:
+            nombre_value = r"\small \thepage{} / \pageref{LastBodyPage}"
+
+        page_style_block = (
+            r"\NewPageStyle{aozora}{" + "\n"
+            r"    nombre_position=bottom-center," + "\n"
+            rf"    nombre={{{nombre_value}}}," + "\n"
+            r"}" + "\n"
+            r"\ModifyPageStyle{plain}{" + "\n"
+            r"    nombre_position=bottom-center," + "\n"
+            rf"    nombre={{{nombre_value}}}," + "\n"
+            r"}"
+        )
+        pagestyle_name = "aozora"
 
     # ---- テンプレートブロックの生成 ----
     # Python 内に埋め込んだテンプレートをレンダリング
@@ -1549,7 +1557,7 @@ def build_tex_file(
             html_path=html_path,
             font=font,
             font_size=font_size,
-            chars=chars,
+            chars=effective_chars,
             spacing=spacing,
             width=width,
             height=height,
@@ -1614,7 +1622,6 @@ def build_tex_file(
             "main_text_body": latex_body,
             "pagestyle_name": pagestyle_name,
             "main_overlay_start": main_overlay_start,
-            "main_overlay_end": main_overlay_end,
         },
     )
     colophon_block = render_template_block(
@@ -1622,6 +1629,7 @@ def build_tex_file(
         {
             "colophon_body": okuduke,
             "colophon_texture_block": colophon_texture_block,
+            "main_overlay_end": main_overlay_end,
         },
     )
 
@@ -1636,7 +1644,7 @@ def build_tex_file(
         "body": latex_body,
         "width": width,
         "height": height,
-        "chars": chars,
+        "chars": effective_chars,
         "spacing": spacing,
         "okuduke": okuduke,
         "layout_tweak": layout_tweak,
@@ -1848,9 +1856,9 @@ def main() -> None:
 
         decoration_updates: dict[str, Any] = {}
         if args.main_washi_enabled is not None:
-            value = "true" if bool(args.main_washi_enabled) else "false"
-            decoration_updates["main_washi_enabled"] = value
-            decoration_updates["washi_theme_enabled"] = value
+            decoration_updates["main_washi_enabled"] = (
+                "true" if bool(args.main_washi_enabled) else "false"
+            )
         if args.main_frame_enabled is not None:
             decoration_updates["main_frame_enabled"] = (
                 "true" if bool(args.main_frame_enabled) else "false"
@@ -1926,7 +1934,7 @@ def main() -> None:
                 cover_texture_variant=args.cover_texture_variant,
             )
             logger.info("write: %s", out_tex)
-            success_count += 1  # type: ignore
+            success_count += 1
         except Exception as e:
             logger.exception("failed: %s (%s)", in_path, e)
 

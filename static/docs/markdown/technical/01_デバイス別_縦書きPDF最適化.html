@@ -1,170 +1,92 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>デバイス別_縦書きPDF最適化設定</title>
-  <link rel="stylesheet" href="/static/docs/docs-common.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デバイス別_縦書きPDF最適化設定</title>
+    <link rel="stylesheet" href="/static/docs/docs-common.css">
 </head>
+
 <body>
-  <main class="doc-wrap">
-    <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
-    <p class="muted">source: technical/01_デバイス別_縦書きPDF最適化.md</p>
-    <h1 id="_pdf">デバイス別_縦書きPDF最適化設定</h1>
-<p>このドキュメントでは、各デバイス環境（Android, PC, iPad, iPhone）における画面・アスペクト比の特性と、それに最適化されたLuaLaTeX（jlreq）による縦書きPDF生成の設定値についてまとめます。</p>
-<hr />
-<h2 id="1-android">1. 現代のAndroid端末向け設定</h2>
-<p><strong>ターゲット:</strong> 最新のAndroid端末 (9:20 アスペクト比, 例: Pixelシリーズなど)
-<strong>特徴:</strong> 縦長画面をフル活用し、没入感のある読書体験を提供。</p>
-<pre><code class="language-latex">% 現代のAndroid端末 (9:20アスペクト比) に合わせた縦書き設定
-\documentclass[
-  paper={70mm, 155.5mm},   % 幅70mmに対する9:20の高さ (70 * 20/9)
-  fontsize=11pt,           % 視認性を確保する11pt
-  tate,                    % 縦書き
-  jafontsize=11pt,
-  head_space=5mm,          % 上部余白 (AndroidのStatus Barを考慮)
-  foot_space=7mm,          % 下部余白 (Navigation Barの領域を考慮してやや広め)
-  gutter=4mm,              % のど余白
-  fore-edge=4mm            % 小口余白
-]{jlreq}
+    <main class="doc-wrap">
+        <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
+        <p class="muted">source: technical/01_デバイス別_縦書きPDF最適化.md</p>
 
-\usepackage{luatexja}
-\usepackage[haranoaji]{luatexja-preset}
+        <h1>デバイス別_縦書きPDF最適化設定</h1>
+        <p>AozoraTeX Studio では、デバイスごとにページサイズ・余白・1行文字数を切り替えて縦書き可読性を最適化します。</p>
 
-\begin{document}
-ここにテキストを入力します。
-\end{document}
+        <h2>1. 標準デバイスプロファイル</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>device</th>
+                    <th>width x height (mm)</th>
+                    <th>文字数目安</th>
+                    <th>備考</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>iphone</code></td>
+                    <td>65.0 x 140.0</td>
+                    <td>33</td>
+                    <td>既定デバイス</td>
+                </tr>
+                <tr>
+                    <td><code>android</code></td>
+                    <td>70.0 x 155.5</td>
+                    <td>30</td>
+                    <td>やや広めのスマートフォン画面</td>
+                </tr>
+                <tr>
+                    <td><code>ipad</code></td>
+                    <td>158.0 x 227.0</td>
+                    <td>35</td>
+                    <td>単段組</td>
+                </tr>
+                <tr>
+                    <td><code>ipad_landscape</code></td>
+                    <td>227.0 x 158.0</td>
+                    <td>35</td>
+                    <td>二段組（<code>two_column</code>）</td>
+                </tr>
+                <tr>
+                    <td><code>pc</code></td>
+                    <td>210.0 x 297.0</td>
+                    <td>40</td>
+                    <td>A4</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2. 組版ルール</h2>
+        <ul>
+            <li>行送りと字間は JIS/JLREQ 準拠値をコード側で適用します。</li>
+            <li>色設定は <code>light</code>/<code>dark</code>/<code>intermediate</code> を切り替えます。</li>
+            <li>本文外周枠は <code>pc</code> / <code>ipad</code> / <code>ipad_landscape</code> のみ有効化できます。</li>
+        </ul>
+
+        <h2>3. カスタマイズ手順</h2>
+        <ol>
+            <li><code>config/device_settings.custom.ini</code> に対象デバイスセクションを作成</li>
+            <li><code>font_size</code>、<code>characters_per_line</code>、余白（<code>margin_*_mm</code>）を調整</li>
+            <li>Web UI で表示確認し、必要に応じて配色と装飾も合わせて調整</li>
+        </ol>
+
+        <h2>4. 例: iPad 横向きで二段組最適化</h2>
+        <pre><code class="language-ini">[ipad_landscape]
+font_size = 13.5
+characters_per_line = 35
+width_mm = 227.0
+height_mm = 158.0
+mode = two_column
+show_page_number = true
 </code></pre>
-<p><strong>注意点:</strong> 機種によってナビゲーションバーの領域が異なるため、<code>foot_space</code> が隠れるリスクがあります。</p>
-<hr />
-<h2 id="2-pc169">2. PC画面（16:9モニター）向け設定</h2>
-<p><strong>ターゲット:</strong> 標準的なPCの横長ディスプレイ
-<strong>特徴:</strong> 全画面表示で美しい見開き2段組を実現し、長時間の読書でも眼の疲労を軽減。</p>
-<pre><code class="language-latex">% PCモニター (16:9) の全画面表示に最適化した横長・縦書き2段組設定
-\documentclass[
-  paper={297mm, 167.0625mm}, % A4の長辺(297mm)を基準とした16:9の論理サイズ (297 * 9 / 16)
-  fontsize=13pt,             % PCの視距離に合わせた大きめのフォント
-  tate,                      % 縦書き
-  twocolumn,                 % 2段組
-  jafontsize=13pt,
-  head_space=15mm,           % 余白は広めにとり、圧迫感を減らす
-  foot_space=15mm,
-  gutter=15mm,               % のど余白（本の中央部分）
-  fore-edge=15mm,            % 小口余白（画面の左右端）
-  column_gap=15mm            % 段と段の間隔
-]{jlreq}
-</code></pre>
-<p><strong>注意点:</strong> 物理的なA4用紙へ印刷するには不向きです（余白が大きくなります）。</p>
-<hr />
-<h2 id="3-ipad10-109">3. iPad（第10世代 10.9インチ）向け設定</h2>
-<p><strong>ターゲット:</strong> iPad 横向き（Landscape）表示
-<strong>特徴:</strong> 実際の文庫本（A5判相当）の見開きを再現する2段組レイアウト。</p>
-<pre><code class="language-latex">% iPad (第10世代) 横向き・二段組の実寸サイズに合わせた設定
-\documentclass[
-  paper={227.1mm, 157.8mm}, % iPad 10th Genの物理寸法（横×縦）
-  fontsize=11pt,            % 視認性の高い11pt
-  tate,                     % 縦書き
-  twocolumn,                % 二段組
-  jafontsize=11pt,
-  head_space=15mm,          % 上部余白（Status BarやViewerのUIを避ける）
-  foot_space=15mm,          % 下部余白
-  gutter=10mm,              % のど（中央）余白
-  fore-edge=15mm,           % 小口（左右端）余白
-  column_gap=10mm           % 段間の余白
-]{jlreq}
-</code></pre>
-<p><strong>注意点:</strong> 発光デバイスのため、紙と同様の大きな余白はかえって眩しさを生む可能性があります。背景色の調整も併せて検討してください。</p>
-<hr />
-<h2 id="4-iphone">4. iPhone向け設定</h2>
-<p><strong>ターゲット:</strong> iPhone 11 (アスペクト比 約19.5:9)
-<strong>特徴:</strong> 実寸サイズに合わせて論理寸法を固定し、100%表示での閲覧に最適化します。</p>
-<pre><code class="language-latex">% iPhone 11の実寸サイズに合わせた縦書き設定
-\documentclass[
-  paper={64.5mm, 139.6mm}, % iPhone 11の物理寸法
-  fontsize=11pt,           % 10pt〜12ptの間で調整
-  tate,                    % 縦書き
-  jafontsize=11pt,
-  line_length=30zenkaku,   % 1行あたりの文字数
-  head_space=5mm,          % 上部余白
-  foot_space=5mm,          % 下部余白
-  gutter=5mm,              % のど（右側）余白
-  fore-edge=5mm            % 小口（左側）余白
-]{jlreq}
-</code></pre>
-<p><strong>注意点:</strong> iPhone 11の寸法に完全に固定されるため、他デバイスで見た場合は黒帯が発生します。</p>
-<hr />
-<hr />
-<h2 id="5">5. 対応デバイス一覧（現行実装）</h2>
-<p><code>aozoratex.py</code> の <code>DEVICE_SIZES</code>（定数定義）と <code>settings.ini</code> のセクション定義を合わせた、現在の対応デバイス一覧です。</p>
-<h3 id="8">📋 対応デバイス一覧（計 8 種類）</h3>
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>デバイス名 (<code>--device</code>)</th>
-<th>用紙サイズ (W × H mm)</th>
-<th>備考</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td><code>iphone</code></td>
-<td>65.0 × 140.0</td>
-<td>iPhone 11 実寸</td>
-</tr>
-<tr>
-<td>2</td>
-<td><code>android</code></td>
-<td>70.0 × 155.5</td>
-<td>現代型 Android (9:20)</td>
-</tr>
-<tr>
-<td>3</td>
-<td><code>android_legacy</code></td>
-<td>70.0 × 124.0</td>
-<td>旧型 Android (9:16) 互換</td>
-</tr>
-<tr>
-<td>4</td>
-<td><code>ipad_portrait</code></td>
-<td>158.0 × 227.0</td>
-<td>iPad 10th Gen 縦向き・単段組</td>
-</tr>
-<tr>
-<td>5</td>
-<td><code>ipad_landscape</code></td>
-<td>227.0 × 158.0</td>
-<td>iPad 10th Gen 横向き・<strong>二段組推奨</strong></td>
-</tr>
-<tr>
-<td>6</td>
-<td><code>pc</code></td>
-<td>210.0 × 297.0</td>
-<td>A4</td>
-</tr>
-<tr>
-<td>7</td>
-<td><code>smartphone</code></td>
-<td>70.0 × 140.0</td>
-<td>汎用スマートフォン（互換性用エイリアス）</td>
-</tr>
-<tr>
-<td>8</td>
-<td><code>ipad</code></td>
-<td>158.0 × 227.0</td>
-<td>iPad 縦向きの旧エイリアス（互換性用）</td>
-</tr>
-</tbody>
-</table>
-<h3 id="_1">📝 補足</h3>
-<ul>
-<li><strong>実質的なユニークサイズは 6 種類</strong>です。<code>smartphone</code> は <code>iphone</code> に近く、<code>ipad</code> は <code>ipad_portrait</code> と全く同じサイズです（互換性のためのエイリアス）。</li>
-<li>デフォルト（<code>--device</code> 指定なし）は <strong>A4（210 × 297 mm）</strong> になります。</li>
-<li><code>settings.ini</code> に <code>[PDF_&lt;デバイス名&gt;]</code> セクションを追加すれば、<strong>カスタムデバイスも自由に追加可能</strong>な設計です。</li>
-</ul>
-<hr />
-<p><em>※ この文書は、各デバイス向け設定ドキュメントおよび「対応ディバイス一覧.md」を統合したものです。</em></p>
-  </main>
+
+        <hr />
+        <p><a href="/static/docs/index.html">ドキュメントトップへ戻る</a></p>
+    </main>
 </body>
+
 </html>

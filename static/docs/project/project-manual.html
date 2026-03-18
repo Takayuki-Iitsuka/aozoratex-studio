@@ -11,35 +11,55 @@
 <body>
   <main class="doc-wrap">
     <h1>プロジェクト概要・運用</h1>
-    <p>本ページは以下の資料を統合した運用ガイドです。</p>
+    <p>本ページは、AozoraTeX Studio の <strong>運用基準</strong> と <strong>保守基準</strong> をまとめた詳細ガイドです。新規参加者のオンボーディングと、既存運用の見直しの両方に利用できます。</p>
+
+    <h2>1. プロジェクト目的</h2>
     <ul>
-      <li>static/docs/markdown/manuals/*.html</li>
-      <li>static/docs/markdown/technical/Todo.html</li>
-      <li>static/docs/markdown/technical/*.html（設計資料）</li>
+      <li>青空文庫 HTML/XHTML を LuaLaTeX 向け TEX へ変換し、デバイス最適化された PDF 読書体験を提供する。</li>
+      <li>Web UI と CLI の二経路で同じ設定体系（<code>config/*.ini</code>）を利用し、運用差分を最小化する。</li>
+      <li>設定・配色・フォント・装飾を再利用可能な形で保存し、再現性の高い出力を維持する。</li>
     </ul>
 
-    <h2>目的</h2>
-    <p>青空文庫HTMLを LuaLaTeX で PDF 化し、デバイス別の読みやすさを確保すること。Web UI から配色とデバイスを選択し、TeX/PDF 生成まで実行できます。</p>
-
-    <h2>現在の構成方針</h2>
+    <h2>2. 現行アーキテクチャ</h2>
     <ul>
-      <li>起動エントリ: python -m src.aozoratex, python -m src.aozora_server</li>
-      <li>設定: config/global_settings.*.ini / config/device_settings.*.ini</li>
-      <li>実装本体: src/</li>
-      <li>入力: data/</li>
-      <li>出力: out/</li>
-      <li>Web静的資産: static/</li>
-      <li>Web UI エントリ: static/index.html</li>
-      <li>LaTeXテンプレート: src/aozoratex.py 内の埋め込みテンプレート定数で管理</li>
-      <li>ツール群: tools/</li>
-      <li>変換済みドキュメント: static/docs/markdown/</li>
+      <li>変換本体: <code>src/aozoratex.py</code></li>
+      <li>Web API / UI サーバー: <code>src/aozora_server.py</code></li>
+      <li>設定ストア: <code>src/settings_store.py</code></li>
+      <li>UI: <code>static/index.html</code>, <code>static/js/index.js</code>, <code>static/css/index.css</code></li>
+      <li>設定ファイル: <code>config/global_settings.*.ini</code>, <code>config/device_settings.*.ini</code></li>
+      <li>入力/出力: <code>data/</code>, <code>out/</code></li>
     </ul>
 
-    <h2>推奨運用</h2>
+    <h2>3. 運用原則</h2>
+    <ol>
+      <li>実行パスを統一する。通常は Web UI、バッチ変換や検証は CLI を使用する。</li>
+      <li>設定は <code>default -&gt; custom</code> の優先順を維持する。</li>
+      <li>出力物と中間物を <code>out/</code> 配下に集約し、調査容易性を確保する。</li>
+      <li>仕様変更時は対応ドキュメントを同時更新し、コードと説明の乖離を防ぐ。</li>
+    </ol>
+
+    <h2>4. 品質向上フロー</h2>
     <ul>
-      <li>通常利用は Web UI（python -m src.aozora_server）か CLI（python -m src.aozoratex）を使う。</li>
-      <li>生成物の中間ログや一時ファイルは out/ 以下へ集約する。</li>
-      <li>仕様メモは static/docs/markdown 配下の該当ページを更新する。</li>
+      <li>静的確認: <code>python -m compileall src tools</code></li>
+      <li>変換確認: サンプル HTML を対象に CLI で TEX 生成</li>
+      <li>API確認: <code>/health</code>, <code>/api/devices</code>, <code>/api/settings</code> の応答確認</li>
+      <li>ドキュメント確認: 旧用語・旧設定記述の残存チェック</li>
+    </ul>
+
+    <h2>5. カスタマイズ運用</h2>
+    <ul>
+      <li>配色追加: <code>static/color-palettes.json</code> を編集</li>
+      <li>デバイス調整: <code>config/device_settings.custom.ini</code> に上書き値を追加</li>
+      <li>既定変更: <code>config/*.default.ini</code> のみ編集し、影響範囲を明示する</li>
+      <li>装飾制御: Web UI または CLI オプション（<code>--main-washi</code> など）で反映</li>
+    </ul>
+
+    <h2>6. 関連ドキュメント</h2>
+    <ul>
+      <li><a href="/static/docs/device/device-manual.html">デバイス別組版ガイド</a></li>
+      <li><a href="/static/docs/conversion/conversion-manual.html">変換・文字コード・LaTeX設定ガイド</a></li>
+      <li><a href="/static/docs/color/color-manual.html">配色設計ガイド</a></li>
+      <li><a href="/static/docs/markdown/manuals/開発者向け説明書.html">開発者向け説明書（詳細）</a></li>
     </ul>
 
     <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>

@@ -9,6 +9,11 @@
 </head>
 
 <body>
+    <!--
+        Customization note:
+        UI behavior is implemented in /static/js/index.js.
+        Labels and section order can be changed here without touching server code.
+    -->
     <div class="container">
         <h1>青空文庫 → LuaLaTeX PDF 変換</h1>
         <p class="subtitle">デバイス・配色・サイズを視覚確認しながら TEX/PDF を生成できます。</p>
@@ -52,7 +57,7 @@
         <section class="section">
             <h2>ステップ 3: 背景色・文字色を視覚設定</h2>
             <p class="muted">
-                配色一覧: <a href="/colors.html" target="_blank">統合 colors.html</a>
+                配色一覧: <a href="/colors.html" target="_blank" rel="noopener noreferrer">統合 colors.html</a>
             </p>
 
             <div class="mode-picker">
@@ -88,6 +93,10 @@
         <section class="section">
             <h2>ステップ 4: フォント選択</h2>
             <p class="muted">LuaLaTeX で使用可能な日本語フォントを一覧から選択します。</p>
+            <p class="muted">
+                推奨フォント: <strong>IPAmjMincho</strong>（学術用途の外字互換性を重視） / Shippori Mincho / Yu Mincho。
+                詳細: <a href="/static/docs/markdown/manuals/フォント選定.html" target="_blank" rel="noopener noreferrer">フォント選定ガイド</a>
+            </p>
             <div class="font-picker">
                 <div class="field">
                     <label for="fontFamilySelect">フォント</label>
@@ -152,7 +161,8 @@
                 <button class="btn-primary" id="generateBtn" type="button">選択をPDF化</button>
                 <button class="btn-primary" id="generateAllBtn" type="button">data全件をPDF化</button>
                 <button class="btn-secondary" id="cleanupBtn" type="button">非PDFファイル削除</button>
-                <a class="btn-secondary link-button" href="/docs" target="_blank">ドキュメント</a>
+                <button class="btn-secondary" id="resetSettingsBtn" type="button">デフォルト設定へ初期化</button>
+                <a class="btn-secondary link-button" href="/docs" target="_blank" rel="noopener noreferrer">ドキュメント</a>
             </div>
         </section>
 

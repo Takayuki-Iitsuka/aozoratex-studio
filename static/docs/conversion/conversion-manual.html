@@ -11,28 +11,63 @@
 <body>
   <main class="doc-wrap">
     <h1>変換・文字コード・LaTeX設定ガイド</h1>
-    <p>以下の資料を統合: LualaTexについて / Tex化について / 文字コード / ファイルのエンコード / ページ番号設定 / 高度な読書体験。</p>
+    <p>本ページは、入力HTMLの読み込みから TEX/PDF 出力までの変換処理を、実装単位で追える詳細ガイドです。障害調査や変換ロジック改修時の基準として利用してください。</p>
 
-    <h2>基本フロー</h2>
+    <h2>1. 変換パイプライン</h2>
     <ol>
-      <li>HTML/XHTML を読み込み（エンコーディング判定 + フォールバック）</li>
-      <li>本文ノードを LaTeX 断片へ変換（ルビ・見出し・画像など）</li>
-      <li>テンプレートに埋め込み、TeX出力</li>
-      <li>必要時に lualatex でPDF化</li>
+      <li>入力ファイル読込（ローカルファイルのみ）</li>
+      <li>文字コード判定（宣言検出 + フォールバック）</li>
+      <li>HTML パース（BeautifulSoup）</li>
+      <li>本文ノードを LaTeX 断片へ変換</li>
+      <li>テンプレートへ埋め込み TEX 出力</li>
+      <li>必要時に <code>latexmk</code> で PDF コンパイル</li>
     </ol>
 
-    <h2>文字コード運用</h2>
+    <h2>2. 文字コード運用</h2>
     <ul>
-      <li>入力は UTF-8 / Shift_JIS / CP932 が混在し得るため、自動判定に加えて <code>--encoding</code> で明示可能にする。</li>
-      <li>内部処理は UTF-8 に正規化して扱う。</li>
+      <li>候補順序: 指定値 → 宣言値 → <code>utf-8-sig</code> → <code>utf-8</code> → <code>cp932</code> → <code>shift_jis</code></li>
+      <li>内部表現は UTF-8 に統一する。</li>
+      <li>判定が不安定な入力は <code>--encoding</code> で固定する。</li>
     </ul>
 
-    <h2>CLI 例</h2>
-    <pre><code>.venv\Scripts\python.exe -m src.aozoratex data/1567_14913.html --device iphone --mode light
-.venv\Scripts\python.exe -m src.aozoratex data --device ipad_landscape --out out/ipad_landscape</code></pre>
+    <h2>3. HTML から LaTeX への主な変換</h2>
+    <table>
+      <thead>
+        <tr><th>HTML要素</th><th>変換先</th><th>補足</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>&lt;ruby&gt;</code></td><td><code>\ltjruby{親}{ルビ}</code></td><td>rb/rt を再帰変換</td></tr>
+        <tr><td><code>&lt;img class="gaiji"&gt;</code></td><td><code>\AozoraGaiji{...}{...}</code></td><td>既知外字は Unicode 置換</td></tr>
+        <tr><td><code>&lt;h1&gt;〜&lt;h6&gt;</code></td><td>見出しコマンド</td><td>タイトル/中見出しを分離</td></tr>
+        <tr><td>テキストノード</td><td>エスケープ文字列</td><td>LaTeX 特殊文字を保護</td></tr>
+      </tbody>
+    </table>
 
-    <h2>PDF化（Web API）</h2>
-    <p><code>/api/generate</code> に <code>compile_pdf=true</code> を渡すと、TeX生成後に lualatex を実行して PDF を生成します。</p>
+    <h2>4. CLI 実行例</h2>
+    <pre><code class="language-powershell"># 単体変換
+.venv\Scripts\python.exe -m src.aozoratex data/1567_14913.html --device iphone --mode light
+
+# ディレクトリ一括変換
+.venv\Scripts\python.exe -m src.aozoratex data --device ipad_landscape --out out/ipad_landscape
+
+# 文字コード明示
+.venv\Scripts\python.exe -m src.aozoratex data/old.html --encoding cp932 --device android
+</code></pre>
+
+    <h2>5. Web API での PDF 生成</h2>
+    <ul>
+      <li><code>POST /api/generate</code> に <code>compile_pdf=true</code> を指定すると TEX 生成後に PDF まで処理する。</li>
+      <li><code>compile_pdf=false</code> では TEX のみ生成し、変換ロジック確認を高速化できる。</li>
+      <li>失敗時はレスポンスの <code>error</code> と <code>compile_log</code> を優先的に確認する。</li>
+    </ul>
+
+    <h2>6. 調査時チェックリスト</h2>
+    <ol>
+      <li>入力ファイルの存在確認（<code>data/</code> 配下か）</li>
+      <li>設定ロード確認（<code>/api/settings</code>）</li>
+      <li>変換ログ確認（<code>out/</code> 配下）</li>
+      <li>コンパイルツール確認（<code>latexmk</code>, <code>lualatex</code>）</li>
+    </ol>
 
     <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
   </main>

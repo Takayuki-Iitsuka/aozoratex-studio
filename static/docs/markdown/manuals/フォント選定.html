@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>フォント選定ガイド</title>
+  <link rel="stylesheet" href="/static/docs/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
+    <p class="muted">source: manuals/フォント選定（統合管理）</p>
+
+    <h1>フォント選定ガイド</h1>
+    <p>
+      史学・古典系の文書では、<strong>Readability（可読性）</strong> に加えて
+      <strong>Compatibility（外字・異体字への対応力）</strong> が重要です。
+      本ページは、本文と見出しの運用方針を一貫した基準でまとめた公式ガイドです。
+    </p>
+
+    <h2>選定方針</h2>
+    <p>
+      学術用途では、出現頻度が低い文字でも正しく描画できることを最優先にします。
+      そのうえで、<strong>Aesthetics（審美性）</strong> を評価し、文書全体の読みやすさと雰囲気を調整します。
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>評価軸</th>
+          <th>内容</th>
+          <th>運用上の扱い</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Readability（可読性）</td>
+          <td>長文読解時の疲労の少なさ、字面の安定性</td>
+          <td>本文フォント選定の基本軸</td>
+        </tr>
+        <tr>
+          <td>Compatibility（互換性）</td>
+          <td>外字・異体字・拡張漢字の収録範囲</td>
+          <td>学術文書では最優先</td>
+        </tr>
+        <tr>
+          <td>Aesthetics（審美性）</td>
+          <td>文学的な雰囲気、見出しの印象形成</td>
+          <td>互換性を満たした上で調整</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>既定（デフォルト）推奨</h2>
+    <p>
+      既定フォントは <strong>IPAmjMincho</strong> を推奨します。
+      <strong>Compatibility（互換性）</strong> が高く、文字欠けリスクを最小化できるためです。
+    </p>
+
+    <h2>本文向けフォント</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>フォント</th>
+          <th>LaTeX 設定例</th>
+          <th>メリット</th>
+          <th>留意点</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>IPAmjMincho</td>
+          <td><code>\setmainjfont{IPAmjMincho}</code></td>
+          <td>外字・異体字への対応力が高く、学術文書で安定</td>
+          <td>ウェイトの選択肢が少なく、強調設計は工夫が必要</td>
+        </tr>
+        <tr>
+          <td>Shippori Mincho</td>
+          <td><code>\setmainjfont{Shippori Mincho}</code></td>
+          <td>活版調の表情があり、文学文書で高い没入感</td>
+          <td>特殊文字で <strong>Fallback（代替描画）</strong> が起きる可能性</td>
+        </tr>
+        <tr>
+          <td>Yu Mincho</td>
+          <td><code>\setmainjfont{Yu Mincho}</code></td>
+          <td>可読性と雰囲気のバランスが良く、環境構築が容易</td>
+          <td>個性は控えめで、外字網羅性は IPAmjMincho に劣る</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>見出し向けフォント</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>フォント</th>
+          <th>LaTeX 設定例</th>
+          <th>メリット</th>
+          <th>留意点</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Source Han Serif Heavy</td>
+          <td><code>\setmainjfont{Source Han Serif}[Weight=Heavy]</code></td>
+          <td>視認性が高く、見出しとして強い印象を作りやすい</td>
+          <td><strong>Weight specification（ウェイト指定）</strong> の設定漏れに注意</td>
+        </tr>
+        <tr>
+          <td>Yu Mincho Demibold</td>
+          <td><code>\setmainjfont{Yu Mincho}[Weight=Demibold]</code></td>
+          <td>本文を Yu Mincho にした際の統一感が高い</td>
+          <td>強いインパクトより上品さ重視の印象になる</td>
+        </tr>
+        <tr>
+          <td>BIZ UDPMincho</td>
+          <td><code>\setmainjfont{BIZ UDPMincho}</code></td>
+          <td><strong>Universal Design（ユニバーサルデザイン）</strong> 思想で視認性が高い</td>
+          <td>古典文書向けの古風な印象は弱め</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>推奨運用（ハイブリッド方式）</h2>
+    <p>
+      学術的な正確性と見た目を両立するには、本文フォントと補完フォントを使い分ける
+      <strong>Hybrid markup（ハイブリッド運用）</strong> が有効です。
+    </p>
+    <ul>
+      <li>通常本文は Shippori Mincho か Yu Mincho を使い、読み味を優先する。</li>
+      <li>外字・異体字を含む箇所のみ IPAmjMincho で局所的に補完する。</li>
+      <li>最終出力前に、文字欠けとフォント混在箇所を目視で確認する。</li>
+    </ul>
+    <pre><code class="language-tex">% 例: 本文を Shippori Mincho、外字のみ IPAmjMincho で補完
+\setmainjfont{Shippori Mincho}
+\newfontfamily\academicfont{IPAmjMincho}
+本文中で特殊字が必要な箇所は {\academicfont 𠮷} のように局所指定する。
+</code></pre>
+  </main>
+</body>
+</html>

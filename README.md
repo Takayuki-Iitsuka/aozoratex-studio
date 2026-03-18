@@ -104,6 +104,15 @@ python -m src.aozoratex data/92_14545.html --device iphone --reset-settings
 読み込み順は `default -> custom` です。  
 `custom` を消す、または `/api/settings/reset` で初期値に戻せます。
 
+現行運用で編集対象となる設定ファイル:
+- `config/global_settings.default.ini`
+- `config/global_settings.custom.ini`
+- `config/device_settings.default.ini`
+- `config/device_settings.custom.ini`
+
+旧 `settings.ini` / `washi_theme_enabled` は廃止済みです。  
+移行時に旧 `settings.ini` が見つかった場合は `config/legacy_backup/settings.ini.bak` へ自動退避されます。
+
 ## 配色とサイズの確認ページ
 
 - 統合配色一覧: `http://localhost:5000/colors.html`

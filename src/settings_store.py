@@ -1,5 +1,14 @@
 from __future__ import annotations
 
+"""
+Configuration store for AozoraTeX Studio.
+
+Responsibilities:
+- Keep defaults and custom overrides in `config/*.ini`
+- Load and merge settings safely for API / CLI
+- Migrate and clean up legacy `settings.ini` once
+"""
+
 import configparser
 import re
 from pathlib import Path
@@ -14,6 +23,7 @@ DEVICE_DEFAULT_FILE = CONFIG_DIR / "device_settings.default.ini"
 DEVICE_CUSTOM_FILE = CONFIG_DIR / "device_settings.custom.ini"
 LEGACY_SETTINGS_FILES = (PROJECT_ROOT / "settings.ini",)
 LEGACY_MIGRATION_MARKER = CONFIG_DIR / ".legacy_migrated"
+LEGACY_BACKUP_DIR = CONFIG_DIR / "legacy_backup"
 
 SUPPORTED_COLOR_MODES = ("light", "dark", "intermediate")
 SUPPORTED_DEVICES = ("iphone", "android", "ipad", "ipad_landscape", "pc")
@@ -27,9 +37,8 @@ DEVICE_LABELS: dict[str, str] = {
 }
 
 GLOBAL_DEFAULTS: dict[str, str] = {
-    "font_family": "Yu Mincho",
+    "font_family": "IPAmjMincho",
     "color_mode": "light",
-    "washi_theme_enabled": "false",
     "main_washi_enabled": "false",
     "main_frame_enabled": "false",
     "main_frame_variant": "1",
@@ -137,6 +146,7 @@ DEVICE_ALLOWED_KEYS = {
     "show_page_number",
     "color_mode",
 }
+LEGACY_GLOBAL_KEYS = {"washi_theme_enabled"}
 
 
 def _new_parser() -> configparser.ConfigParser:
@@ -194,7 +204,6 @@ def _render_global_default_ini() -> str:
         "[global]",
         f"font_family = {GLOBAL_DEFAULTS['font_family']}",
         f"color_mode = {GLOBAL_DEFAULTS['color_mode']}",
-        f"washi_theme_enabled = {GLOBAL_DEFAULTS['washi_theme_enabled']}",
         f"main_washi_enabled = {GLOBAL_DEFAULTS['main_washi_enabled']}",
         f"main_frame_enabled = {GLOBAL_DEFAULTS['main_frame_enabled']}",
         f"main_frame_variant = {GLOBAL_DEFAULTS['main_frame_variant']}",
@@ -213,7 +222,12 @@ def _render_global_default_ini() -> str:
 
 
 def _render_device_default_ini() -> str:
-    lines: list[str] = []
+    lines: list[str] = [
+        "[meta]",
+        "; フォント名の初期値は global_settings.default.ini の font_family で一元管理します。",
+        "; このファイルはデバイスごとの本文サイズ（font_size）とレイアウト値のみを管理します。",
+        "",
+    ]
     for device in SUPPORTED_DEVICES:
         profile = DEVICE_DEFAULTS[device]
         lines.append(f"[{device}]")
@@ -339,6 +353,74 @@ def _migrate_from_legacy_if_needed() -> None:
     LEGACY_MIGRATION_MARKER.write_text("migrated\n", encoding="utf-8")
 
 
+def _cleanup_legacy_settings_files() -> None:
+    """
+    移行完了後、旧 settings.ini を運用パスから除去する。
+
+    - 既存運用では config/*.ini が唯一の設定ソース
+    - 旧ファイルは誤編集防止のため config/legacy_backup へ退避する
+    """
+    if not LEGACY_MIGRATION_MARKER.exists():
+        return
+
+    for legacy_file in LEGACY_SETTINGS_FILES:
+        if not legacy_file.exists():
+            continue
+
+        try:
+            LEGACY_BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+            backup_file = LEGACY_BACKUP_DIR / f"{legacy_file.name}.bak"
+            if not backup_file.exists():
+                legacy_file.replace(backup_file)
+            else:
+                legacy_file.unlink()
+        except OSError:
+            # 権限やロックで退避できない場合でも、設定読み込み自体は継続する。
+            continue
+
+
+def _prune_custom_settings_files() -> None:
+    """
+    custom ini から未対応キー・旧キーを除去して設定面の一貫性を保つ。
+
+    - global: GLOBAL_ALLOWED_KEYS に無いキーを削除
+    - device: SUPPORTED_DEVICES 以外のセクション、DEVICE_ALLOWED_KEYS 以外のキーを削除
+    """
+    global_parser = _new_parser()
+    global_parser.read(GLOBAL_CUSTOM_FILE, encoding="utf-8")
+    global_changed = False
+
+    for section in list(global_parser.sections()):
+        if section != "global":
+            global_parser.remove_section(section)
+            global_changed = True
+            continue
+        for key in list(global_parser[section].keys()):
+            if key in LEGACY_GLOBAL_KEYS or key not in GLOBAL_ALLOWED_KEYS:
+                global_parser.remove_option(section, key)
+                global_changed = True
+
+    if global_changed:
+        _write_parser(GLOBAL_CUSTOM_FILE, global_parser)
+
+    device_parser = _new_parser()
+    device_parser.read(DEVICE_CUSTOM_FILE, encoding="utf-8")
+    device_changed = False
+
+    for section in list(device_parser.sections()):
+        if section not in SUPPORTED_DEVICES:
+            device_parser.remove_section(section)
+            device_changed = True
+            continue
+        for key in list(device_parser[section].keys()):
+            if key not in DEVICE_ALLOWED_KEYS:
+                device_parser.remove_option(section, key)
+                device_changed = True
+
+    if device_changed:
+        _write_parser(DEVICE_CUSTOM_FILE, device_parser)
+
+
 def ensure_config_files(run_migration: bool = True) -> None:
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -353,6 +435,8 @@ def ensure_config_files(run_migration: bool = True) -> None:
 
     if run_migration:
         _migrate_from_legacy_if_needed()
+    _cleanup_legacy_settings_files()
+    _prune_custom_settings_files()
 
 
 def _load_merged(default_file: Path, custom_file: Path) -> configparser.ConfigParser:
@@ -405,23 +489,14 @@ def get_global_settings() -> dict[str, Any]:
         _get_option(cfg, section, "font_family", GLOBAL_DEFAULTS["font_family"])
         or GLOBAL_DEFAULTS["font_family"]
     )
-    washi_theme_enabled = _safe_bool(
-        _get_option(
-            cfg,
-            section,
-            "washi_theme_enabled",
-            GLOBAL_DEFAULTS["washi_theme_enabled"],
-        ),
-        _safe_bool(GLOBAL_DEFAULTS["washi_theme_enabled"], False),
-    )
     main_washi_enabled = _safe_bool(
         _get_option(
             cfg,
             section,
             "main_washi_enabled",
-            "true" if washi_theme_enabled else "false",
+            GLOBAL_DEFAULTS["main_washi_enabled"],
         ),
-        washi_theme_enabled,
+        _safe_bool(GLOBAL_DEFAULTS["main_washi_enabled"], False),
     )
     main_frame_enabled = _safe_bool(
         _get_option(
@@ -469,7 +544,6 @@ def get_global_settings() -> dict[str, Any]:
         "font_family": font_family,
         "color_mode": mode,
         "main_washi_enabled": main_washi_enabled,
-        "washi_theme_enabled": washi_theme_enabled,
         "main_frame_enabled": main_frame_enabled,
         "main_frame_variant": main_frame_variant,
         "cover_texture_enabled": cover_texture_enabled,
@@ -490,12 +564,23 @@ def get_mode_colors(mode: str) -> tuple[str, str]:
 
 
 def get_device_settings(device: str) -> dict[str, Any]:
+    normalized_device = _normalize_device_name(device)
+    cfg = _load_merged(DEVICE_DEFAULT_FILE, DEVICE_CUSTOM_FILE)
+    return _load_device_settings_from_cfg(cfg, normalized_device)
+
+
+def _normalize_device_name(device: str | None) -> str:
     normalized_device = (device or "iphone").strip().lower()
     if normalized_device not in SUPPORTED_DEVICES:
-        normalized_device = "iphone"
+        return "iphone"
+    return normalized_device
 
+
+def _load_device_settings_from_cfg(
+    cfg: configparser.ConfigParser,
+    normalized_device: str,
+) -> dict[str, Any]:
     defaults = dict(DEVICE_DEFAULTS[normalized_device])
-    cfg = _load_merged(DEVICE_DEFAULT_FILE, DEVICE_CUSTOM_FILE)
 
     if cfg.has_section(normalized_device):
         section = normalized_device
@@ -575,6 +660,8 @@ def get_device_settings(device: str) -> dict[str, Any]:
 
     if defaults["mode"] not in {"single_column", "two_column"}:
         defaults["mode"] = "single_column"
+    if normalized_device == "ipad_landscape":
+        defaults["mode"] = "two_column"
 
     # フォントサイズ以外の組版値は ini では持たず、JIS/JLREQ に基づいてコード側で決定する。
     defaults["line_spacing"] = JIS_LINE_SPREAD
@@ -584,7 +671,12 @@ def get_device_settings(device: str) -> dict[str, Any]:
 
 
 def get_all_device_settings() -> dict[str, dict[str, Any]]:
-    return {device: get_device_settings(device) for device in SUPPORTED_DEVICES}
+    # 全デバイス取得時は ini を一度だけ読み込み、I/O を削減する。
+    cfg = _load_merged(DEVICE_DEFAULT_FILE, DEVICE_CUSTOM_FILE)
+    return {
+        device: _load_device_settings_from_cfg(cfg, device)
+        for device in SUPPORTED_DEVICES
+    }
 
 
 def resolve_color_mode(device: str, mode_override: str | None = None) -> str:

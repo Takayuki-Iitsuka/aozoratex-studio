@@ -42,7 +42,7 @@
 <hr />
 <h2 id="_2">実装に関するメモ</h2>
 <ul>
-<li>実際のアプリケーション実装においては、これらの <code>Background</code> と <code>Foreground</code> のHEX値（#RRGGBB）を <code>settings.ini</code> または HTML の UI からユーザーが選択し、LaTeX コンパイル時に変数値として動的に注入（Inject）する仕組みを構築します。</li>
+<li>実際のアプリケーション実装においては、これらの <code>Background</code> と <code>Foreground</code> のHEX値（#RRGGBB）を <code>config/*.ini</code> または HTML の UI からユーザーが選択し、LaTeX コンパイル時に変数値として動的に注入（Inject）する仕組みを構築します。</li>
 <li>これまでに生成した200パターンの配色は、統合HTML（<code>colors.html</code>）の実装としてフロントエンド側に委ねることとします。</li>
 </ul>
 <hr />
@@ -72,7 +72,7 @@
 <tr>
 <td>3</td>
 <td><code>intermediate</code></td>
-<td><code>settings.ini</code> の <code>background_color_intermediate</code> / <code>text_color_intermediate</code> 値を使用（デフォルト：薄灰 <code>#D3D3D3</code> × 濃灰 <code>#4F4F4F</code>）</td>
+<td><code>config/*.ini</code> の <code>background_color_intermediate</code> / <code>text_color_intermediate</code> 値を使用（デフォルト：薄灰 <code>#D3D3D3</code> × 濃灰 <code>#4F4F4F</code>）</td>
 </tr>
 <tr>
 <td>4</td>

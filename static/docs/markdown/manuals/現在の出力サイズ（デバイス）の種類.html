@@ -1,84 +1,74 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>現在の出力サイズ（デバイス）の種類</title>
-  <link rel="stylesheet" href="/static/docs/docs-common.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>現在の出力サイズ（デバイス）の種類</title>
+    <link rel="stylesheet" href="/static/docs/docs-common.css">
 </head>
+
 <body>
-  <main class="doc-wrap">
-    <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
-    <p class="muted">source: manuals/現在の出力サイズ（デバイス）の種類.md</p>
-    <h2 id="_1">現在の出力サイズ（デバイス）の種類</h2>
-<p><a href="cci:7://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/aozoratex.py:0:0-0:0">aozoratex.py</a> の <code>DEVICE_SIZES</code>（ハードコード定数）と <a href="cci:7://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/settings.ini:0:0-0:0">settings.ini</a> のセクション定義を合わせて整理すると、以下の通りです。</p>
-<h3 id="8">📋 対応デバイス一覧（計 8 種類）</h3>
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>デバイス名 (<code>--device</code>)</th>
-<th>用紙サイズ (W × H mm)</th>
-<th>備考</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td><code>iphone</code></td>
-<td>65.0 × 140.0</td>
-<td>iPhone 11 実寸</td>
-</tr>
-<tr>
-<td>2</td>
-<td><code>android</code></td>
-<td>70.0 × 155.5</td>
-<td>現代型 Android (9:20)</td>
-</tr>
-<tr>
-<td>3</td>
-<td><code>android_legacy</code></td>
-<td>70.0 × 124.0</td>
-<td>旧型 Android (9:16) 互換</td>
-</tr>
-<tr>
-<td>4</td>
-<td><code>ipad_portrait</code></td>
-<td>158.0 × 227.0</td>
-<td>iPad 10th Gen 縦向き・単段組</td>
-</tr>
-<tr>
-<td>5</td>
-<td><code>ipad_landscape</code></td>
-<td>227.0 × 158.0</td>
-<td>iPad 10th Gen 横向き・<strong>二段組推奨</strong></td>
-</tr>
-<tr>
-<td>6</td>
-<td><code>pc</code></td>
-<td>210.0 × 297.0</td>
-<td>A4</td>
-</tr>
-<tr>
-<td>7</td>
-<td><code>smartphone</code></td>
-<td>70.0 × 140.0</td>
-<td>汎用スマートフォン（互換性用エイリアス）</td>
-</tr>
-<tr>
-<td>8</td>
-<td><code>ipad</code></td>
-<td>158.0 × 227.0</td>
-<td>iPad 縦向きの旧エイリアス（互換性用）</td>
-</tr>
-</tbody>
-</table>
-<h3 id="_2">📝 補足</h3>
-<ul>
-<li><strong>実質的なユニークサイズは 6 種類</strong>です。<code>smartphone</code> は <code>iphone</code> に近く、<code>ipad</code> は <code>ipad_portrait</code> と全く同じサイズです（互換性のためのエイリアス）。</li>
-<li>デフォルト（<code>--device</code> 指定なし）は <strong>A4（210 × 297 mm）</strong> になります。</li>
-<li><a href="cci:7://file:///c:/Users/etsuk/PG/LaTex/aozoratex-studio/settings.ini:0:0-0:0">settings.ini</a> に <code>[PDF_&lt;デバイス名&gt;]</code> セクションを追加すれば、<strong>カスタムデバイスも自由に追加可能</strong>な設計です。</li>
-</ul>
-  </main>
+    <main class="doc-wrap">
+        <p><a href="/static/docs/markdown/index.html">Markdown変換ドキュメント一覧へ戻る</a></p>
+        <p class="muted">source: manuals/現在の出力サイズ（デバイス）の種類.md</p>
+
+        <h1>現在の出力サイズ（デバイス）の種類</h1>
+        <p>現行バージョンでは、<code>config/device_settings.default.ini</code> に定義された 5 種類の標準デバイスを使用します。</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>device</th>
+                    <th>サイズ(mm)</th>
+                    <th>用途</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><code>iphone</code></td>
+                    <td>65.0 x 140.0</td>
+                    <td>スマートフォン縦書きの既定プロファイル</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><code>android</code></td>
+                    <td>70.0 x 155.5</td>
+                    <td>Android 現代型</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><code>ipad</code></td>
+                    <td>158.0 x 227.0</td>
+                    <td>iPad 縦向き（単段組）</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><code>ipad_landscape</code></td>
+                    <td>227.0 x 158.0</td>
+                    <td>iPad 横向き（二段組）</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><code>pc</code></td>
+                    <td>210.0 x 297.0</td>
+                    <td>A4 出力</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>補足</h2>
+        <ul>
+            <li>CLI の <code>--device</code> 既定値は <code>iphone</code> です。</li>
+            <li>Web UI も同じ標準デバイス群を参照します。</li>
+            <li>カスタムデバイスを追加する場合は <code>config/device_settings.custom.ini</code> に <code>[&lt;device&gt;]</code> セクションを追加します。</li>
+        </ul>
+
+        <hr />
+        <p><a href="/static/docs/index.html">ドキュメントトップへ戻る</a></p>
+    </main>
 </body>
+
 </html>

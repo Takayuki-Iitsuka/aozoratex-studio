@@ -67,7 +67,8 @@ endef
 
 # --- ターゲット定義 ---
 .PHONY: help clean clean-all clean-out server test test-all install \
-        pdf-iPhone pdf-Android pdf-PC pdf-iPad pdf-iPad-TwoColumn
+        pdf-iPhone pdf-Android pdf-PC pdf-iPad pdf-iPad-TwoColumn \
+        pdf-iphone pdf-android pdf-pc pdf-ipad pdf-ipad-twocolumn
 
 help:
 	@printf '%s\n' 'AozoraTeX Studio - Makefile'
@@ -171,3 +172,10 @@ pdf-iPad-TwoColumn:
 	@echo "Compiling PDF with latexmk..."
 	$(call RUN_LUALATEX,ipad_landscape)
 	@echo "Done: out/ipad_landscape/"
+
+# lower-case aliases for CLI ergonomics/document consistency
+pdf-iphone: pdf-iPhone
+pdf-android: pdf-Android
+pdf-pc: pdf-PC
+pdf-ipad: pdf-iPad
+pdf-ipad-twocolumn: pdf-iPad-TwoColumn
