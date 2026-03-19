@@ -324,19 +324,47 @@ Egyptian Hieroglyphs：
         const frameAllowed = isFrameAllowedDevice(state.selectedDevice);
         const frameCheck = byId("mainFrameEnabled");
         const frameVariant = byId("mainFrameVariant");
+        const pageNumberCheck = byId("pageNumberEnabled");
+        const twoColumnCheck = byId("twoColumnEnabled");
+
         frameCheck.disabled = !frameAllowed;
         frameVariant.disabled = !frameAllowed || !frameCheck.checked;
-        if (!frameAllowed) frameCheck.checked = false;
+        if (!frameAllowed) {
+            frameCheck.checked = false;
+        }
+
+        if (pageNumberCheck) {
+            pageNumberCheck.disabled = !frameAllowed;
+            if (!frameAllowed) {
+                pageNumberCheck.checked = false;
+            }
+        }
+
+        if (twoColumnCheck) {
+            twoColumnCheck.disabled = !frameAllowed;
+            if (!frameAllowed) {
+                twoColumnCheck.checked = false;
+            }
+        }
     }
 
     function getDecorationPayload() {
-        return {
+        const payload = {
             main_washi_enabled: byId("mainWashiEnabled").checked,
             main_frame_enabled: byId("mainFrameEnabled").checked,
             main_frame_variant: Number(byId("mainFrameVariant").value || 1),
             cover_texture_enabled: byId("coverTextureEnabled").checked,
             cover_texture_variant: Number(byId("coverTextureVariant").value || 1),
         };
+        const pageNumberCheck = byId("pageNumberEnabled");
+        if (pageNumberCheck) {
+            payload.page_number_enabled = pageNumberCheck.checked;
+        }
+        const twoColumnCheck = byId("twoColumnEnabled");
+        if (twoColumnCheck) {
+            payload.two_column_enabled = twoColumnCheck.checked;
+        }
+        return payload;
     }
 
     function applyDecorationSettings(globalSettings) {
@@ -345,6 +373,14 @@ Egyptian Hieroglyphs：
         byId("mainFrameVariant").value = String(globalSettings.main_frame_variant || 1);
         byId("coverTextureEnabled").checked = Boolean(globalSettings.cover_texture_enabled ?? false);
         byId("coverTextureVariant").value = String(globalSettings.cover_texture_variant || 1);
+        const pageNumberCheck = byId("pageNumberEnabled");
+        if (pageNumberCheck) {
+            pageNumberCheck.checked = Boolean(globalSettings.page_number_enabled ?? true);
+        }
+        const twoColumnCheck = byId("twoColumnEnabled");
+        if (twoColumnCheck) {
+            twoColumnCheck.checked = Boolean(globalSettings.two_column_enabled ?? false);
+        }
     }
 
     function getFilteredAndSortedSources() {

@@ -483,6 +483,14 @@ def resolve_decoration_options(payload: dict) -> dict[str, object]:
             "cover_texture_variant",
             read_variant_default("cover_texture_variant", 1),
         ),
+        "page_number_enabled": pick_bool(
+            "page_number_enabled",
+            to_bool(global_settings.get("page_number_enabled"), default=True),
+        ),
+        "two_column_enabled": pick_bool(
+            "two_column_enabled",
+            to_bool(global_settings.get("two_column_enabled"), default=False),
+        ),
     }
 
 
@@ -512,6 +520,8 @@ def save_generation_preferences(
             "main_frame_variant",
             "cover_texture_enabled",
             "cover_texture_variant",
+            "page_number_enabled",
+            "two_column_enabled",
         ):
             if key in decorations:
                 global_updates[key] = decorations[key]
@@ -771,6 +781,7 @@ def generate_single(
     cover_texture_enabled: Optional[bool] = None
     main_frame_variant: Optional[int] = None
     cover_texture_variant: Optional[int] = None
+    page_number_enabled: Optional[bool] = None
 
     if decorations:
         main_washi_enabled = to_bool(
@@ -800,6 +811,12 @@ def generate_single(
         except (TypeError, ValueError):
             cover_texture_variant = None
 
+        if "page_number_enabled" in decorations:
+            page_number_enabled = to_bool(
+                decorations.get("page_number_enabled"),
+                default=True,
+            )
+
     try:
         generation = generate_tex_for_source(
             source_path=source_path,
@@ -813,6 +830,7 @@ def generate_single(
             main_frame_variant=main_frame_variant,
             cover_texture_enabled=cover_texture_enabled,
             cover_texture_variant=cover_texture_variant,
+            page_number_enabled=page_number_enabled,
         )
     except Exception as exc:
         logger.exception("src.aozoratex failed: %s", exc)

@@ -34,6 +34,7 @@ def generate_tex_for_source(
     main_frame_variant: Optional[int] = None,
     cover_texture_enabled: Optional[bool] = None,
     cover_texture_variant: Optional[int] = None,
+    page_number_enabled: Optional[bool] = None,
 ) -> TexGenerationResult:
     """
     Convert one local HTML/XHTML source into a `.tex` file.
@@ -72,6 +73,7 @@ def generate_tex_for_source(
         main_frame_variant=main_frame_variant,
         cover_texture_enabled=cover_texture_enabled,
         cover_texture_variant=cover_texture_variant,
+        page_number_enabled=page_number_enabled,
     )
 
     return TexGenerationResult(

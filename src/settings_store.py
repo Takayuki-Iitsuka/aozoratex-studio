@@ -42,6 +42,7 @@ GLOBAL_DEFAULTS: dict[str, str] = {
     "main_washi_enabled": "false",
     "main_frame_enabled": "false",
     "main_frame_variant": "1",
+    "two_column_enabled": "false",
     "cover_texture_enabled": "true",
     "cover_texture_variant": "1",
     "background_color": "#FFFFFF",
@@ -207,6 +208,7 @@ def _render_global_default_ini() -> str:
         f"main_washi_enabled = {GLOBAL_DEFAULTS['main_washi_enabled']}",
         f"main_frame_enabled = {GLOBAL_DEFAULTS['main_frame_enabled']}",
         f"main_frame_variant = {GLOBAL_DEFAULTS['main_frame_variant']}",
+        f"two_column_enabled = {GLOBAL_DEFAULTS['two_column_enabled']}",
         f"cover_texture_enabled = {GLOBAL_DEFAULTS['cover_texture_enabled']}",
         f"cover_texture_variant = {GLOBAL_DEFAULTS['cover_texture_variant']}",
         f"background_color = {GLOBAL_DEFAULTS['background_color']}",
@@ -519,6 +521,16 @@ def get_global_settings() -> dict[str, Any]:
     if main_frame_variant not in {1, 2, 3}:
         main_frame_variant = 1
 
+    two_column_enabled = _safe_bool(
+        _get_option(
+            cfg,
+            section,
+            "two_column_enabled",
+            GLOBAL_DEFAULTS["two_column_enabled"],
+        ),
+        _safe_bool(GLOBAL_DEFAULTS["two_column_enabled"], False),
+    )
+
     cover_texture_enabled = _safe_bool(
         _get_option(
             cfg,
@@ -546,6 +558,7 @@ def get_global_settings() -> dict[str, Any]:
         "main_washi_enabled": main_washi_enabled,
         "main_frame_enabled": main_frame_enabled,
         "main_frame_variant": main_frame_variant,
+        "two_column_enabled": two_column_enabled,
         "cover_texture_enabled": cover_texture_enabled,
         "cover_texture_variant": cover_texture_variant,
         "background_color": bg,

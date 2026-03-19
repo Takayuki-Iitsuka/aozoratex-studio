@@ -108,9 +108,13 @@
             <h2>ステップ 4: フォント選択</h2>
             <p class="muted">LuaLaTeX で使用可能な日本語フォントを一覧から選択します。</p>
             <p class="muted">
+                書体ごとの推奨度や特徴、最適なフォントの組み合わせ（和欧混植など）についての詳細は、
+                <a href="/static/docs/markdown/manuals/フォント選定.html" target="_blank"
+                    rel="noopener noreferrer">フォント選定ガイド / LuaLaTeX 推奨フォントカタログ</a>
+                を参照してください。
+            </p>
+            <p class="muted">
                 推奨フォント: <strong>IPAmjMincho</strong>（学術用途の外字互換性を重視） / Shippori Mincho / Yu Mincho。
-                詳細: <a href="/static/docs/markdown/manuals/フォント選定.html" target="_blank"
-                    rel="noopener noreferrer">フォント選定ガイド</a>
             </p>
             <div class="font-picker">
                 <div class="field">
@@ -162,6 +166,8 @@
                             <option value="3">Frame 3</option>
                         </select>
                     </label>
+                    <label class="toggle-row" id="pageNumberWrap"><input type="checkbox" id="pageNumberEnabled" checked> ページ番号を表示</label>
+                    <label class="toggle-row" id="twoColumnWrap"><input type="checkbox" id="twoColumnEnabled"> 二段組を行なう (PC/iPad限定)</label>
                 </div>
 
                 <div class="decorate-inline">

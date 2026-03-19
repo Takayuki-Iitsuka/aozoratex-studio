@@ -1420,8 +1420,10 @@ def build_tex_file(
     main_washi_enabled: Optional[bool] = None,
     main_frame_enabled: Optional[bool] = None,
     main_frame_variant: Optional[int] = None,
+    two_column_enabled: Optional[bool] = None,
     cover_texture_enabled: Optional[bool] = None,
     cover_texture_variant: Optional[int] = None,
+    page_number_enabled: Optional[bool] = None,
 ) -> Path:
     """
     本文（LaTeX中間）をテンプレートに埋め込み、`.tex` として保存します。
@@ -1440,18 +1442,38 @@ def build_tex_file(
     # two_column は本文開始時の \twocolumn / 奥付前の \onecolumn で明示制御する。
     # class option に twocolumn を入れると one/two の切替が不安定になるケースがあるため避ける。
     docclass_extra = ""
-    columns = 2 if use_two_column else 1
     pre_info_layout = ""
-    pre_body_layout = r"\twocolumn" if use_two_column else ""
-    pre_okuduke_layout = r"\onecolumn" if use_two_column else r"\clearpage"
 
     margin_top = float(device_layout["margin_top_mm"])
     margin_bottom = float(device_layout["margin_bottom_mm"])
     margin_left = float(device_layout["margin_left_mm"])
     margin_right = float(device_layout["margin_right_mm"])
-    show_page_number = bool(device_layout["show_page_number"])
+
+    global_settings = settings_store.get_global_settings()
+
+    resolved_two_column_enabled = (
+        bool(two_column_enabled)
+        if two_column_enabled is not None
+        else bool(global_settings.get("two_column_enabled", str(device_layout.get("mode", "single_column")) == "two_column"))
+    )
+
+    resolved_page_number_enabled = (
+        bool(page_number_enabled)
+        if page_number_enabled is not None
+        else bool(global_settings.get("page_number_enabled", True))
+    )
+    show_page_number = resolved_page_number_enabled
     if device_name in {"iphone", "android"}:
         show_page_number = False
+
+    frame_allowed_devices = {"pc", "ipad", "ipad_landscape"}
+    if device_name not in frame_allowed_devices:
+        resolved_two_column_enabled = False
+
+    use_two_column = resolved_two_column_enabled
+    columns = 2 if use_two_column else 1
+    pre_body_layout = r"\twocolumn" if use_two_column else ""
+    pre_okuduke_layout = r"\onecolumn" if use_two_column else r"\clearpage"
 
     # ---- JIS X 4051 準拠 レイアウト自動調整 ----
     # ルビサイズ: 本文フォントサイズの 1/2 (JIS X 4051 §6.2)
@@ -1500,8 +1522,6 @@ def build_tex_file(
     okuduke = (
         okuduke_override if okuduke_override is not None else load_okuduke_template()
     )
-
-    global_settings = settings_store.get_global_settings()
 
     resolved_main_washi_enabled = (
         bool(main_washi_enabled)
@@ -1555,9 +1575,20 @@ def build_tex_file(
     if show_page_number:
         if resolved_main_frame_enabled:
             effective_chars = max(20, chars - 2)
-            nombre_value = r"\raisebox{2.8mm}[0pt][0pt]{\small \thepage{} / \pageref{LastBodyPage}}"
+            if use_two_column and effective_chars % 2 != 0:
+                effective_chars -= 1
+            
+            # 文字数を減らした分、テキスト領域の縦幅が縮むため、上下マージンを同等に増やして中央配置を維持・高さを揃える
+            removed_chars = chars - effective_chars
+            if removed_chars > 0:
+                char_size_mm = font_size * 0.35278
+                padding_mm = (removed_chars * char_size_mm) / 2.0
+                margin_top += padding_mm
+                margin_bottom += padding_mm
+
+            nombre_value = r"\raisebox{2.8mm}[0pt][0pt]{\small \thepage{} / \pageref*{LastBodyPage}}"
         else:
-            nombre_value = r"\small \thepage{} / \pageref{LastBodyPage}"
+            nombre_value = r"\small \thepage{} / \pageref*{LastBodyPage}"
 
         page_style_block = (
             r"\NewPageStyle{aozora}{" + "\n"
