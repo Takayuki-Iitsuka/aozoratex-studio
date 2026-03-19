@@ -2,6 +2,16 @@
     "use strict";
 
     // UI state is intentionally centralized so customization points are easy to track.
+    const CLIENT_ID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const socket = io();
+
+    socket.on("compile_log", (data) => {
+        const terminal = byId("compileLogTerminal");
+        if (!terminal || !data.line) return;
+        terminal.textContent += data.line;
+        terminal.scrollTop = terminal.scrollHeight;
+    });
+
     const SUPPORTED_MODES = ["light", "dark", "intermediate"];
     const RECOMMENDED_FONT = "IPAmjMincho";
     const SERVER_UNREACHABLE_MESSAGE = "serverに接続できません";
@@ -424,11 +434,11 @@ Egyptian Hieroglyphs：
         const list = byId("sourceList");
         list.innerHTML = "";
         filtered.forEach((file) => {
-            const label = document.createElement("label");
-            label.className = "source-item";
+            const label = document.createElement("div");
+            label.className = "form-check border-bottom py-1";
             label.innerHTML = `
-                <input type="checkbox" class="source-check" value="${escapeHtml(file.path)}">
-                <span>${escapeHtml(file.name)}</span>
+                <input type="checkbox" class="source-check form-check-input" value="${escapeHtml(file.path)}" id="chk_${escapeHtml(file.name)}">
+                <label class="form-check-label w-100 cursor-pointer" for="chk_${escapeHtml(file.name)}">${escapeHtml(file.name)}</label>
             `;
             const checkbox = label.querySelector("input");
             checkbox.checked = checked.has(file.path);
@@ -489,32 +499,45 @@ Egyptian Hieroglyphs：
         const grid = byId("deviceGrid");
         grid.innerHTML = "";
         Object.entries(devices).forEach(([key, device]) => {
+            const col = document.createElement("div");
+            col.className = "col";
             const card = document.createElement("div");
-            card.className = "card";
+            card.className = "card h-100 cursor-pointer border-2 border-secondary-subtle text-bg-light";
             card.innerHTML = `
-                <div class="card-label">${escapeHtml(device.label)}</div>
-                <div class="card-desc">${device.width} x ${device.height} mm</div>
+                <div class="card-body p-3">
+                    <h6 class="card-title fw-bold text-dark mb-1">${escapeHtml(device.label)}</h6>
+                    <p class="card-text text-muted small mb-0">${device.width} x ${device.height} mm</p>
+                </div>
             `;
+            col.appendChild(card);
             card.addEventListener("click", () => {
-                document.querySelectorAll("#deviceGrid .card").forEach((c) => c.classList.remove("active"));
-                card.classList.add("active");
+                document.querySelectorAll("#deviceGrid .card").forEach((c) => {
+                    c.classList.remove("border-primary", "bg-primary-subtle");
+                    c.classList.add("border-secondary-subtle", "text-bg-light");
+                });
+                card.classList.remove("border-secondary-subtle", "text-bg-light");
+                card.classList.add("border-primary", "bg-primary-subtle");
                 state.selectedDevice = key;
                 updateProgress(45);
                 updateDevicePreview();
                 syncDeviceDependentDecorations();
             });
-            grid.appendChild(card);
+            grid.appendChild(col);
 
             if (device.default && !state.selectedDevice) {
                 state.selectedDevice = key;
-                card.classList.add("active");
+                card.classList.remove("border-secondary-subtle", "text-bg-light");
+                card.classList.add("border-primary", "bg-primary-subtle");
             }
         });
 
         if (!state.selectedDevice) {
             state.selectedDevice = Object.keys(devices)[0];
             const first = grid.querySelector(".card");
-            if (first) first.classList.add("active");
+            if (first) {
+                first.classList.remove("border-secondary-subtle", "text-bg-light");
+                first.classList.add("border-primary", "bg-primary-subtle");
+            }
         }
         updateDevicePreview();
         syncDeviceDependentDecorations();
@@ -602,7 +625,7 @@ Egyptian Hieroglyphs：
     }
 
     function showServerUnavailableAlertOnce() {
-        alert(SERVER_UNREACHABLE_MESSAGE);
+        Swal.fire({ icon: 'error', title: '通信エラー', text: SERVER_UNREACHABLE_MESSAGE });
     }
 
     async function waitForServerReady(timeoutMs = 25000) {
@@ -629,7 +652,15 @@ Egyptian Hieroglyphs：
         const confirmMessage = isRestart
             ? "serverを再起動します。よろしいですか？"
             : "serverを停止します。よろしいですか？";
-        if (!window.confirm(confirmMessage)) {
+        const confirmResult = await Swal.fire({
+            title: '確認',
+            text: confirmMessage,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'はい',
+            cancelButtonText: 'キャンセル'
+        });
+        if (!confirmResult.isConfirmed) {
             return;
         }
 
@@ -640,26 +671,26 @@ Egyptian Hieroglyphs：
         });
 
         const result = byId("result");
-        result.className = "result success";
-        result.innerHTML = `<h3>server操作</h3><p>${escapeHtml(payload.message || "操作を受け付けました。")}</p>`;
+        result.className = "alert alert-success mt-4 shadow-sm";
+        result.innerHTML = `<h4 class="alert-heading h5 fw-bold">server操作</h4><p class="mb-0">${escapeHtml(payload.message || "操作を受け付けました。")}</p>`;
         result.style.display = "block";
 
         if (isRestart) {
             const back = await waitForServerReady(25000);
             if (back) {
-                alert("serverが再起動しました");
+                Swal.fire({ icon: 'success', title: '再起動完了', text: "serverが再起動しました" });
             } else {
-                alert("server再起動中です。反応がない場合は数秒後に再読み込みしてください。");
+                Swal.fire({ icon: 'info', title: '再起動中', text: "server再起動中です。反応がない場合は数秒後に再読み込みしてください。" });
             }
             return;
         }
 
-        alert("serverを停止しました");
+        Swal.fire({ icon: 'success', title: '停止', text: "serverを停止しました" });
     }
 
     async function saveColorSettings() {
         if (!state.selectedDevice) {
-            alert("デバイスを選択してください");
+            Swal.fire({ icon: 'warning', title: '警告', text: "デバイスを選択してください" });
             return;
         }
 
@@ -693,8 +724,8 @@ Egyptian Hieroglyphs：
         if (data.success) {
             state.modeColors[mode] = { bg, fg };
             const result = byId("result");
-            result.className = "result success";
-            result.innerHTML = "<h3>設定保存 完了</h3><p>背景色・文字色・装飾オプションをカスタム設定に保存しました。</p>";
+            result.className = "alert alert-success mt-4 shadow-sm";
+            result.innerHTML = "<h4 class=\"alert-heading h5 fw-bold\">設定保存 完了</h4><p class=\"mb-0\">背景色・文字色・装飾オプションをカスタム設定に保存しました。</p>";
             result.style.display = "block";
         } else {
             throw new Error(data.error || "save failed");
@@ -704,11 +735,11 @@ Egyptian Hieroglyphs：
     async function generate(forceAll) {
         const selectedSources = getSelectedSources(forceAll);
         if (selectedSources.length === 0) {
-            alert("ファイルを選択してください");
+            Swal.fire({ icon: 'warning', title: '警告', text: "ファイルを選択してください" });
             return;
         }
         if (!state.selectedDevice) {
-            alert("デバイスを選択してください");
+            Swal.fire({ icon: 'warning', title: '警告', text: "デバイスを選択してください" });
             return;
         }
 
@@ -720,6 +751,14 @@ Egyptian Hieroglyphs：
         byId("loading").style.display = "block";
         const resultDiv = byId("result");
         resultDiv.style.display = "none";
+        
+        const terminal = byId("compileLogTerminal");
+        const termContainer = byId("compileLogContainer");
+        if (terminal && termContainer) {
+            terminal.textContent = "";
+            termContainer.style.display = "block";
+        }
+        
         updateProgress(0);
 
         const payloadBase = {
@@ -729,6 +768,7 @@ Egyptian Hieroglyphs：
             bg_color: bg,
             fg_color: fg,
             compile_pdf: true,
+            client_id: CLIENT_ID,
             ...getDecorationPayload(),
         };
 
@@ -765,16 +805,16 @@ Egyptian Hieroglyphs：
         if (results.length === 1) {
             const item = results[0];
             if (item.success) {
-                resultDiv.className = "result success";
+                resultDiv.className = "alert alert-success mt-4 shadow-sm";
                 resultDiv.innerHTML = `
-                    <h3>生成成功</h3>
-                    <p>TEX: <code>${escapeHtml(item.tex_file || "")}</code></p>
-                    ${item.pdf_url ? `<p><a href="${item.pdf_url}" target="_blank" rel="noopener noreferrer">PDFを開く</a></p>` : ""}
+                    <h4 class="alert-heading h5 fw-bold">生成成功</h4>
+                    <p class="mb-1">TEX: <code>${escapeHtml(item.tex_file || "")}</code></p>
+                    ${item.pdf_url ? `<p class="mb-0"><a href="${item.pdf_url}" target="_blank" rel="noopener noreferrer" class="alert-link">PDFを開く</a></p>` : ""}
                 `;
-                alert("生成できました");
+                Swal.fire({ icon: 'success', title: '成功', text: "生成できました", timer: 2000, showConfirmButton: false });
             } else {
-                resultDiv.className = "result error";
-                resultDiv.innerHTML = `<h3>生成失敗</h3><p>${escapeHtml(item.error || "unknown error")}</p>`;
+                resultDiv.className = "alert alert-danger mt-4 shadow-sm";
+                resultDiv.innerHTML = `<h4 class="alert-heading h5 fw-bold">生成失敗</h4><p class="mb-0">${escapeHtml(item.error || "unknown error")}</p>`;
             }
             resultDiv.style.display = "block";
             return;
@@ -789,16 +829,16 @@ Egyptian Hieroglyphs：
             .map((r) => `<li>${escapeHtml(r.source)}: ${escapeHtml(r.error || "unknown error")}</li>`)
             .join("");
 
-        resultDiv.className = failures === 0 ? "result success" : "result error";
+        resultDiv.className = failures === 0 ? "alert alert-success mt-4 shadow-sm" : "alert alert-danger mt-4 shadow-sm";
         resultDiv.innerHTML = `
-            <h3>${failures === 0 ? "一括生成 完了" : "一括生成 完了（一部失敗）"}</h3>
-            <p>成功 ${results.length - failures} / ${results.length}</p>
-            <ul>${links || "<li>PDFリンクなし</li>"}</ul>
-            ${errors ? `<h4>失敗一覧</h4><ul>${errors}</ul>` : ""}
+            <h4 class="alert-heading h5 fw-bold">${failures === 0 ? "一括生成 完了" : "一括生成 完了（一部失敗）"}</h4>
+            <p class="mb-2">成功 ${results.length - failures} / ${results.length}</p>
+            <ul class="mb-2">${links || "<li>PDFリンクなし</li>"}</ul>
+            ${errors ? `<hr><h5 class="h6 fw-bold">失敗一覧</h5><ul class="mb-0">${errors}</ul>` : ""}
         `;
         resultDiv.style.display = "block";
         if (failures === 0) {
-            alert("生成できました");
+            Swal.fire({ icon: 'success', title: '成功', text: "生成できました", timer: 2000, showConfirmButton: false });
         }
     }
 
@@ -810,20 +850,25 @@ Egyptian Hieroglyphs：
         });
         const result = byId("result");
         if (data.success) {
-            result.className = "result success";
-            result.innerHTML = `<h3>クリーンアップ完了</h3><p>削除件数: ${data.deleted_files}</p>`;
+            result.className = "alert alert-success mt-4 shadow-sm";
+            result.innerHTML = `<h4 class="alert-heading h5 fw-bold">クリーンアップ完了</h4><p class="mb-0">削除件数: ${data.deleted_files}</p>`;
         } else {
-            result.className = "result error";
-            result.innerHTML = `<h3>クリーンアップ失敗</h3><p>${escapeHtml(data.error || "unknown")}</p>`;
+            result.className = "alert alert-danger mt-4 shadow-sm";
+            result.innerHTML = `<h4 class="alert-heading h5 fw-bold">クリーンアップ失敗</h4><p class="mb-0">${escapeHtml(data.error || "unknown")}</p>`;
         }
         result.style.display = "block";
     }
 
     async function resetSettingsToDefault() {
-        const confirmed = window.confirm(
-            "保存済みのカスタム設定を削除して、デフォルト設定へ戻します。よろしいですか？"
-        );
-        if (!confirmed) return;
+        const confirmResult = await Swal.fire({
+            title: '確認',
+            text: "保存済みのカスタム設定を削除して、デフォルト設定へ戻します。よろしいですか？",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'はい',
+            cancelButtonText: 'キャンセル'
+        });
+        if (!confirmResult.isConfirmed) return;
 
         const data = await fetchJson("/api/settings/reset", {
             method: "POST",
@@ -840,9 +885,9 @@ Egyptian Hieroglyphs：
         updateProgress(52);
 
         const result = byId("result");
-        result.className = "result success";
+        result.className = "alert alert-success mt-4 shadow-sm";
         result.innerHTML =
-            "<h3>初期化 完了</h3><p>設定をデフォルト値（推奨フォント含む）へ戻しました。</p>";
+            "<h4 class=\"alert-heading h5 fw-bold\">初期化 完了</h4><p class=\"mb-0\">設定をデフォルト値（推奨フォント含む）へ戻しました。</p>";
         result.style.display = "block";
     }
 
@@ -935,25 +980,25 @@ Egyptian Hieroglyphs：
             });
         });
 
-        byId("saveColorBtn").addEventListener("click", () => saveColorSettings().catch((e) => alert(e.message)));
+        byId("saveColorBtn").addEventListener("click", () => saveColorSettings().catch((e) => Swal.fire({ icon: 'error', title: 'エラー', text: e.message })));
         byId("fontFamilySelect").addEventListener("change", () => {
             setSelectedFont(byId("fontFamilySelect").value);
             updateProgress(72);
         });
         byId("refreshFontListBtn").addEventListener("click", () => {
-            loadFonts(true).catch((e) => alert(e.message));
+            loadFonts(true).catch((e) => Swal.fire({ icon: 'error', title: 'エラー', text: e.message }));
         });
         byId("generateBtn").addEventListener("click", () => generate(false));
         byId("generateAllBtn").addEventListener("click", () => generate(true));
-        byId("cleanupBtn").addEventListener("click", () => cleanupNonPdf().catch((e) => alert(e.message)));
+        byId("cleanupBtn").addEventListener("click", () => cleanupNonPdf().catch((e) => Swal.fire({ icon: 'error', title: 'エラー', text: e.message })));
         byId("resetSettingsBtn").addEventListener("click", () =>
-            resetSettingsToDefault().catch((e) => alert(e.message))
+            resetSettingsToDefault().catch((e) => Swal.fire({ icon: 'error', title: 'エラー', text: e.message }))
         );
         byId("restartServerBtn").addEventListener("click", () =>
-            controlServer("restart").catch((e) => alert(e.message))
+            controlServer("restart").catch((e) => Swal.fire({ icon: 'error', title: 'エラー', text: e.message }))
         );
         byId("stopServerBtn").addEventListener("click", () =>
-            controlServer("stop").catch((e) => alert(e.message))
+            controlServer("stop").catch((e) => Swal.fire({ icon: 'error', title: 'エラー', text: e.message }))
         );
         byId("mainWashiEnabled").addEventListener("change", (e) => {
             document.body.classList.toggle("washi-active", e.target.checked);
@@ -986,7 +1031,7 @@ Egyptian Hieroglyphs：
     document.addEventListener("DOMContentLoaded", () => {
         init().catch((error) => {
             console.error(error);
-            alert("初期化に失敗しました: " + error.message);
+            Swal.fire({ icon: 'error', title: 'エラー', text: "初期化に失敗しました: " + error.message });
         });
     });
 })();

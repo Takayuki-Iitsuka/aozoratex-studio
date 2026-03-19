@@ -705,13 +705,13 @@ def _move_ltjruby_sidecar(tex_file: Path, output_dir: Path) -> None:
         break
 
 
-def _run_latexmk(tex_file: Path, output_dir: Path) -> tuple[bool, str]:
+def _run_latexmk(tex_file: Path, output_dir: Path, emit_log: Optional[callable] = None) -> tuple[bool, str]:
     latexmk_bin = shutil.which("latexmk")
     if not latexmk_bin:
-        return (
-            False,
-            "latexmk が見つかりません。TeX Live の PATH 設定を確認してください。",
-        )
+        msg = "latexmk が見つかりません。TeX Live の PATH 設定を確認してください。"
+        if emit_log:
+            emit_log(msg + "\n")
+        return False, msg
 
     cmd = [
         latexmk_bin,
@@ -726,22 +726,48 @@ def _run_latexmk(tex_file: Path, output_dir: Path) -> tuple[bool, str]:
         str(tex_file),
     ]
     logger.info("[latexmk] command: %s", command_to_log_text(cmd))
-    try:
-        proc = subprocess.run(cmd, capture_output=True, timeout=180, cwd=WORKDIR)
-    except subprocess.TimeoutExpired:
-        return False, "latexmk timeout (180s)"
-    except OSError as exc:
-        return False, f"latexmk failed to start: {exc}"
+    
+    if emit_log:
+        emit_log(f"$ {command_to_log_text(cmd)}\n")
 
-    stdout_text = _decode_output(proc.stdout)
-    stderr_text = _decode_output(proc.stderr)
-    if stdout_text.strip():
-        logger.info("[latexmk stdout]\n%s", stdout_text.strip())
-    if stderr_text.strip():
-        logger.warning("[latexmk stderr]\n%s", stderr_text.strip())
-    log_text = f"[latexmk] return_code={proc.returncode}\n{stdout_text}\n{stderr_text}"
+    try:
+        proc = subprocess.Popen(
+            cmd, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT, 
+            text=True, 
+            encoding="utf-8", 
+            errors="replace", 
+            cwd=WORKDIR,
+            bufsize=1  # line buffered
+        )
+    except OSError as exc:
+        msg = f"latexmk failed to start: {exc}"
+        if emit_log:
+            emit_log(msg + "\n")
+        return False, msg
+
+    outputs = []
+    if proc.stdout is not None:
+        for line in iter(proc.stdout.readline, ""):
+            outputs.append(line)
+            if emit_log:
+                emit_log(line)
+    
+    try:
+        proc.wait(timeout=180)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        msg = "latexmk timeout (180s)"
+        if emit_log:
+            emit_log(msg + "\n")
+        return False, msg
+
+    full_output = "".join(outputs)
+    log_text = f"[latexmk] return_code={proc.returncode}\n{full_output}"
 
     if proc.returncode != 0:
+        logger.warning("[latexmk] failed with return_code=%s", proc.returncode)
         return False, log_text
 
     _move_ltjruby_sidecar(tex_file, output_dir)
@@ -757,6 +783,7 @@ def generate_single(
     font_family: Optional[str],
     compile_pdf: bool,
     decorations: Optional[dict[str, object]] = None,
+    emit_log: Optional[callable] = None,
 ) -> tuple[bool, dict, int]:
     logger.info(
         "[generate] start source=%s device=%s mode=%s compile_pdf=%s",
@@ -854,7 +881,7 @@ def generate_single(
             logger.error("[generate] tex file missing: %s", out_tex)
             return False, {"error": f"Generated TEX not found: {out_tex.name}"}, 500
 
-        compiled, compile_log = _run_latexmk(out_tex, work_dir)
+        compiled, compile_log = _run_latexmk(out_tex, work_dir, emit_log=emit_log)
         if not compiled:
             logger.error("[generate] latexmk failed for %s", source)
             return (

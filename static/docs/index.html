@@ -5,73 +5,98 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AozoraTeX Studio ドキュメント</title>
-  <link rel="stylesheet" href="/static/docs/docs-index.css">
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="/static/docs/css/docs-index.css">
 </head>
 
-<body>
-  <div class="wrap">
-    <h1>AozoraTeX Studio ドキュメント</h1>
-    <p class="lead">本ページは、AozoraTeX Studio の運用・設定・実装を段階的に参照するための <strong>公式ナビゲーション</strong>
-      です。日常運用は概要ガイドから、調整・保守時は詳細ガイドへ進む構成に統一しています。</p>
-    <p class="lead">最新更新: 端末別の生成先を out/work/&lt;device&gt; と out/pdf/&lt;device&gt;
-      に統一しました。詳細は「出力サイズ（デバイス）の種類」と「開発者向け説明書」を参照してください。</p>
+<body class="bg-light">
+  <div class="container py-5 my-4 bg-white rounded-4 shadow-sm wrap">
+    <h1 class="mb-3 text-dark fs-2 fw-bold">AozoraTeX Studio ドキュメント</h1>
+    <p class="lead text-secondary">本ページは、AozoraTeX Studio の運用・設定・実装を段階的に参照するための <strong>公式ナビゲーション</strong> です。日常運用は概要ガイドから、調整・保守時は詳細ガイドへ進む構成に統一しています。</p>
+    <p class="text-muted small mb-4">最新更新: 端末別の生成先を out/work/&lt;device&gt; と out/pdf/&lt;device&gt; に統一しました。詳細は「出力サイズ（デバイス）の種類」と「開発者向け説明書」を参照してください。</p>
 
-    <div class="grid">
-      <section class="card">
-        <h2>プロジェクト概要・運用</h2>
-        <p>目的、構成、推奨運用、保守フローを整理した起点ページです。まず最初に参照してください。</p>
-        <a href="/static/docs/project/project-manual.html">開く</a>
-      </section>
+    <div class="row row-cols-1 row-cols-md-2 g-4 grid">
+      <div class="col">
+        <section class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="h5 card-title fw-bold">プロジェクト概要・運用</h2>
+            <p class="card-text text-muted small">目的、構成、推奨運用、保守フローを整理した起点ページです。まず最初に参照してください。</p>
+            <a href="/static/docs/manuals/project-guide.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
+          </div>
+        </section>
+      </div>
 
-      <section class="card">
-        <h2>デバイス別組版</h2>
-        <p>標準デバイス5種のサイズ・行数・調整方針をまとめています。可読性調整時の基準として利用します。</p>
-        <a href="/static/docs/device/device-manual.html">開く</a>
-      </section>
+      <div class="col">
+        <section class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="h5 card-title fw-bold">デバイス別組版</h2>
+            <p class="card-text text-muted small">標準デバイス5種のサイズ・行数・調整方針をまとめています。可読性調整時の基準として利用します。</p>
+            <a href="/static/docs/manuals/device-specs.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
+          </div>
+        </section>
+      </div>
 
-      <section class="card">
-        <h2>変換・文字コード・LaTeX設定</h2>
-        <p>HTML/XHTML から TEX/PDF 生成までの変換パイプライン、文字コード運用、失敗時の確認手順を解説します。</p>
-        <a href="/static/docs/conversion/conversion-manual.html">開く</a>
-      </section>
+      <div class="col">
+        <section class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="h5 card-title fw-bold">変換・文字コード・LaTeX設定</h2>
+            <p class="card-text text-muted small">HTML/XHTML から TEX/PDF 生成までの変換パイプライン、文字コード運用、失敗時の確認手順を解説します。</p>
+            <a href="/static/docs/manuals/conversion-guide.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
+          </div>
+        </section>
+      </div>
 
-      <section class="card">
-        <h2>配色設計ガイド</h2>
-        <p>配色方針、コントラスト基準、モード別の運用ルールを説明します。長時間読書向けの調整基準を含みます。</p>
-        <a href="/static/docs/color/color-manual.html">開く</a>
-      </section>
+      <div class="col">
+        <section class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="h5 card-title fw-bold">配色設計ガイド</h2>
+            <p class="card-text text-muted small">配色方針、コントラスト基準、モード別の運用ルールを説明します。長時間読書向けの調整基準を含みます。</p>
+            <a href="/static/docs/manuals/color-theme.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
+          </div>
+        </section>
+      </div>
 
-      <section class="card">
-        <h2>フォント選定ガイド</h2>
-        <p>本文・見出し向けフォントの選定基準と、学術用途での使い分け方針をまとめています。</p>
-        <a href="/static/docs/markdown/manuals/フォント選定.html">開く</a>
-      </section>
+      <div class="col">
+        <section class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="h5 card-title fw-bold">フォント選定ガイド</h2>
+            <p class="card-text text-muted small">本文・見出し向けフォントの選定基準と、学術用途での使い分け方針をまとめています。</p>
+            <a href="/static/docs/manuals/font-selection.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
+          </div>
+        </section>
+      </div>
 
-      <section class="card">
-        <h2>参照ページ（一覧/可視化）</h2>
-        <p>配色一覧とデバイスサイズ比較を可視化する補助ページです。設計判断の確認に使用します。</p>
-        <ul>
-          <li><a href="/static/docs/color/colors.html">colors.html</a></li>
-          <li><a href="/static/docs/device/device-paper-size-map.html">device-paper-size-map.html</a></li>
-        </ul>
-      </section>
+      <div class="col">
+        <section class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="h5 card-title fw-bold">参照ページ（一覧/可視化）</h2>
+            <p class="card-text text-muted small">配色一覧とデバイスサイズ比較を可視化する補助ページです。設計判断の確認に使用します。</p>
+            <ul class="list-unstyled mb-0">
+              <li><i class="bi bi-chevron-right text-primary me-1"></i> <a href="/static/docs/manuals/colors-visualizer.html" class="text-decoration-none">colors-visualizer.html (旧 colors.html)</a></li>
+              <li><i class="bi bi-chevron-right text-primary me-1"></i> <a href="/static/docs/manuals/device-paper-size-map.html" class="text-decoration-none">device-paper-size-map.html</a></li>
+            </ul>
+          </div>
+        </section>
+      </div>
 
-      <section class="card">
-        <h2>Markdown 変換版</h2>
-        <p>設計メモを含む詳細資料の変換版です。仕様の背景や検討経緯を追う際に参照してください。</p>
-        <a href="/static/docs/markdown/index.html">開く</a>
-      </section>
-
-      <section class="card">
-        <h2>更新案内: 端末別生成先</h2>
-        <p>端末別の TEX/PDF 生成先と命名規則の更新内容を確認できます。CLI/Web/Make 共通運用の確認に利用してください。</p>
-        <ul>
-          <li><a href="/static/docs/markdown/manuals/現在の出力サイズ（デバイス）の種類.html">現在の出力サイズ（デバイス）の種類</a></li>
-          <li><a href="/static/docs/markdown/manuals/開発者向け説明書.html">開発者向け説明書</a></li>
-        </ul>
-      </section>
+      <div class="col">
+        <section class="card h-100 shadow-sm text-bg-secondary">
+          <div class="card-body">
+            <h2 class="h5 card-title fw-bold">更新案内: 端末別生成先</h2>
+            <p class="card-text small">端末別の TEX/PDF 生成先と命名規則の更新内容を確認できます。CLI/Web/Make 共通運用の確認に利用してください。</p>
+            <ul class="list-unstyled mb-0">
+              <li><i class="bi bi-chevron-right text-white me-1"></i> <a href="/static/docs/manuals/device-specs.html" class="text-white text-decoration-none">現在の出力サイズ（デバイス）の種類</a></li>
+              <li><i class="bi bi-chevron-right text-white me-1"></i> <a href="/static/docs/technical/developer-guide.html" class="text-white text-decoration-none">開発者向け説明書</a></li>
+            </ul>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmxc5s9fDVZLESaAa55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 
 </html>

@@ -14,9 +14,9 @@ set "WAIT_SECONDS=1"
 
 REM Start the server first, then open browser after health-check passes.
 if exist "%PYTHON_EXE%" (
-    start "AozoraTeX Server" cmd /c ""%PYTHON_EXE%" -m src.aozora_server"
+    start "AozoraTeX Server" cmd /c ""%PYTHON_EXE%" -m src.aozora_server || pause"
 ) else (
-    start "AozoraTeX Server" cmd /c "python -m src.aozora_server"
+    start "AozoraTeX Server" cmd /c "python -m src.aozora_server || pause"
 )
 
 set "SERVER_READY=0"

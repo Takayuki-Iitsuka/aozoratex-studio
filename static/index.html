@@ -5,206 +5,283 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AozoraTeX Studio</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/index.css">
 </head>
 
-<body>
+<body class="bg-light">
     <!--
         Customization note:
         UI behavior is implemented in /static/js/index.js.
-        Labels and section order can be changed here without touching server code.
     -->
-    <div class="container">
-        <h1>青空文庫 → LuaLaTeX PDF 変換</h1>
-        <p class="subtitle">デバイス・配色・サイズを視覚確認しながら TEX/PDF を生成できます。</p>
-        <p class="muted">
+    <div class="container py-4 my-4 bg-white rounded-4 shadow-sm">
+        <h1 class="mb-1 text-dark fs-2 fw-bold">青空文庫 → LuaLaTeX PDF 変換</h1>
+        <p class="text-secondary mb-3">デバイス・配色・サイズを視覚確認しながら TEX/PDF を生成できます。</p>
+        <p class="text-muted small">
             更新案内: 端末別の生成先は out/work/&lt;device&gt; と out/pdf/&lt;device&gt; に統一されています。
             詳細は
-            <a href="/static/docs/markdown/manuals/現在の出力サイズ（デバイス）の種類.html" target="_blank"
-                rel="noopener noreferrer">現在の出力サイズ（デバイス）の種類</a>
+            <a href="/static/docs/manuals/device-specs.html" target="_blank"
+                rel="noopener noreferrer" class="text-decoration-none">現在の出力サイズ（デバイス）の種類</a>
             /
-            <a href="/static/docs/markdown/manuals/開発者向け説明書.html" target="_blank" rel="noopener noreferrer">開発者向け説明書</a>
+            <a href="/static/docs/technical/developer-guide.html" target="_blank" rel="noopener noreferrer" class="text-decoration-none">開発者向け説明書</a>
             を参照してください。
         </p>
 
-        <div class="progress">
-            <div class="progress-bar" id="progress"></div>
+        <div class="progress mb-4" style="height: 6px;">
+            <div class="progress-bar bg-success" id="progress" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
 
-        <section class="section">
-            <h2>ステップ 1: 入力ファイル選択</h2>
-            <select id="sourceFile">
+        <section class="mb-4 pb-4 border-bottom">
+            <h2 class="h5 mb-3 fw-bold">ステップ 1: 入力ファイル選択</h2>
+            <select id="sourceFile" class="form-select mb-2">
                 <option value="">-- ファイルを選択 --</option>
             </select>
 
-            <p class="muted source-hint">複数生成は下の一覧から選択してください。</p>
+            <p class="text-muted small mb-3">複数生成は下の一覧から選択してください。</p>
 
-            <div class="grid-2 source-toolbar">
-                <input type="text" id="sourceSearch" placeholder="ファイル名で検索">
-                <select id="sourceSort">
-                    <option value="name-asc">名前順（昇順）</option>
-                    <option value="name-desc">名前順（降順）</option>
-                    <option value="id-asc">作品ID順（昇順）</option>
-                    <option value="id-desc">作品ID順（降順）</option>
-                </select>
+            <div class="row g-2 mb-3">
+                <div class="col-md-9">
+                    <input type="text" id="sourceSearch" class="form-control" placeholder="ファイル名で検索">
+                </div>
+                <div class="col-md-3">
+                    <select id="sourceSort" class="form-select">
+                        <option value="name-asc">名前順（昇順）</option>
+                        <option value="name-desc">名前順（降順）</option>
+                        <option value="id-asc">作品ID順（昇順）</option>
+                        <option value="id-desc">作品ID順（降順）</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="source-actions">
-                <button id="selectAllBtn" class="btn-secondary" type="button">全選択</button>
-                <button id="clearAllBtn" class="btn-secondary" type="button">選択解除</button>
+            <div class="mb-3 d-flex gap-2">
+                <button id="selectAllBtn" class="btn btn-outline-secondary btn-sm" type="button">全選択</button>
+                <button id="clearAllBtn" class="btn btn-outline-secondary btn-sm" type="button">選択解除</button>
             </div>
 
-            <div class="source-list" id="sourceList"></div>
-            <p class="muted" id="sourceSummary"></p>
+            <div class="source-list border rounded p-2 bg-light" id="sourceList" style="max-height: 200px; overflow-y: auto;"></div>
+            <p class="text-muted small mt-2" id="sourceSummary"></p>
         </section>
 
-        <section class="section">
-            <h2>ステップ 2: 出力デバイス選択</h2>
-            <div class="card-grid" id="deviceGrid"></div>
+        <section class="mb-4 pb-4 border-bottom">
+            <h2 class="h5 mb-3 fw-bold">ステップ 2: 出力デバイス選択</h2>
+            <div class="row g-3" id="deviceGrid"></div>
         </section>
 
-        <section class="section">
-            <h2>ステップ 3: Color Scheme 一覧（統合版）で配色確認</h2>
-            <p class="muted">
+        <section class="mb-4 pb-4 border-bottom">
+            <h2 class="h5 mb-3 fw-bold">ステップ 3: Color Scheme 一覧（統合版）で配色確認</h2>
+            <p class="text-muted small mb-1">
                 配色一覧（統合版）を新しいUIで確認できます。
-                <a href="/static/docs/color/colors.html" target="_blank">別ウィンドウで開く</a>
+                <a href="/static/docs/manuals/colors-visualizer.html" target="_blank" class="text-decoration-none">別ウィンドウで開く</a>
             </p>
-            <p class="muted">
+            <p class="text-muted small mb-3">
                 下の埋め込み一覧で「Web UIで使う」を押すと、この画面の色設定へ即時反映されます。
             </p>
 
-            <iframe class="color-iframe" id="colorCatalogFrame" src="/static/docs/color/colors.html"
-                title="Color Scheme 一覧（統合版）"></iframe>
+            <iframe class="w-100 border rounded mb-3 color-iframe" id="colorCatalogFrame" src="/static/docs/manuals/colors-visualizer.html"
+                title="Color Scheme 一覧（統合版）" style="height: min(72vh, 760px); min-height: 420px; background: white;"></iframe>
 
-            <div class="mode-picker">
-                <label class="mode-option"><input type="radio" name="colorMode" value="light" checked> light</label>
-                <label class="mode-option"><input type="radio" name="colorMode" value="dark"> dark</label>
-                <label class="mode-option"><input type="radio" name="colorMode" value="intermediate">
-                    intermediate</label>
+            <div class="mb-3 d-flex flex-wrap gap-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="colorMode" id="modeLight" value="light" checked>
+                    <label class="form-check-label text-dark" for="modeLight">light</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="colorMode" id="modeDark" value="dark">
+                    <label class="form-check-label text-dark" for="modeDark">dark</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="colorMode" id="modeIntermediate" value="intermediate">
+                    <label class="form-check-label text-dark" for="modeIntermediate">intermediate</label>
+                </div>
             </div>
 
-            <div class="color-controls">
-                <div class="field">
-                    <label for="bgColorInput">背景色 (Background color)</label>
-                    <input id="bgColorInput" type="color" value="#ffffff">
+            <div class="row g-3 align-items-end mb-3">
+                <div class="col-md-5">
+                    <label for="bgColorInput" class="form-label text-secondary small mb-1">背景色 (Background color)</label>
+                    <input id="bgColorInput" type="color" class="form-control form-control-color w-100" value="#ffffff" title="Background color">
                 </div>
-                <div class="field">
-                    <label for="fgColorInput">文字色 (Text color)</label>
-                    <input id="fgColorInput" type="color" value="#000000">
+                <div class="col-md-5">
+                    <label for="fgColorInput" class="form-label text-secondary small mb-1">文字色 (Text color)</label>
+                    <input id="fgColorInput" type="color" class="form-control form-control-color w-100" value="#000000" title="Text color">
                 </div>
-                <button id="saveColorBtn" class="btn-success" type="button">設定保存</button>
+                <div class="col-md-2">
+                    <button id="saveColorBtn" class="btn btn-success w-100" type="button">設定保存</button>
+                </div>
             </div>
 
-            <div class="preview-box">
-                <div class="preview-title" id="colorMeta">BG #FFFFFF / FG #000000</div>
-                <div class="preview-sample" id="colorPreview">
-                    春はあけぼの。やうやう白くなりゆく山ぎは、少しあかりて、
-                    紫だちたる雲のほそくたなびきたる。
+            <div class="card bg-light border-secondary-subtle">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted small" id="colorMeta">BG #FFFFFF / FG #000000</h6>
+                    <div class="p-3 border rounded shadow-sm" id="colorPreview" style="font-family: serif; line-height: 1.7; background-color: #ffffff; color: #000000;">
+                        春はあけぼの。やうやう白くなりゆく山ぎは、少しあかりて、
+                        紫だちたる雲のほそくたなびきたる。
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="section">
-            <h2>ステップ 4: フォント選択</h2>
-            <p class="muted">LuaLaTeX で使用可能な日本語フォントを一覧から選択します。</p>
-            <p class="muted">
+        <section class="mb-4 pb-4 border-bottom">
+            <h2 class="h5 mb-3 fw-bold">ステップ 4: フォント選択</h2>
+            <p class="text-muted small mb-1">LuaLaTeX で使用可能な日本語フォントを一覧から選択します。</p>
+            <p class="text-muted small mb-1">
                 書体ごとの推奨度や特徴、最適なフォントの組み合わせ（和欧混植など）についての詳細は、
-                <a href="/static/docs/markdown/manuals/フォント選定.html" target="_blank"
-                    rel="noopener noreferrer">フォント選定ガイド / LuaLaTeX 推奨フォントカタログ</a>
+                <a href="/static/docs/manuals/font-selection.html" target="_blank" rel="noopener noreferrer" class="text-decoration-none">フォント選定ガイド / LuaLaTeX 推奨フォントカタログ</a>
                 を参照してください。
             </p>
-            <p class="muted">
+            <p class="text-muted small mb-3">
                 推奨フォント: <strong>IPAmjMincho</strong>（学術用途の外字互換性を重視） / Shippori Mincho / Yu Mincho。
             </p>
-            <div class="font-picker">
-                <div class="field">
-                    <label for="fontFamilySelect">フォント</label>
-                    <select id="fontFamilySelect">
+            
+            <div class="row g-2 align-items-end mb-2">
+                <div class="col-md-9">
+                    <label for="fontFamilySelect" class="form-label text-secondary small mb-1">フォント</label>
+                    <select id="fontFamilySelect" class="form-select">
                         <option value="">読み込み中...</option>
                     </select>
                 </div>
-                <button id="refreshFontListBtn" class="btn-secondary" type="button">フォント一覧を再取得</button>
+                <div class="col-md-3">
+                    <button id="refreshFontListBtn" class="btn btn-outline-secondary w-100" type="button">一覧を再取得</button>
+                </div>
             </div>
-            <p class="muted" id="fontMeta">フォント一覧を取得しています...</p>
+            <p class="text-muted small" id="fontMeta">フォント一覧を取得しています...</p>
         </section>
 
-        <section class="section">
-            <h2>ステップ 5: 出力サイズ確認</h2>
-            <div class="size-preview">
-                <div class="size-card">
-                    <div class="preview-title size-pane-title">選択した端末の種類</div>
-                    <p class="muted" id="deviceMeta">device: -</p>
-                    <div class="device-box-wrap">
-                        <div class="device-box" id="devicePreviewBox">
-                            <div class="device-box-label" id="deviceBoxLabel">端末名</div>
+        <section class="mb-4 pb-4 border-bottom">
+            <h2 class="h5 mb-3 fw-bold">ステップ 5: 出力サイズ確認</h2>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card h-100 bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold text-dark mb-1">選択した端末の種類</h6>
+                            <p class="text-muted small mb-3" id="deviceMeta">device: -</p>
+                            <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+                                <div class="device-box bg-white border border-dark rounded d-flex align-items-center justify-content-center p-2 text-center shadow-sm" id="devicePreviewBox" style="transition: width 0.2s, height 0.2s;">
+                                    <div class="small fw-bold text-dark" id="deviceBoxLabel" style="white-space: pre-line;">端末名</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="size-reference" id="sizeReferencePanel">
-                    <div class="preview-title size-pane-title">出力確認イメージ</div>
-                    <div class="preview-title" id="sizeReferenceMeta">BG #FFFFFF / FG #000000</div>
-                    <textarea class="size-reference-text" id="sizeReferenceText" spellcheck="false"></textarea>
+                <div class="col-md-6">
+                    <div class="card h-100 text-bg-dark border-secondary">
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title fw-bold text-light mb-1">出力確認イメージ</h6>
+                            <div class="text-secondary small mb-2" id="sizeReferenceMeta">BG #FFFFFF / FG #000000</div>
+                            <textarea class="form-control flex-grow-1" id="sizeReferenceText" spellcheck="false" style="font-family: serif; font-size: 13.5pt; resize: vertical; min-height: 200px; background-color: #343a40; color: #f8f9fa; border-color: #6c757d;"></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="section">
-            <h2>ステップ 6: 装飾オプション</h2>
-            <p class="muted">和紙背景・Frame（フレーム・枠）・表紙/奥付の描画を切り替えます。Frame は PC/iPad 系デバイスのみ有効です。</p>
+        <section class="mb-4 pb-4 border-bottom">
+            <h2 class="h5 mb-3 fw-bold">ステップ 6: 装飾オプション</h2>
+            <p class="text-muted small mb-3">和紙背景・Frame（フレーム・枠）・表紙/奥付の描画を切り替えます。Frame は PC/iPad 系デバイスのみ有効です。</p>
 
-            <div class="decorate-grid">
-                <label class="toggle-row"><input type="checkbox" id="mainWashiEnabled"> 全ページ（表紙〜奥付）に和紙背景を適用</label>
-
-                <div class="decorate-inline">
-                    <label class="toggle-row"><input type="checkbox" id="mainFrameEnabled"> 本文〜最終ページに
-                        Frame（フレーム・枠）を適用</label>
-                    <label class="field compact" for="mainFrameVariant">
-                        Frame テンプレート
-                        <select id="mainFrameVariant">
-                            <option value="1">Frame 1</option>
-                            <option value="2">Frame 2</option>
-                            <option value="3">Frame 3</option>
-                        </select>
-                    </label>
-                    <label class="toggle-row" id="pageNumberWrap"><input type="checkbox" id="pageNumberEnabled" checked> ページ番号を表示</label>
-                    <label class="toggle-row" id="twoColumnWrap"><input type="checkbox" id="twoColumnEnabled"> 二段組を行なう (PC/iPad限定)</label>
+            <div class="bg-light p-3 border rounded shadow-sm">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="mainWashiEnabled">
+                    <label class="form-check-label text-dark" for="mainWashiEnabled">全ページ（表紙〜奥付）に和紙背景を適用</label>
                 </div>
 
-                <div class="decorate-inline">
-                    <label class="toggle-row"><input type="checkbox" id="coverTextureEnabled"> 表紙にテクスチャを適用</label>
-                    <label class="field compact" for="coverTextureVariant">
-                        表紙テンプレート
-                        <select id="coverTextureVariant">
-                            <option value="1">Cover 1</option>
-                            <option value="2">Cover 2</option>
-                            <option value="3">Cover 3</option>
-                        </select>
-                    </label>
+                <div class="row g-3 align-items-center mb-3">
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="mainFrameEnabled">
+                            <label class="form-check-label text-dark" for="mainFrameEnabled">本文〜最終ページに Frame を適用</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="text-secondary small text-nowrap" for="mainFrameVariant">テンプレート</label>
+                            <select id="mainFrameVariant" class="form-select form-select-sm">
+                                <option value="1">Frame 1</option>
+                                <option value="2">Frame 2</option>
+                                <option value="3">Frame 3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="d-flex gap-3 flex-wrap">
+                            <div class="form-check" id="pageNumberWrap">
+                                <input class="form-check-input" type="checkbox" id="pageNumberEnabled" checked>
+                                <label class="form-check-label text-dark" for="pageNumberEnabled">ページ番号を表示</label>
+                            </div>
+                            <div class="form-check" id="twoColumnWrap">
+                                <input class="form-check-input" type="checkbox" id="twoColumnEnabled">
+                                <label class="form-check-label text-dark" for="twoColumnEnabled">二段組を行なう (PC/iPad限定)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="coverTextureEnabled">
+                            <label class="form-check-label text-dark" for="coverTextureEnabled">表紙にテクスチャを適用</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="text-secondary small text-nowrap" for="coverTextureVariant">テンプレート</label>
+                            <select id="coverTextureVariant" class="form-select form-select-sm">
+                                <option value="1">Cover 1</option>
+                                <option value="2">Cover 2</option>
+                                <option value="3">Cover 3</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="section">
-            <h2>ステップ 7: 生成</h2>
-            <div class="button-group">
-                <button class="btn-primary" id="generateBtn" type="button">選択をPDF化</button>
-                <button class="btn-primary" id="generateAllBtn" type="button">data全件をPDF化</button>
-                <button class="btn-secondary" id="cleanupBtn" type="button">非PDFファイル削除</button>
-                <button class="btn-secondary" id="resetSettingsBtn" type="button">デフォルト設定へ初期化</button>
-                <button class="btn-warning" id="restartServerBtn" type="button">server再起動</button>
-                <button class="btn-danger" id="stopServerBtn" type="button">server停止</button>
-                <a class="btn-secondary link-button" href="/docs" target="_blank" rel="noopener noreferrer">ドキュメント</a>
+        <section class="mb-4">
+            <h2 class="h5 mb-3 fw-bold">ステップ 7: 生成</h2>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-primary fw-bold px-4" id="generateBtn" type="button">選択をPDF化</button>
+                <button class="btn btn-outline-primary fw-bold px-3" id="generateAllBtn" type="button">data全件をPDF化</button>
+                <button class="btn btn-secondary" id="cleanupBtn" type="button">非PDFファイル削除</button>
+                <button class="btn btn-outline-secondary" id="resetSettingsBtn" type="button">デフォルト設定へ初期化</button>
+                <div class="ms-md-auto d-flex gap-2">
+                    <a class="btn btn-dark" href="/docs" target="_blank" rel="noopener noreferrer">ドキュメント</a>
+                    <button class="btn btn-warning" id="restartServerBtn" type="button">server再起動</button>
+                    <button class="btn btn-danger" id="stopServerBtn" type="button">server停止</button>
+                </div>
+            </div>
+            <div id="compileLogContainer" class="mt-4" style="display: none;">
+                <h6 class="fw-bold mb-2 text-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-terminal me-1 mb-1" viewBox="0 0 16 16">
+                      <path d="M6 9a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3A.5.5 0 0 1 6 9M3.854 4.146a.5.5 0 1 0-.708.708L4.793 6.5 3.146 8.146a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2z"/>
+                      <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/>
+                    </svg>
+                    コンパイル ログ (リアルタイム)
+                </h6>
+                <div id="compileLogTerminal" class="form-control rounded shadow-sm text-bg-dark border-secondary p-3" tabindex="-1" style="font-family: Consolas, 'Courier New', monospace; font-size: 0.85rem; min-height: 200px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; line-height: 1.5; scroll-behavior: smooth;"></div>
             </div>
         </section>
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p id="loadingText">生成中...</p>
+        <div class="text-center text-secondary my-4" id="loading" style="display: none;">
+            <div class="spinner-border text-primary mb-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p id="loadingText" class="fw-bold">生成中...</p>
         </div>
 
-        <div class="result" id="result"></div>
+        <div id="result" class="alert mt-4 shadow-sm" style="display: none;" role="alert"></div>
     </div>
 
+    <!-- Bootstrap 5 JS Bundle (with Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmxc5s9fDVZLESaAa55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Custom JS -->
     <script src="/static/js/index.js"></script>
 </body>
 

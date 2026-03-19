@@ -17,6 +17,11 @@ from flask import (
     Response,
     abort,
 )
+from flask_socketio import SocketIO
+from flask_caching import Cache
+from flask_wtf import FlaskForm
+from wtforms import StringField, BooleanField, FieldList
+from wtforms.validators import DataRequired, Optional as WTFOptional
 from pathlib import Path
 import subprocess
 import logging
@@ -37,6 +42,10 @@ app = Flask(
     __name__,
     static_folder=None,
 )
+app.config["SECRET_KEY"] = "aozoratex-studio-secret-key-123"
+cache = Cache(app, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 300})
+socketio = SocketIO(app, async_mode="threading", cors_allowed_origins="*")
+
 DATA_DIR = WORKDIR / "data"
 OUT_DIR = WORKDIR / "out"
 WORK_OUT_DIR = OUT_DIR / "work"
@@ -282,6 +291,7 @@ def _generate_single(
     font_family: Optional[str],
     compile_pdf: bool,
     decorations: Optional[dict[str, object]] = None,
+    emit_log: Optional[callable] = None,
 ) -> tuple[bool, dict, int]:
     return server_services.generate_single(
         source=source,
@@ -292,6 +302,7 @@ def _generate_single(
         font_family=font_family,
         compile_pdf=compile_pdf,
         decorations=decorations,
+        emit_log=emit_log,
     )
 
 
@@ -313,6 +324,34 @@ def ensure_runtime_initialized() -> None:
     _initialize_runtime_once()
 
 
+class GenerateRequestForm(FlaskForm):
+    source = StringField("source", validators=[DataRequired()])
+    device = StringField("device", validators=[WTFOptional()])
+    mode = StringField("mode", validators=[WTFOptional()])
+    bg_color = StringField("bg_color", validators=[WTFOptional()])
+    fg_color = StringField("fg_color", validators=[WTFOptional()])
+    font = StringField("font", validators=[WTFOptional()])
+    compile_pdf = BooleanField("compile_pdf", default=True)
+    client_id = StringField("client_id", validators=[WTFOptional()])
+
+    class Meta:
+        csrf = False
+
+
+class GenerateBatchRequestForm(FlaskForm):
+    sources = FieldList(StringField("source", validators=[DataRequired()]), min_entries=1)
+    device = StringField("device", validators=[WTFOptional()])
+    mode = StringField("mode", validators=[WTFOptional()])
+    bg_color = StringField("bg_color", validators=[WTFOptional()])
+    fg_color = StringField("fg_color", validators=[WTFOptional()])
+    font = StringField("font", validators=[WTFOptional()])
+    compile_pdf = BooleanField("compile_pdf", default=True)
+    client_id = StringField("client_id", validators=[WTFOptional()])
+
+    class Meta:
+        csrf = False
+
+
 @app.route("/")
 def index():
     """メイン画面"""
@@ -326,6 +365,7 @@ def api_data_files():
 
 
 @app.route("/api/colors")
+@cache.cached(query_string=True)
 def api_colors():
     """配色パターン JSON API"""
     mode = request.args.get("mode", "light")
@@ -352,6 +392,7 @@ def api_lualatex_fonts():
 
 
 @app.route("/api/devices")
+@cache.cached()
 def api_devices():
     """デバイス設定 JSON API"""
     return jsonify(settings_store.get_device_api_payload())
@@ -403,6 +444,10 @@ def api_generate():
             {"success": False, "error": "payload must be a JSON object"}
         ), 400
 
+    form = GenerateRequestForm(meta={"csrf": False}, data=data)
+    if not form.validate():
+        return jsonify({"success": False, "error": f"Invalid parameter: {form.errors}"}), 400
+
     source = _normalize_source_input(data.get("source"))
     device, mode, bg_color, fg_color = _resolve_generation_defaults(
         data.get("device"),
@@ -427,6 +472,12 @@ def api_generate():
         decorations=decorations,
     )
 
+    client_id = data.get("client_id")
+
+    def handle_log(line: str):
+        if client_id:
+            socketio.emit("compile_log", {"line": line}, to=client_id)
+
     ok, payload, status = _generate_single(
         source=source,
         device=device,
@@ -436,6 +487,7 @@ def api_generate():
         font_family=font_family,
         compile_pdf=compile_pdf,
         decorations=decorations,
+        emit_log=handle_log if client_id else None,
     )
     payload["success"] = ok
     return jsonify(payload), status
@@ -502,7 +554,12 @@ def api_generate_batch():
     results: list[dict] = []
     failures: list[dict] = []
 
+    client_id = data.get("client_id")
     def run_one(source: str) -> tuple[bool, dict]:
+        def handle_log(line: str):
+            if client_id:
+                socketio.emit("compile_log", {"line": f"[{Path(source).name}] {line}"}, to=client_id)
+
         ok, payload, _status = _generate_single(
             source=source,
             device=device,
@@ -512,6 +569,7 @@ def api_generate_batch():
             font_family=font_family,
             compile_pdf=compile_pdf,
             decorations=decorations,
+            emit_log=handle_log if client_id else None,
         )
         payload["success"] = ok
         return ok, payload
@@ -665,8 +723,15 @@ def main() -> None:
     logger.info("Python=%s", _resolve_python_executable())
     logger.info("UI=http://127.0.0.1:5000")
     logger.info("Docs=http://127.0.0.1:5000/docs")
-    debug = os.getenv("AOZORATEX_DEBUG", "1").strip().lower() in {"1", "true", "yes"}
-    web_app.run(debug=debug, host="0.0.0.0", port=5000, use_reloader=False)
+    debug_raw = os.getenv("AOZORATEX_DEBUG", "0").strip().lower()
+    debug = debug_raw in {"1", "true", "yes"}
+
+    if debug:
+        logger.warning("[server] Running in DEBUG mode (Flask built-in server)")
+        socketio.run(web_app, debug=True, host="0.0.0.0", port=5000, use_reloader=False, allow_unsafe_werkzeug=True)
+    else:
+        logger.info("[server] Running via SocketIO/Werkzeug (Production mode with WebSockets)")
+        socketio.run(web_app, debug=False, host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)
 
 
 if __name__ == "__main__":
