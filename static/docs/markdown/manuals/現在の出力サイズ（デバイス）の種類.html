@@ -63,8 +63,51 @@
         <ul>
             <li>CLI の <code>--device</code> 既定値は <code>iphone</code> です。</li>
             <li>Web UI も同じ標準デバイス群を参照します。</li>
-            <li>カスタムデバイスを追加する場合は <code>config/device_settings.custom.ini</code> に <code>[&lt;device&gt;]</code> セクションを追加します。</li>
+            <li>カスタムデバイスを追加する場合は <code>config/device_settings.custom.ini</code> に <code>[&lt;device&gt;]</code>
+                セクションを追加します。</li>
         </ul>
+
+        <h2>端末別の生成先</h2>
+        <p>CLI/Web/Make いずれも、端末別の生成先は以下で統一されます。</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>device</th>
+                    <th>TEX と中間生成物</th>
+                    <th>PDF</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>iphone</code></td>
+                    <td><code>out/work/iphone/</code></td>
+                    <td><code>out/pdf/iphone/</code></td>
+                </tr>
+                <tr>
+                    <td><code>android</code></td>
+                    <td><code>out/work/android/</code></td>
+                    <td><code>out/pdf/android/</code></td>
+                </tr>
+                <tr>
+                    <td><code>ipad</code></td>
+                    <td><code>out/work/ipad/</code></td>
+                    <td><code>out/pdf/ipad/</code></td>
+                </tr>
+                <tr>
+                    <td><code>ipad_landscape</code></td>
+                    <td><code>out/work/ipad_landscape/</code></td>
+                    <td><code>out/pdf/ipad_landscape/</code></td>
+                </tr>
+                <tr>
+                    <td><code>pc</code></td>
+                    <td><code>out/work/pc/</code></td>
+                    <td><code>out/pdf/pc/</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>出力ファイル名は <code>元ファイル名_タイトル_作者名</code> 形式です。</p>
 
         <hr />
         <p><a href="/static/docs/index.html">ドキュメントトップへ戻る</a></p>

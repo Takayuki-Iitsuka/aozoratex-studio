@@ -4,11 +4,117 @@
     // UI state is intentionally centralized so customization points are easy to track.
     const SUPPORTED_MODES = ["light", "dark", "intermediate"];
     const RECOMMENDED_FONT = "IPAmjMincho";
+    const SERVER_UNREACHABLE_MESSAGE = "serverに接続できません";
     const MODE_DEFAULT_COLORS = {
         light: { bg: "#FFFFFF", fg: "#000000" },
         dark: { bg: "#000000", fg: "#FFFFFF" },
         intermediate: { bg: "#D3D3D3", fg: "#4F4F4F" },
     };
+    const COLOR_SCHEME_MESSAGE_TYPE = "AOZORATEX_APPLY_COLOR_SCHEME";
+    const SIZE_REFERENCE_SAMPLE = String.raw`\section*{LuaLaTeX 日本語環境・完全文字化けテスト}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{1. CJK 拡張漢字（Ext-A〜F）}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+𠮷 𠯁 𠯃 𠯄 𠯅 𠯆 𠯇 𠯈 𠯉 𠯊
+𡈽 𡉀 𡉁 𡉂 𡉃 𡉄 𡉅 𡉆 𡉇 𡉈
+𤔣 𤔤 𤔥 𤔦 𤔧 𤔨 𤔩 𤔪 𤔫 𤔬
+𩸽 𩹀 𩹁 𩹂 𩹃 𩹄 𩹅 𩹆 𩹇 𩹈
+𪘂 𪘃 𪘄 𪘅 𪘆 𪘇 𪘈 𪘉 𪘊 𪘋
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{2. 互換漢字（CJK Compatibility Ideographs）}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+﨑 神 祥 福 靖 精 羽 﨟 蘒 﨡
+諸 﨣 﨤 逸 都 﨧 﨨 﨩
+懲 敏 既 暑 梅 海 渚 漢 煮 爫
+琢 碑 社 祉 祈 祐 祖 祝 禍 禎
+穀 突 節 練 縉 繁 署 者 臭 艹
+艹 著 褐 視 謁 謹 賓 贈 辶 逸
+難 響 頻 恵 𤋮 舘 﩮 﩯 並 况
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{3. 異体字セレクタ（IVS）}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+辻󠄀 辻󠄁 辻󠄂 辻󠄃 辻󠄄
+葛󠄀 葛󠄁 葛󠄂 葛󠄃 葛󠄄
+髙󠄀 髙󠄁 髙󠄂 髙󠄃 髙󠄄
+鷗󠄀 鷗󠄁 鷗󠄂 鷗󠄃 鷗󠄄
+齋󠄀 齋󠄁 齋󠄂 齋󠄃 齋󠄄
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{4. 絵文字（Emoji）}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+{\emoji 😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚}
+{\emoji 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🤫 🤔 🤐 🤨 😐 😑 😶 🙄 😏 😣 😥}
+{\emoji 😮‍💨 😮 😯 😲 😳 🥺 😦 😧 😨 😰 😢 😭 😱 😖 😞 😓 😩 😫 🥱 😴}
+{\emoji 🤤 😪 😵 😵‍💫 🤯 🤒 🤕 🤢 🤮 🤧 😷 🥵 🥶 🥴 🤠 🥳}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{5. Combining（合成文字）}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+á é í ó ú
+à è ì ò ù
+ä ë ï ö ü
+ñ ã õ
+が ぎ ぐ げ ご
+ざ じ ず ぜ ぞ
+だ ぢ づ で ど
+ぱ ぴ ぷ ぺ ぽ
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{6. 外字（PUA）}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+         
+         
+         
+󰀀 󰀁 󰀂 󰀃 󰀄 󰀅 󰀆 󰀇 󰀈 󰀉
+󱀀 󱀁 󱀂 󱀃 󱀄 󱀅 󱀆 󱀇 󱀈 󱀉
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{7. 囲み文字・単位記号}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+㊀ ㊁ ㊂ ㊃ ㊄ ㊅ ㊆ ㊇ ㊈ ㊉
+㊤ ㊥ ㊦ ㊧ ㊨
+㌕ ㌖ ㌗ ㌘ ㌙ ㌚ ㌛ ㌜ ㌝ ㌞ ㌟
+㍉ ㍊ ㍋ ㍌ ㍍ ㍎ ㍏ ㍐ ㍑ ㍒ ㍓ ㍔ ㍕ ㍖ ㍗
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{8. 変体仮名・仮名拡張}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+𛀁 𛀂 𛀃 𛀄 𛀅 𛀆 𛀇 𛀈 𛀉 𛀊
+𛅐 𛅑 𛅒 𛅓 𛅔 𛅕 𛅖 𛅗 𛅘 𛅙
+𛅦 𛅧 𛅨 𛅩 𛅪 𛅫 𛅬 𛅭 𛅮 𛅯
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{9. 麻雀牌・囲碁・将棋などの特殊シンボル}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+🀀 🀁 🀂 🀃 🀄 🀅 🀆 🀇 🀈 🀉
+🀊 🀋 🀌 🀍 🀎 🀏
+☗ ☖
+⚪ ⚫
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{10. 古代文字（Linear B, Phoenician, Hieroglyphs）}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Linear B：
+𐂀 𐂁 𐂂 𐂃 𐂄 𐂅 𐂆 𐂇 𐂈 𐂉
+
+Phoenician：
+𐤀 𐤁 𐤂 𐤃 𐤄 𐤅 𐤆 𐤇 𐤈 𐤉
+
+Egyptian Hieroglyphs：
+𓀀 𓀁 𓀂 𓀃 𓀄 𓀅 𓀆 𓀇 𓀈 𓀉`;
 
     const state = {
         sourceFiles: [],
@@ -46,12 +152,28 @@
         return m ? Number(m[1]) : Number.MAX_SAFE_INTEGER;
     }
 
+    function formatDeviceLabel(label) {
+        const text = String(label || "").trim();
+        const dimensionTail = text.match(
+            /^(.*?)(\s*\(\d+(?:\.\d+)?x\d+(?:\.\d+)?mm\)(?:\s*\/\s*\d+(?:\.\d+)?\s*x\s*\d+(?:\.\d+)?\s*mm)?)$/i
+        );
+        if (dimensionTail) {
+            return `${dimensionTail[1].trim()}\n${dimensionTail[2].trim()}`;
+        }
+        return text;
+    }
+
     function updateProgress(percent) {
         byId("progress").style.width = `${percent}%`;
     }
 
     async function fetchJson(url, options) {
-        const resp = await fetch(url, options);
+        let resp;
+        try {
+            resp = await fetch(url, options);
+        } catch (_networkErr) {
+            throw new Error(SERVER_UNREACHABLE_MESSAGE);
+        }
         const text = await resp.text();
         let payload = {};
         if (text) {
@@ -70,6 +192,11 @@
             throw new Error(message);
         }
         return payload;
+    }
+
+    function isServerUnavailableError(error) {
+        const message = String((error && error.message) || error || "");
+        return message.includes(SERVER_UNREACHABLE_MESSAGE);
     }
 
     function normalizeHexColor(value, fallback) {
@@ -126,6 +253,7 @@
             fg: fg.toUpperCase(),
         };
         state.selectedColor.mode = mode;
+        updateSizeReferencePreview();
     }
 
     function setSelectedFont(name) {
@@ -143,6 +271,7 @@
         }
         select.value = value;
         byId("colorPreview").style.fontFamily = `"${value}", "${RECOMMENDED_FONT}", "Yu Mincho", "MS Mincho", serif`;
+        updateSizeReferencePreview();
     }
 
     async function loadFonts(refresh) {
@@ -300,8 +429,9 @@
         const info = state.devices[state.selectedDevice];
         if (!info) return;
 
-        byId("deviceMeta").textContent = `${state.selectedDevice}: ${info.width} x ${info.height} mm`;
+        byId("deviceMeta").textContent = `${info.width} x ${info.height} mm`;
         const box = byId("devicePreviewBox");
+        const boxLabel = byId("deviceBoxLabel");
         const max = 180;
         const ratio = info.width / info.height;
         if (ratio >= 1) {
@@ -311,9 +441,9 @@
             box.style.height = `${max}px`;
             box.style.width = `${Math.max(40, Math.round(max * ratio))}px`;
         }
-
-        const iframe = byId("deviceMapFrame");
-        iframe.src = `/device-paper-size-map.html?device=${encodeURIComponent(state.selectedDevice)}`;
+        if (boxLabel) {
+            boxLabel.textContent = formatDeviceLabel(`${info.label} / ${info.width} x ${info.height} mm`);
+        }
     }
 
     async function loadDevices() {
@@ -397,61 +527,98 @@
 
     async function loadColors() {
         const mode = getCurrentMode();
-        const paletteMode = mode === "intermediate" ? "all" : mode;
         const defaults = MODE_DEFAULT_COLORS[mode] || MODE_DEFAULT_COLORS.light;
-        const currentBg = normalizeHexColor(byId("bgColorInput").value, defaults.bg);
-        const currentFg = normalizeHexColor(byId("fgColorInput").value, defaults.fg);
-        const data = await fetchJson(`/api/colors?mode=${encodeURIComponent(paletteMode)}&limit=100`);
-        const grid = byId("colorGrid");
-        grid.innerHTML = "";
-
-        const schemes = data.schemes || [];
-        let matchedCard = null;
-        schemes.forEach((scheme) => {
-            const schemeBg = normalizeHexColor(scheme.bg, defaults.bg);
-            const schemeFg = normalizeHexColor(scheme.fg, defaults.fg);
-            const card = document.createElement("div");
-            card.className = "card";
-            card.innerHTML = `
-                <div class="color-swatch" style="background:${schemeBg};color:${schemeFg};">Aa</div>
-                <div class="card-label">${escapeHtml(scheme.name)}</div>
-                <div class="card-desc">${escapeHtml(scheme.category || "")}<br>BG ${schemeBg} / FG ${schemeFg}</div>
-            `;
-            card.addEventListener("click", () => {
-                document.querySelectorAll("#colorGrid .card").forEach((c) => c.classList.remove("active"));
-                card.classList.add("active");
-                state.selectedColor = {
-                    mode,
-                    name: scheme.name,
-                    bg: schemeBg,
-                    fg: schemeFg,
-                };
-                byId("bgColorInput").value = schemeBg;
-                byId("fgColorInput").value = schemeFg;
-                updateColorPreview();
-                updateProgress(68);
-            });
-            grid.appendChild(card);
-
-            if (schemeBg === currentBg && schemeFg === currentFg) {
-                matchedCard = card;
-            }
-        });
-
-        if (matchedCard) {
-            matchedCard.click();
-            return;
-        }
-
-        byId("bgColorInput").value = currentBg;
-        byId("fgColorInput").value = currentFg;
+        const modeDefaults = getModeDefaults(mode);
+        byId("bgColorInput").value = normalizeHexColor(byId("bgColorInput").value, modeDefaults.bg);
+        byId("fgColorInput").value = normalizeHexColor(byId("fgColorInput").value, modeDefaults.fg);
         state.selectedColor = {
             mode,
             name: "custom",
-            bg: currentBg,
-            fg: currentFg,
+            bg: byId("bgColorInput").value.toUpperCase(),
+            fg: byId("fgColorInput").value.toUpperCase(),
         };
         updateColorPreview();
+    }
+
+    function renderSizeReferenceSample() {
+        const panel = byId("sizeReferenceText");
+        if (!panel) return;
+        panel.value = SIZE_REFERENCE_SAMPLE;
+        updateSizeReferencePreview();
+    }
+
+    function updateSizeReferencePreview() {
+        const panel = byId("sizeReferenceText");
+        if (!panel) return;
+
+        const bg = (byId("bgColorInput") && byId("bgColorInput").value) || "#FFFFFF";
+        const fg = (byId("fgColorInput") && byId("fgColorInput").value) || "#000000";
+
+        panel.style.backgroundColor = bg;
+        panel.style.color = fg;
+        panel.style.fontFamily = `"${state.selectedFont || RECOMMENDED_FONT}", "${RECOMMENDED_FONT}", "Yu Mincho", "MS Mincho", serif`;
+        panel.style.fontSize = "13.5pt";
+
+        const meta = byId("sizeReferenceMeta");
+        if (meta) {
+            meta.textContent = `BG ${bg.toUpperCase()} / FG ${fg.toUpperCase()}`;
+        }
+    }
+
+    function showServerUnavailableAlertOnce() {
+        alert(SERVER_UNREACHABLE_MESSAGE);
+    }
+
+    async function waitForServerReady(timeoutMs = 25000) {
+        const start = Date.now();
+        while (Date.now() - start < timeoutMs) {
+            try {
+                const response = await fetch("/health", { cache: "no-store" });
+                if (response.ok) {
+                    const payload = await response.json().catch(() => ({}));
+                    if (payload && payload.status === "ok") {
+                        return true;
+                    }
+                }
+            } catch (_err) {
+                // server restart中は接続失敗が正常系なので握りつぶす
+            }
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+        return false;
+    }
+
+    async function controlServer(action) {
+        const isRestart = action === "restart";
+        const confirmMessage = isRestart
+            ? "serverを再起動します。よろしいですか？"
+            : "serverを停止します。よろしいですか？";
+        if (!window.confirm(confirmMessage)) {
+            return;
+        }
+
+        const payload = await fetchJson("/api/server/control", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action }),
+        });
+
+        const result = byId("result");
+        result.className = "result success";
+        result.innerHTML = `<h3>server操作</h3><p>${escapeHtml(payload.message || "操作を受け付けました。")}</p>`;
+        result.style.display = "block";
+
+        if (isRestart) {
+            const back = await waitForServerReady(25000);
+            if (back) {
+                alert("serverが再起動しました");
+            } else {
+                alert("server再起動中です。反応がない場合は数秒後に再読み込みしてください。");
+            }
+            return;
+        }
+
+        alert("serverを停止しました");
     }
 
     async function saveColorSettings() {
@@ -545,6 +712,12 @@
                 results.push(data);
                 if (!data.success) failures += 1;
             } catch (err) {
+                if (isServerUnavailableError(err)) {
+                    failures += 1;
+                    results.push({ source, success: false, error: SERVER_UNREACHABLE_MESSAGE });
+                    showServerUnavailableAlertOnce();
+                    break;
+                }
                 failures += 1;
                 results.push({ source, success: false, error: String(err) });
             }
@@ -562,6 +735,7 @@
                     <p>TEX: <code>${escapeHtml(item.tex_file || "")}</code></p>
                     ${item.pdf_url ? `<p><a href="${item.pdf_url}" target="_blank" rel="noopener noreferrer">PDFを開く</a></p>` : ""}
                 `;
+                alert("生成できました");
             } else {
                 resultDiv.className = "result error";
                 resultDiv.innerHTML = `<h3>生成失敗</h3><p>${escapeHtml(item.error || "unknown error")}</p>`;
@@ -587,6 +761,9 @@
             ${errors ? `<h4>失敗一覧</h4><ul>${errors}</ul>` : ""}
         `;
         resultDiv.style.display = "block";
+        if (failures === 0) {
+            alert("生成できました");
+        }
     }
 
     async function cleanupNonPdf() {
@@ -653,7 +830,51 @@
         updateColorPreview();
     }
 
+    function applyCatalogColorPreset(scheme) {
+        if (!scheme || typeof scheme !== "object") {
+            return;
+        }
+
+        const modeRaw = String(scheme.mode || "").toLowerCase();
+        const mode = SUPPORTED_MODES.includes(modeRaw) ? modeRaw : getCurrentMode();
+        setMode(mode);
+
+        const defaults = MODE_DEFAULT_COLORS[mode] || MODE_DEFAULT_COLORS.light;
+        const bg = normalizeHexColor(scheme.bg, defaults.bg);
+        const fg = normalizeHexColor(scheme.fg, defaults.fg);
+        byId("bgColorInput").value = bg;
+        byId("fgColorInput").value = fg;
+
+        if (scheme.font) {
+            setSelectedFont(String(scheme.font));
+        }
+
+        state.modeColors[mode] = { bg, fg };
+        state.selectedColor.name = scheme.name ? String(scheme.name) : "catalog";
+        state.selectedColor.mode = mode;
+        updateColorPreview();
+        updateProgress(60);
+    }
+
+    function bindColorCatalogBridge() {
+        window.addEventListener("message", (event) => {
+            if (event.origin !== window.location.origin) {
+                return;
+            }
+            const payload = event.data;
+            if (!payload || typeof payload !== "object") {
+                return;
+            }
+            if (payload.type !== COLOR_SCHEME_MESSAGE_TYPE) {
+                return;
+            }
+            applyCatalogColorPreset(payload.scheme || {});
+        });
+    }
+
     async function init() {
+        bindColorCatalogBridge();
+
         byId("sourceSearch").addEventListener("input", renderSources);
         byId("sourceSort").addEventListener("change", renderSources);
         byId("sourceFile").addEventListener("change", () => updateProgress(22));
@@ -692,6 +913,12 @@
         byId("resetSettingsBtn").addEventListener("click", () =>
             resetSettingsToDefault().catch((e) => alert(e.message))
         );
+        byId("restartServerBtn").addEventListener("click", () =>
+            controlServer("restart").catch((e) => alert(e.message))
+        );
+        byId("stopServerBtn").addEventListener("click", () =>
+            controlServer("stop").catch((e) => alert(e.message))
+        );
         byId("mainWashiEnabled").addEventListener("change", (e) => {
             document.body.classList.toggle("washi-active", e.target.checked);
             updateProgress(72);
@@ -703,6 +930,8 @@
         byId("mainFrameVariant").addEventListener("change", () => updateProgress(72));
         byId("coverTextureEnabled").addEventListener("change", () => updateProgress(72));
         byId("coverTextureVariant").addEventListener("change", () => updateProgress(72));
+
+        renderSizeReferenceSample();
 
         await loadSourceFiles();
         renderSources();

@@ -30,10 +30,10 @@ SUPPORTED_DEVICES = ("iphone", "android", "ipad", "ipad_landscape", "pc")
 
 DEVICE_LABELS: dict[str, str] = {
     "iphone": "iPhone 11 (65x140mm)",
-    "android": "Android Modern (70x155.5mm)",
-    "ipad": "iPad Portrait (158x227mm)",
-    "ipad_landscape": "iPad Landscape - 2Column (227x158mm)",
-    "pc": "PC / A4 (210x297mm)",
+    "android": "Android スマホ (70x155.5mm)",
+    "ipad": "iPad 縦画面 (158x227mm)",
+    "ipad_landscape": "iPad 横画面(２段組) (227x158mm)",
+    "pc": "パソコン（A4版用紙） (210x297mm)",
 }
 
 GLOBAL_DEFAULTS: dict[str, str] = {

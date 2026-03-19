@@ -56,11 +56,40 @@ function setWashi(enabled) {
     document.body.classList.toggle("washi-active", enabled);
 }
 
-const MAX_SCHEMES = 100;
+const MAX_SCHEMES = 36;
 
 const pageState = {
     selectedFont: "Yu Mincho",
 };
+const WEB_UI_MESSAGE_TYPE = "AOZORATEX_APPLY_COLOR_SCHEME";
+
+function notifyWebUiFromCatalog(scheme) {
+    const payload = {
+        type: WEB_UI_MESSAGE_TYPE,
+        scheme,
+    };
+
+    let sent = false;
+    try {
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage(payload, window.location.origin);
+            sent = true;
+        }
+    } catch (_error) {
+        // Ignore and continue to opener fallback.
+    }
+
+    try {
+        if (window.opener && !window.opener.closed) {
+            window.opener.postMessage(payload, window.location.origin);
+            sent = true;
+        }
+    } catch (_error) {
+        // Ignore and continue to link fallback.
+    }
+
+    return sent;
+}
 
 function schemeSimilarityKey(item) {
     const hsv = rgbToHsv(hexToRgb(item.bg));
@@ -328,6 +357,19 @@ function renderCards(items, sampleText) {
         const targetMode = (item.mode === "preset" || item.mode === "intermediate") ? "intermediate" : item.mode;
         link.href = `/?bg=${encodeURIComponent(item.bg)}&fg=${encodeURIComponent(item.fg)}&mode=${encodeURIComponent(targetMode)}&font=${encodeURIComponent(pageState.selectedFont)}`;
         link.textContent = "Web UIで使う";
+        link.addEventListener("click", (event) => {
+            const sent = notifyWebUiFromCatalog({
+                name: item.name,
+                mode: targetMode,
+                bg: item.bg,
+                fg: item.fg,
+                font: pageState.selectedFont,
+            });
+
+            if (sent) {
+                event.preventDefault();
+            }
+        });
         actions.appendChild(link);
 
         card.appendChild(meta);

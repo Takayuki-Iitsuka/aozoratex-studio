@@ -48,11 +48,14 @@ def generate_tex_for_source(
         preferred_encoding=preferred_encoding,
     )
     body = aozoratex.html_to_latex_body(html, parser=parser)
-    title, author = aozoratex.extract_title_author(html, parser=parser)
+    raw_title, raw_author = aozoratex.extract_title_author_raw(html, parser=parser)
+    title = aozoratex.escape_latex(raw_title)
+    author = aozoratex.escape_latex(raw_author)
     okuduke = aozoratex.build_okuduke_from_html(html, parser=parser)
+    output_stem = aozoratex.build_output_stem(source_path, raw_title, raw_author)
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_tex = out_dir / f"{source_path.stem}.tex"
+    out_tex = out_dir / f"{output_stem}.tex"
     aozoratex.build_tex_file(
         latex_body=body,
         out_tex=out_tex,
@@ -74,6 +77,6 @@ def generate_tex_for_source(
     return TexGenerationResult(
         tex_file=out_tex,
         encoding_used=encoding_used,
-        title=title,
-        author=author,
+        title=raw_title,
+        author=raw_author,
     )

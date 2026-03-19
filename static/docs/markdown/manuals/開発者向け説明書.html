@@ -14,7 +14,8 @@
         <p class="muted">source: manuals/開発者向け説明書.md</p>
 
         <h1>開発者向け説明書</h1>
-        <p>AozoraTeX Studio の現行実装（<code>src/</code> + <code>config/*.ini</code> + <code>static/</code>）を前提にした運用ガイドです。</p>
+        <p>AozoraTeX Studio の現行実装（<code>src/</code> + <code>config/*.ini</code> + <code>static/</code>）を前提にした運用ガイドです。
+        </p>
 
         <h2>1. 目的</h2>
         <ul>
@@ -101,8 +102,50 @@ python -m src.aozora_server
         <p>設定保存は <code>/api/settings</code>、初期化は <code>/api/settings/reset</code> を利用します。</p>
 
         <h2>6. CLI 運用</h2>
-        <pre><code class="language-powershell">python -m src.aozoratex data/92_14545.html --device iphone --mode light --out out/iphone
+        <pre><code class="language-powershell">python -m src.aozoratex data/92_14545.html --device iphone --mode light --out out
 </code></pre>
+
+        <p>CLI/Web/Make いずれも、生成先は <code>out/work/&lt;device&gt;/</code>（TEX と中間生成物）および
+            <code>out/pdf/&lt;device&gt;/</code>（PDF）へ統一します。</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>device</th>
+                    <th>TEX と中間生成物</th>
+                    <th>PDF</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>iphone</code></td>
+                    <td><code>out/work/iphone/</code></td>
+                    <td><code>out/pdf/iphone/</code></td>
+                </tr>
+                <tr>
+                    <td><code>android</code></td>
+                    <td><code>out/work/android/</code></td>
+                    <td><code>out/pdf/android/</code></td>
+                </tr>
+                <tr>
+                    <td><code>ipad</code></td>
+                    <td><code>out/work/ipad/</code></td>
+                    <td><code>out/pdf/ipad/</code></td>
+                </tr>
+                <tr>
+                    <td><code>ipad_landscape</code></td>
+                    <td><code>out/work/ipad_landscape/</code></td>
+                    <td><code>out/pdf/ipad_landscape/</code></td>
+                </tr>
+                <tr>
+                    <td><code>pc</code></td>
+                    <td><code>out/work/pc/</code></td>
+                    <td><code>out/pdf/pc/</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>出力ファイル名は <code>元ファイル名_タイトル_作者名</code> 形式です。</p>
 
         <h3>主要オプション</h3>
         <table>
@@ -115,7 +158,8 @@ python -m src.aozora_server
             <tbody>
                 <tr>
                     <td><code>--device</code></td>
-                    <td><code>iphone</code>/<code>android</code>/<code>ipad</code>/<code>ipad_landscape</code>/<code>pc</code></td>
+                    <td><code>iphone</code>/<code>android</code>/<code>ipad</code>/<code>ipad_landscape</code>/<code>pc</code>
+                    </td>
                 </tr>
                 <tr>
                     <td><code>--mode</code></td>
@@ -250,7 +294,7 @@ pip install -r requirements.txt
         <ul>
             <li><code>latexmk</code> と <code>lualatex</code> の PATH を確認する。</li>
             <li>まず <code>compile_pdf=false</code> で <code>.tex</code> 生成可否を確認する。</li>
-            <li><code>out/session/work/</code> のログを確認する。</li>
+            <li><code>out/work/&lt;device&gt;/</code> のログを確認する。</li>
         </ul>
 
         <h3>フォントが反映されない</h3>

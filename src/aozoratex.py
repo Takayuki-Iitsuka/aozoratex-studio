@@ -674,6 +674,7 @@ DEFAULT_MAIN_TEXT_TEMPLATE = r"""%% ---- Main_text ----
 DEFAULT_COLOPHON_TEMPLATE = r"""%% ---- Colophon ----
 {{main_overlay_end}}
 {{colophon_texture_block}}
+{{colophon_frame_block}}
 \thispagestyle{empty}
 \begingroup
 \small
@@ -1066,6 +1067,70 @@ def extract_title_author(html: str, parser: str = "html.parser") -> tuple[str, s
     return escape_latex(title), escape_latex(author)
 
 
+def extract_title_author_raw(html: str, parser: str = "html.parser") -> tuple[str, str]:
+    """青空文庫HTMLからタイトル・作者名を抽出し、非エスケープで返す。"""
+    warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+    features = "lxml-xml" if parser in ("xml", "lxml-xml") else parser
+    if features == "lxml":
+        features = "html.parser"
+    soup = BeautifulSoup(html, features)
+
+    title = _extract_meta_content(soup, "DC.Title")
+    author = _extract_meta_content(soup, "DC.Creator")
+
+    if not title:
+        title_node = soup.select_one("div.metadata h1.title") or soup.find("h1")
+        if title_node:
+            title = title_node.get_text(strip=True)
+
+    if not author:
+        author_node = soup.select_one("div.metadata h2.author") or soup.find("h2")
+        if author_node:
+            author = author_node.get_text(strip=True)
+
+    if not title:
+        head_title = soup.find("title")
+        if head_title:
+            title = head_title.get_text(strip=True)
+
+    if not title:
+        title = "タイトルをここに記入"
+    if not author:
+        author = "作者名をここに記入"
+
+    return title, author
+
+
+def sanitize_filename_component(text: str, fallback: str) -> str:
+    """Windows/Unix 互換で安全なファイル名コンポーネントへ正規化する。"""
+    component = re.sub(r"\s+", " ", str(text)).strip()
+    component = re.sub(r'[<>:"/\\|?*\x00-\x1F]', "_", component)
+    component = component.rstrip(". ")
+    return component or fallback
+
+
+def build_output_stem(source_path: Path, title: str, author: str) -> str:
+    """`元ファイル名_タイトル_作者名` 形式の出力ステムを返す。"""
+    safe_title = sanitize_filename_component(title, "title")
+    safe_author = sanitize_filename_component(author, "author")
+    return f"{source_path.stem}_{safe_title}_{safe_author}"
+
+
+def resolve_cli_work_outdir(out_arg: str, device: str) -> Path:
+    """CLI の `--out` から実際の `work/<device>` 出力先を解決する。"""
+    base_dir = (WORKDIR / out_arg).resolve()
+    normalized_device = str(device).strip().lower()
+
+    if (
+        base_dir.name.lower() == normalized_device
+        and base_dir.parent.name.lower() == "work"
+    ):
+        return base_dir
+    if base_dir.name.lower() == "work":
+        return base_dir / normalized_device
+    return base_dir / "work" / normalized_device
+
+
 def extract_bibliographical_information(html: str, parser: str = "html.parser") -> str:
     """
     青空文庫HTMLの bibliographical_information ブロックを抽出して、
@@ -1297,9 +1362,9 @@ def build_info_page(
 
     manual_rows = [
         "1. texファイル生成：",
-        r"\quad\texttt{python -m src.aozoratex data/ -{}-device iphone -{}-mode light -{}-out out/iphone}",
+        r"\quad\texttt{python -m src.aozoratex data/ -{}-device iphone -{}-mode light -{}-out out}",
         "2. PDF化（latexmkで自動コンパイル）：",
-        r"\quad\texttt{latexmk -lualatex -interaction=nonstopmode -file-line-error -halt-on-error -silent -use-make -outdir=out/iphone out/iphone/file.tex}",
+        r"\quad\texttt{latexmk -lualatex -interaction=nonstopmode -file-line-error -halt-on-error -silent -use-make -outdir=out/work/iphone out/work/iphone/file.tex}",
     ]
 
     lines = [
@@ -1479,7 +1544,7 @@ def build_tex_file(
         fallback=1,
     )
 
-    # iPhone / Android は本文外周の枠を常に無効化する。
+    # iPhone / Android は本文の Frame（フレーム・枠）を常に無効化する。
     frame_allowed_devices = {"pc", "ipad", "ipad_landscape"}
     if device_name not in frame_allowed_devices:
         resolved_main_frame_enabled = False
@@ -1490,9 +1555,7 @@ def build_tex_file(
     if show_page_number:
         if resolved_main_frame_enabled:
             effective_chars = max(20, chars - 2)
-            nombre_value = (
-                r"\raisebox{2.8mm}[0pt][0pt]{\small \thepage{} / \pageref{LastBodyPage}}"
-            )
+            nombre_value = r"\raisebox{2.8mm}[0pt][0pt]{\small \thepage{} / \pageref{LastBodyPage}}"
         else:
             nombre_value = r"\small \thepage{} / \pageref{LastBodyPage}"
 
@@ -1586,6 +1649,11 @@ def build_tex_file(
         if resolved_main_washi_enabled and colophon_washi_texture
         else ""
     )
+    colophon_frame_block = (
+        _make_one_page_overlay_block(main_frame_texture)
+        if resolved_main_frame_enabled and main_frame_texture
+        else ""
+    )
     typesetting_info_texture_block = (
         _make_one_page_overlay_block(typesetting_info_washi_texture)
         if resolved_main_washi_enabled and typesetting_info_washi_texture
@@ -1629,6 +1697,7 @@ def build_tex_file(
         {
             "colophon_body": okuduke,
             "colophon_texture_block": colophon_texture_block,
+            "colophon_frame_block": colophon_frame_block,
             "main_overlay_end": main_overlay_end,
         },
     )
@@ -1703,244 +1772,9 @@ def setup_logger(log_path: Path, verbose: bool) -> logging.Logger:
 
 
 def main() -> None:
-    """
-    CLI エントリポイント。
+    from src.aozoratex_cli import run_cli
 
-    流れ:
-    1. 引数を読む
-    2. 入力がディレクトリなら ``*.html``/``*.xhtml`` を列挙、ファイルならそれだけ処理
-    3. 1ファイルずつ html → latex_body → tex を生成
-    4. 失敗はログに例外スタックトレースを残し、他のファイルは続行
-    """
-    parser = argparse.ArgumentParser(
-        description="Aozora HTML/XHTML -> LuaLaTeX .tex generator (local files only)"
-    )
-    parser.add_argument("source", help="local HTML file path OR directory (data/)")
-    parser.add_argument(
-        "--out", help="output directory (default: ./out)", default="out"
-    )
-    parser.add_argument(
-        "--font",
-        help="Main Japanese font name (overrides global settings)",
-        default=None,
-    )
-    parser.add_argument(
-        "--encoding",
-        help="preferred input encoding (auto detects if omitted)",
-        default=None,
-    )
-    parser.add_argument(
-        "--parser",
-        help="BeautifulSoup features: lxml|html.parser|lxml-xml (default: html.parser)",
-        default="html.parser",
-    )
-    parser.add_argument("--verbose", action="store_true", help="verbose console log")
-    parser.add_argument(
-        "--device",
-        choices=[
-            "iphone",
-            "android",
-            "ipad",
-            "ipad_landscape",
-            "pc",
-        ],
-        help="PDF output device: iphone | android | ipad | ipad_landscape | pc",
-        default="iphone",
-    )
-    parser.add_argument(
-        "--mode",
-        choices=["light", "dark", "intermediate"],
-        help="PDF color mode: light, dark, or intermediate (overrides config)",
-        default=None,
-    )
-    parser.add_argument(
-        "--bg-color",
-        help="override background color (example: #FDF6E3)",
-        default=None,
-    )
-    parser.add_argument(
-        "--fg-color",
-        help="override text color (example: #657B83)",
-        default=None,
-    )
-    parser.add_argument(
-        "--save-settings",
-        action="store_true",
-        help="save current mode/color/font settings into custom config files",
-    )
-    parser.add_argument(
-        "--reset-settings",
-        action="store_true",
-        help="reset custom config files back to default values before generation",
-    )
-    parser.add_argument(
-        "--main-washi",
-        dest="main_washi_enabled",
-        action="store_true",
-        help="enable washi background on main text pages",
-    )
-    parser.add_argument(
-        "--no-main-washi",
-        dest="main_washi_enabled",
-        action="store_false",
-        help="disable washi background on main text pages",
-    )
-    parser.add_argument(
-        "--main-frame",
-        dest="main_frame_enabled",
-        action="store_true",
-        help="enable decorative frame on main text pages (pc/ipad only)",
-    )
-    parser.add_argument(
-        "--no-main-frame",
-        dest="main_frame_enabled",
-        action="store_false",
-        help="disable decorative frame on main text pages",
-    )
-    parser.add_argument(
-        "--main-frame-variant",
-        type=int,
-        choices=[1, 2, 3],
-        default=None,
-        help="main frame template variant (1-3)",
-    )
-    parser.add_argument(
-        "--cover-texture",
-        dest="cover_texture_enabled",
-        action="store_true",
-        help="enable texture on cover page",
-    )
-    parser.add_argument(
-        "--no-cover-texture",
-        dest="cover_texture_enabled",
-        action="store_false",
-        help="disable texture on cover page",
-    )
-    parser.add_argument(
-        "--cover-texture-variant",
-        type=int,
-        choices=[1, 2, 3],
-        default=None,
-        help="cover texture template variant (1-3)",
-    )
-    parser.set_defaults(
-        main_washi_enabled=None,
-        main_frame_enabled=None,
-        cover_texture_enabled=None,
-    )
-    args = parser.parse_args()
-
-    if args.reset_settings:
-        settings_store.reset_custom_settings()
-
-    mode = resolve_color_mode(args.device, args.mode)
-
-    # デバイス設定の表示
-    width, height = get_pdf_size(args.device)
-    print(f"Generating PDF for {args.device} with size {width}x{height} mm")
-
-    background_color, text_color = get_color_settings(mode)
-    if args.bg_color:
-        background_color = args.bg_color
-    if args.fg_color:
-        text_color = args.fg_color
-
-    if args.save_settings:
-        save_current_settings(
-            device=args.device,
-            mode=mode,
-            background_color=background_color,
-            text_color=text_color,
-            font_override=args.font,
-        )
-
-        decoration_updates: dict[str, Any] = {}
-        if args.main_washi_enabled is not None:
-            decoration_updates["main_washi_enabled"] = (
-                "true" if bool(args.main_washi_enabled) else "false"
-            )
-        if args.main_frame_enabled is not None:
-            decoration_updates["main_frame_enabled"] = (
-                "true" if bool(args.main_frame_enabled) else "false"
-            )
-        if args.main_frame_variant is not None:
-            decoration_updates["main_frame_variant"] = str(args.main_frame_variant)
-        if args.cover_texture_enabled is not None:
-            decoration_updates["cover_texture_enabled"] = (
-                "true" if bool(args.cover_texture_enabled) else "false"
-            )
-        if args.cover_texture_variant is not None:
-            decoration_updates["cover_texture_variant"] = str(
-                args.cover_texture_variant
-            )
-        if decoration_updates:
-            settings_store.save_settings({"global": decoration_updates})
-
-    src_path = Path(args.source)
-    outdir = (WORKDIR / args.out).resolve()
-    outdir.mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_path = outdir / f"aozoratex_{timestamp}.log"
-    logger = setup_logger(log_path, verbose=args.verbose)
-
-    if not src_path.exists():
-        logger.error("not found: %s", src_path)
-        sys.exit(2)
-
-    inputs: list[Path] = []
-    if src_path.is_dir():
-        inputs.extend(sorted(p for p in src_path.glob("*.html") if p.is_file()))
-        inputs.extend(sorted(p for p in src_path.glob("*.xhtml") if p.is_file()))
-    else:
-        inputs.append(src_path)
-
-    if not inputs:
-        logger.error("no input html/xhtml found: %s", src_path)
-        sys.exit(2)
-
-    logger.info("inputs: %d", len(inputs))
-    logger.info("output dir: %s", outdir)
-    logger.info("log: %s", log_path)
-
-    success_count = 0
-    for in_path in inputs:
-        try:
-            html, enc_used = fetch_html_local(
-                str(in_path), preferred_encoding=args.encoding
-            )
-            logger.info("read: %s (encoding=%s)", in_path, enc_used)
-
-            body = html_to_latex_body(html, parser=args.parser)
-            title, author = extract_title_author(html, parser=args.parser)
-            okuduke = build_okuduke_from_html(html, parser=args.parser)
-
-            out_tex = outdir / (in_path.stem + ".tex")
-            build_tex_file(
-                latex_body=body,
-                out_tex=out_tex,
-                device=args.device,
-                font_override=args.font,
-                background_color=background_color,
-                text_color=text_color,
-                title=title,
-                author=author,
-                okuduke_override=okuduke,
-                html_path=in_path,
-                main_washi_enabled=args.main_washi_enabled,
-                main_frame_enabled=args.main_frame_enabled,
-                main_frame_variant=args.main_frame_variant,
-                cover_texture_enabled=args.cover_texture_enabled,
-                cover_texture_variant=args.cover_texture_variant,
-            )
-            logger.info("write: %s", out_tex)
-            success_count += 1
-        except Exception as e:
-            logger.exception("failed: %s (%s)", in_path, e)
-
-    logger.info("done: %d/%d", success_count, len(inputs))
-    if success_count == 0:
-        sys.exit(1)
+    run_cli()
 
 
 if __name__ == "__main__":
