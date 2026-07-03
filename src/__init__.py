@@ -1,0 +1,1 @@
+"""AozoraTeX Studio source package."""

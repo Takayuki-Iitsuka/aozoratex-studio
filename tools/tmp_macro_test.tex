@@ -1,0 +1,26 @@
+\documentclass{article}
+\newif\ifAozoraLuaGaijiReady
+\AozoraLuaGaijiReadytrue
+\newcommand{\AozoraGaijiGlyph}[3]{{#1/#2/#3}}
+\newcommand{\AozoraGaijiUnicode}[1]{[#1]}
+\newcommand{\AozoraGaijiAuto}[2]{%
+  \ifAozoraLuaGaijiReady%
+    \directlua{%
+      local cp = tonumber("\luaescapestring{#1}", 16)
+      local selected = nil
+      if cp and type(jigmo_select) == "function" then
+        selected = jigmo_select(cp)
+      end
+      if selected and selected ~= "" then
+        tex.sprint("\\AozoraGaijiGlyph{" .. selected .. "}{" .. string.format("%X", cp) .. "}{#2}")
+      else
+        tex.sprint("\\AozoraGaijiUnicode{#2}")
+      end
+    }%
+  \else%
+    \AozoraGaijiUnicode{#2}%
+  \fi%
+}
+\begin{document}
+\AozoraGaijiAuto{6DBF}{漢}
+\end{document}

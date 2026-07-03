@@ -1,0 +1,214 @@
+body {
+    margin: 0;
+    padding: 24px;
+    font-family: "Segoe UI", "Yu Gothic", sans-serif;
+    background: #f3f4f6;
+    color: #0f172a;
+}
+
+.page {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+h1 {
+    margin: 0 0 10px;
+    font-size: 28px;
+}
+
+.lead {
+    margin: 0 0 18px;
+    color: #475569;
+}
+
+.scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 16px;
+}
+
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 32px;
+    align-items: flex-start;
+    width: max-content;
+    transform: scale(0.6);
+    transform-origin: top left;
+}
+
+.device-card {
+    background-color: #ffffff;
+    border: 6px solid #333;
+    border-radius: 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.device-card.is-focus {
+    transform: translateY(-14px) scale(1.03);
+    box-shadow: 0 14px 24px rgba(15, 23, 42, 0.32);
+}
+
+.iphone11pro {
+    width: 62mm;
+    height: 134mm;
+    border-color: #007aff;
+}
+
+.iphone11pro-landscape {
+    width: 134mm;
+    height: 62mm;
+    border-color: #2563eb;
+}
+
+.ipad {
+    width: 158mm;
+    height: 227mm;
+    border-color: #5856d6;
+}
+
+.ipad-landscape-card {
+    width: 227mm;
+    height: 158mm;
+}
+
+.paper {
+    border-style: dashed;
+    border-radius: 0;
+    border-width: 4px;
+}
+
+.a6-paper {
+    width: 105mm;
+    height: 148mm;
+    border-color: #8e44ad;
+    background: rgba(142, 68, 173, 0.05);
+}
+
+.b6-paper {
+    width: 128mm;
+    height: 182mm;
+    border-color: #2980b9;
+    background: rgba(41, 128, 185, 0.05);
+}
+
+.a5-paper {
+    width: 148mm;
+    height: 210mm;
+    border-color: #ff9500;
+    background: rgba(255, 149, 0, 0.05);
+}
+
+.a4-paper {
+    width: 210mm;
+    height: 297mm;
+    border-color: #2f855a;
+    background: rgba(47, 133, 90, 0.06);
+}
+
+.b5-paper {
+    width: 182mm;
+    height: 257mm;
+    border-color: #c0392b;
+    background: rgba(192, 57, 43, 0.05);
+}
+
+.specs {
+    font-size: 24px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.specs h2 {
+    margin: 0 0 12px;
+    font-size: 30px;
+}
+
+.tone-smart {
+    color: #007aff;
+}
+
+.tone-smart-landscape {
+    color: #2563eb;
+}
+
+.tone-a6 {
+    color: #8e44ad;
+}
+
+.tone-b6 {
+    color: #2980b9;
+}
+
+.tone-a5 {
+    color: #ff9500;
+}
+
+.tone-a4 {
+    color: #2f855a;
+}
+
+.tone-tablet {
+    color: #5856d6;
+}
+
+.tone-tablet-landscape {
+    color: #6366f1;
+}
+
+.tone-b5 {
+    color: #c0392b;
+}
+
+.specs p {
+    margin: 5px 0;
+}
+
+.specs .info {
+    font-size: 18px;
+    color: #666;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+.specs .highlight {
+    font-weight: bold;
+    color: #e74c3c;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.table-wrap {
+    margin-top: 14px;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    overflow: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #f8fafc;
+    font-size: 13px;
+    color: #334155;
+}

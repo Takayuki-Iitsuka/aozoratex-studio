@@ -1,0 +1,400 @@
+﻿family,style,file_path,japanese_candidate,recommended_for_aozoratex,latex_name,latex_command
+IPAexMincho,Regular,C:/texlive/2026/texmf-dist/fonts/truetype/public/ipaex/ipaexm.ttf,true,true,IPAexMincho,\setmainjfont{IPAexMincho}
+IPAexMincho,Regular,C:/WINDOWS/fonts/ipaexm.ttf,true,true,IPAexMincho,\setmainjfont{IPAexMincho}
+IPAMincho,Regular,C:/WINDOWS/fonts/ipam.ttf,true,true,IPAMincho,\setmainjfont{IPAMincho}
+IPAMincho,Regular,C:/WINDOWS/fonts/ipam.ttc,true,true,IPAMincho,\setmainjfont{IPAMincho}
+IPAMincho,Regular,C:/texlive/2026/texmf-dist/fonts/truetype/public/ipaex/ipam.ttf,true,true,IPAMincho,\setmainjfont{IPAMincho}
+IPAmjMincho,Regular,C:/WINDOWS/fonts/ipamjm.ttf,true,true,IPAmjMincho,\setmainjfont{IPAmjMincho}
+Source Han Serif,Regular,C:/WINDOWS/fonts/SourceHanSerif-Regular.ttc,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Regular,C:/WINDOWS/fonts/SourceHanSerif-Regular.otf,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Medium,C:/WINDOWS/fonts/SourceHanSerif-Medium.ttc,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Medium,C:/WINDOWS/fonts/SourceHanSerif-Medium.otf,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,SemiBold,C:/WINDOWS/fonts/SourceHanSerif-SemiBold.ttc,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,SemiBold,C:/WINDOWS/fonts/SourceHanSerif-SemiBold.otf,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Bold,C:/WINDOWS/fonts/SourceHanSerif-Bold.ttc,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Bold,C:/WINDOWS/fonts/SourceHanSerif-Bold.otf,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Heavy,C:/WINDOWS/fonts/SourceHanSerif-Heavy.ttc,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Heavy,C:/WINDOWS/fonts/SourceHanSerif-Heavy.otf,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Light,C:/WINDOWS/fonts/SourceHanSerif-Light.otf,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,Light,C:/WINDOWS/fonts/SourceHanSerif-Light.ttc,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,ExtraLight,C:/WINDOWS/fonts/SourceHanSerif-ExtraLight.otf,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif,ExtraLight,C:/WINDOWS/fonts/SourceHanSerif-ExtraLight.ttc,true,true,Source Han Serif,\setmainjfont{Source Han Serif}
+Source Han Serif CN,Regular,C:/WINDOWS/fonts/SourceHanSerifCN-Regular.otf,true,true,Source Han Serif CN,\setmainjfont{Source Han Serif CN}
+Source Han Serif CN,Medium,C:/WINDOWS/fonts/SourceHanSerifCN-Medium.otf,true,true,Source Han Serif CN,\setmainjfont{Source Han Serif CN}
+Source Han Serif CN,SemiBold,C:/WINDOWS/fonts/SourceHanSerifCN-SemiBold.otf,true,true,Source Han Serif CN,\setmainjfont{Source Han Serif CN}
+Source Han Serif CN,Bold,C:/WINDOWS/fonts/SourceHanSerifCN-Bold.otf,true,true,Source Han Serif CN,\setmainjfont{Source Han Serif CN}
+Source Han Serif CN,Heavy,C:/WINDOWS/fonts/SourceHanSerifCN-Heavy.otf,true,true,Source Han Serif CN,\setmainjfont{Source Han Serif CN}
+Source Han Serif CN,Light,C:/WINDOWS/fonts/SourceHanSerifCN-Light.otf,true,true,Source Han Serif CN,\setmainjfont{Source Han Serif CN}
+Source Han Serif CN,ExtraLight,C:/WINDOWS/fonts/SourceHanSerifCN-ExtraLight.otf,true,true,Source Han Serif CN,\setmainjfont{Source Han Serif CN}
+Source Han Serif JP,Regular,C:/WINDOWS/fonts/SourceHanSerifJP-Regular.otf,true,true,Source Han Serif JP,\setmainjfont{Source Han Serif JP}
+Source Han Serif JP,Medium,C:/WINDOWS/fonts/SourceHanSerifJP-Medium.otf,true,true,Source Han Serif JP,\setmainjfont{Source Han Serif JP}
+Source Han Serif JP,SemiBold,C:/WINDOWS/fonts/SourceHanSerifJP-SemiBold.otf,true,true,Source Han Serif JP,\setmainjfont{Source Han Serif JP}
+Source Han Serif JP,Bold,C:/WINDOWS/fonts/SourceHanSerifJP-Bold.otf,true,true,Source Han Serif JP,\setmainjfont{Source Han Serif JP}
+Source Han Serif JP,Heavy,C:/WINDOWS/fonts/SourceHanSerifJP-Heavy.otf,true,true,Source Han Serif JP,\setmainjfont{Source Han Serif JP}
+Source Han Serif JP,Light,C:/WINDOWS/fonts/SourceHanSerifJP-Light.otf,true,true,Source Han Serif JP,\setmainjfont{Source Han Serif JP}
+Source Han Serif JP,ExtraLight,C:/WINDOWS/fonts/SourceHanSerifJP-ExtraLight.otf,true,true,Source Han Serif JP,\setmainjfont{Source Han Serif JP}
+Source Han Serif K,Regular,C:/WINDOWS/fonts/SourceHanSerif-Regular.ttc,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Regular,C:/WINDOWS/fonts/SourceHanSerifK-Regular.otf,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Medium,C:/WINDOWS/fonts/SourceHanSerif-Medium.ttc,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Medium,C:/WINDOWS/fonts/SourceHanSerifK-Medium.otf,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,SemiBold,C:/WINDOWS/fonts/SourceHanSerif-SemiBold.ttc,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,SemiBold,C:/WINDOWS/fonts/SourceHanSerifK-SemiBold.otf,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Bold,C:/WINDOWS/fonts/SourceHanSerif-Bold.ttc,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Bold,C:/WINDOWS/fonts/SourceHanSerifK-Bold.otf,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Heavy,C:/WINDOWS/fonts/SourceHanSerifK-Heavy.otf,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Heavy,C:/WINDOWS/fonts/SourceHanSerif-Heavy.ttc,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Light,C:/WINDOWS/fonts/SourceHanSerifK-Light.otf,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,Light,C:/WINDOWS/fonts/SourceHanSerif-Light.ttc,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,ExtraLight,C:/WINDOWS/fonts/SourceHanSerif-ExtraLight.ttc,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif K,ExtraLight,C:/WINDOWS/fonts/SourceHanSerifK-ExtraLight.otf,true,true,Source Han Serif K,\setmainjfont{Source Han Serif K}
+Source Han Serif KR,Regular,C:/WINDOWS/fonts/SourceHanSerifKR-Regular.otf,true,true,Source Han Serif KR,\setmainjfont{Source Han Serif KR}
+Source Han Serif KR,Medium,C:/WINDOWS/fonts/SourceHanSerifKR-Medium.otf,true,true,Source Han Serif KR,\setmainjfont{Source Han Serif KR}
+Source Han Serif KR,SemiBold,C:/WINDOWS/fonts/SourceHanSerifKR-SemiBold.otf,true,true,Source Han Serif KR,\setmainjfont{Source Han Serif KR}
+Source Han Serif KR,Bold,C:/WINDOWS/fonts/SourceHanSerifKR-Bold.otf,true,true,Source Han Serif KR,\setmainjfont{Source Han Serif KR}
+Source Han Serif KR,Heavy,C:/WINDOWS/fonts/SourceHanSerifKR-Heavy.otf,true,true,Source Han Serif KR,\setmainjfont{Source Han Serif KR}
+Source Han Serif KR,Light,C:/WINDOWS/fonts/SourceHanSerifKR-Light.otf,true,true,Source Han Serif KR,\setmainjfont{Source Han Serif KR}
+Source Han Serif KR,ExtraLight,C:/WINDOWS/fonts/SourceHanSerifKR-ExtraLight.otf,true,true,Source Han Serif KR,\setmainjfont{Source Han Serif KR}
+Source Han Serif SC,Regular,C:/WINDOWS/fonts/SourceHanSerifSC-Regular.otf,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Regular,C:/WINDOWS/fonts/SourceHanSerif-Regular.ttc,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Medium,C:/WINDOWS/fonts/SourceHanSerifSC-Medium.otf,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Medium,C:/WINDOWS/fonts/SourceHanSerif-Medium.ttc,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,SemiBold,C:/WINDOWS/fonts/SourceHanSerif-SemiBold.ttc,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,SemiBold,C:/WINDOWS/fonts/SourceHanSerifSC-SemiBold.otf,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Bold,C:/WINDOWS/fonts/SourceHanSerif-Bold.ttc,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Bold,C:/WINDOWS/fonts/SourceHanSerifSC-Bold.otf,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Heavy,C:/WINDOWS/fonts/SourceHanSerifSC-Heavy.otf,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Heavy,C:/WINDOWS/fonts/SourceHanSerif-Heavy.ttc,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Light,C:/WINDOWS/fonts/SourceHanSerifSC-Light.otf,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,Light,C:/WINDOWS/fonts/SourceHanSerif-Light.ttc,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,ExtraLight,C:/WINDOWS/fonts/SourceHanSerifSC-ExtraLight.otf,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif SC,ExtraLight,C:/WINDOWS/fonts/SourceHanSerif-ExtraLight.ttc,true,true,Source Han Serif SC,\setmainjfont{Source Han Serif SC}
+Source Han Serif TC,Regular,C:/WINDOWS/fonts/SourceHanSerifTC-Regular.otf,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Regular,C:/WINDOWS/fonts/SourceHanSerif-Regular.ttc,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Medium,C:/WINDOWS/fonts/SourceHanSerif-Medium.ttc,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Medium,C:/WINDOWS/fonts/SourceHanSerifTC-Medium.otf,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,SemiBold,C:/WINDOWS/fonts/SourceHanSerifTC-SemiBold.otf,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,SemiBold,C:/WINDOWS/fonts/SourceHanSerif-SemiBold.ttc,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Bold,C:/WINDOWS/fonts/SourceHanSerif-Bold.ttc,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Bold,C:/WINDOWS/fonts/SourceHanSerifTC-Bold.otf,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Heavy,C:/WINDOWS/fonts/SourceHanSerif-Heavy.ttc,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Heavy,C:/WINDOWS/fonts/SourceHanSerifTC-Heavy.otf,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Light,C:/WINDOWS/fonts/SourceHanSerifTC-Light.otf,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,Light,C:/WINDOWS/fonts/SourceHanSerif-Light.ttc,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,ExtraLight,C:/WINDOWS/fonts/SourceHanSerifTC-ExtraLight.otf,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TC,ExtraLight,C:/WINDOWS/fonts/SourceHanSerif-ExtraLight.ttc,true,true,Source Han Serif TC,\setmainjfont{Source Han Serif TC}
+Source Han Serif TW,Regular,C:/WINDOWS/fonts/SourceHanSerifTW-Regular.otf,true,true,Source Han Serif TW,\setmainjfont{Source Han Serif TW}
+Source Han Serif TW,Medium,C:/WINDOWS/fonts/SourceHanSerifTW-Medium.otf,true,true,Source Han Serif TW,\setmainjfont{Source Han Serif TW}
+Source Han Serif TW,SemiBold,C:/WINDOWS/fonts/SourceHanSerifTW-SemiBold.otf,true,true,Source Han Serif TW,\setmainjfont{Source Han Serif TW}
+Source Han Serif TW,Bold,C:/WINDOWS/fonts/SourceHanSerifTW-Bold.otf,true,true,Source Han Serif TW,\setmainjfont{Source Han Serif TW}
+Source Han Serif TW,Heavy,C:/WINDOWS/fonts/SourceHanSerifTW-Heavy.otf,true,true,Source Han Serif TW,\setmainjfont{Source Han Serif TW}
+Source Han Serif TW,Light,C:/WINDOWS/fonts/SourceHanSerifTW-Light.otf,true,true,Source Han Serif TW,\setmainjfont{Source Han Serif TW}
+Source Han Serif TW,ExtraLight,C:/WINDOWS/fonts/SourceHanSerifTW-ExtraLight.otf,true,true,Source Han Serif TW,\setmainjfont{Source Han Serif TW}
+Yu Mincho,Regular,C:/WINDOWS/fonts/yumin.ttf,true,true,Yu Mincho,\setmainjfont{Yu Mincho}
+Yu Mincho,Demibold,C:/WINDOWS/fonts/yumindb.ttf,true,true,Yu Mincho,\setmainjfont{Yu Mincho}
+Yu Mincho,Light,C:/WINDOWS/fonts/yuminl.ttf,true,true,Yu Mincho,\setmainjfont{Yu Mincho}
+BIZ UDGothic,Regular,C:/WINDOWS/fonts/BIZ-UDGothicR.ttc,true,false,BIZ UDGothic,\setmainjfont{BIZ UDGothic}
+BIZ UDGothic,Regular,C:/WINDOWS/fonts/BIZUDGothic-Regular.ttf,true,false,BIZ UDGothic,\setmainjfont{BIZ UDGothic}
+BIZ UDGothic,Bold,C:/WINDOWS/fonts/BIZUDGothic-Bold.ttf,true,false,BIZ UDGothic,\setmainjfont{BIZ UDGothic}
+BIZ UDGothic,Bold,C:/WINDOWS/fonts/BIZ-UDGothicB.ttc,true,false,BIZ UDGothic,\setmainjfont{BIZ UDGothic}
+BIZ UDMincho,Regular,C:/WINDOWS/fonts/BIZUDMincho-Regular.ttf,true,false,BIZ UDMincho,\setmainjfont{BIZ UDMincho}
+BIZ UDMincho,Medium,C:/WINDOWS/fonts/BIZ-UDMinchoM.ttc,true,false,BIZ UDMincho,\setmainjfont{BIZ UDMincho}
+BIZ UDPGothic,Regular,C:/WINDOWS/fonts/BIZ-UDGothicR.ttc,true,false,BIZ UDPGothic,\setmainjfont{BIZ UDPGothic}
+BIZ UDPGothic,Regular,C:/WINDOWS/fonts/BIZUDPGothic-Regular.ttf,true,false,BIZ UDPGothic,\setmainjfont{BIZ UDPGothic}
+BIZ UDPGothic,Bold,C:/WINDOWS/fonts/BIZUDPGothic-Bold.ttf,true,false,BIZ UDPGothic,\setmainjfont{BIZ UDPGothic}
+BIZ UDPGothic,Bold,C:/WINDOWS/fonts/BIZ-UDGothicB.ttc,true,false,BIZ UDPGothic,\setmainjfont{BIZ UDPGothic}
+BIZ UDPMincho,Regular,C:/WINDOWS/fonts/BIZUDPMincho-Regular_0.ttf,true,false,BIZ UDPMincho,\setmainjfont{BIZ UDPMincho}
+BIZ UDPMincho,Regular,C:/WINDOWS/fonts/BIZUDPMincho-Regular.ttf,true,false,BIZ UDPMincho,\setmainjfont{BIZ UDPMincho}
+BIZ UDPMincho,Medium,C:/WINDOWS/fonts/BIZ-UDMinchoM.ttc,true,false,BIZ UDPMincho,\setmainjfont{BIZ UDPMincho}
+Gen Jyuu Gothic,Regular,C:/WINDOWS/fonts/GenJyuuGothic-Regular.ttf,true,false,Gen Jyuu Gothic,\setmainjfont{Gen Jyuu Gothic}
+Gen Jyuu Gothic,Medium,C:/WINDOWS/fonts/GenJyuuGothic-Medium.ttf,true,false,Gen Jyuu Gothic,\setmainjfont{Gen Jyuu Gothic}
+Gen Jyuu Gothic,Normal,C:/WINDOWS/fonts/GenJyuuGothic-Normal.ttf,true,false,Gen Jyuu Gothic,\setmainjfont{Gen Jyuu Gothic}
+Gen Jyuu Gothic,Bold,C:/WINDOWS/fonts/GenJyuuGothic-Bold.ttf,true,false,Gen Jyuu Gothic,\setmainjfont{Gen Jyuu Gothic}
+Gen Jyuu Gothic,Heavy,C:/WINDOWS/fonts/GenJyuuGothic-Heavy.ttf,true,false,Gen Jyuu Gothic,\setmainjfont{Gen Jyuu Gothic}
+Gen Jyuu Gothic,Light,C:/WINDOWS/fonts/GenJyuuGothic-Light.ttf,true,false,Gen Jyuu Gothic,\setmainjfont{Gen Jyuu Gothic}
+Gen Jyuu Gothic,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothic-ExtraLight.ttf,true,false,Gen Jyuu Gothic,\setmainjfont{Gen Jyuu Gothic}
+Gen Jyuu Gothic L Monospace,Regular,C:/WINDOWS/fonts/GenJyuuGothicL-Monospace-Regular.ttf,true,false,Gen Jyuu Gothic L Monospace,\setmainjfont{Gen Jyuu Gothic L Monospace}
+Gen Jyuu Gothic L Monospace,Medium,C:/WINDOWS/fonts/GenJyuuGothicL-Monospace-Medium.ttf,true,false,Gen Jyuu Gothic L Monospace,\setmainjfont{Gen Jyuu Gothic L Monospace}
+Gen Jyuu Gothic L Monospace,Normal,C:/WINDOWS/fonts/GenJyuuGothicL-Monospace-Normal.ttf,true,false,Gen Jyuu Gothic L Monospace,\setmainjfont{Gen Jyuu Gothic L Monospace}
+Gen Jyuu Gothic L Monospace,Bold,C:/WINDOWS/fonts/GenJyuuGothicL-Monospace-Bold.ttf,true,false,Gen Jyuu Gothic L Monospace,\setmainjfont{Gen Jyuu Gothic L Monospace}
+Gen Jyuu Gothic L Monospace,Heavy,C:/WINDOWS/fonts/GenJyuuGothicL-Monospace-Heavy.ttf,true,false,Gen Jyuu Gothic L Monospace,\setmainjfont{Gen Jyuu Gothic L Monospace}
+Gen Jyuu Gothic L Monospace,Light,C:/WINDOWS/fonts/GenJyuuGothicL-Monospace-Light.ttf,true,false,Gen Jyuu Gothic L Monospace,\setmainjfont{Gen Jyuu Gothic L Monospace}
+Gen Jyuu Gothic L Monospace,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothicL-Monospace-ExtraLight.ttf,true,false,Gen Jyuu Gothic L Monospace,\setmainjfont{Gen Jyuu Gothic L Monospace}
+Gen Jyuu Gothic LP,Regular,C:/WINDOWS/fonts/GenJyuuGothicL-P-Regular.ttf,true,false,Gen Jyuu Gothic LP,\setmainjfont{Gen Jyuu Gothic LP}
+Gen Jyuu Gothic LP,Medium,C:/WINDOWS/fonts/GenJyuuGothicL-P-Medium.ttf,true,false,Gen Jyuu Gothic LP,\setmainjfont{Gen Jyuu Gothic LP}
+Gen Jyuu Gothic LP,Normal,C:/WINDOWS/fonts/GenJyuuGothicL-P-Normal.ttf,true,false,Gen Jyuu Gothic LP,\setmainjfont{Gen Jyuu Gothic LP}
+Gen Jyuu Gothic LP,Bold,C:/WINDOWS/fonts/GenJyuuGothicL-P-Bold.ttf,true,false,Gen Jyuu Gothic LP,\setmainjfont{Gen Jyuu Gothic LP}
+Gen Jyuu Gothic LP,Heavy,C:/WINDOWS/fonts/GenJyuuGothicL-P-Heavy.ttf,true,false,Gen Jyuu Gothic LP,\setmainjfont{Gen Jyuu Gothic LP}
+Gen Jyuu Gothic LP,Light,C:/WINDOWS/fonts/GenJyuuGothicL-P-Light.ttf,true,false,Gen Jyuu Gothic LP,\setmainjfont{Gen Jyuu Gothic LP}
+Gen Jyuu Gothic LP,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothicL-P-ExtraLight.ttf,true,false,Gen Jyuu Gothic LP,\setmainjfont{Gen Jyuu Gothic LP}
+Gen Jyuu Gothic Monospace,Regular,C:/WINDOWS/fonts/GenJyuuGothic-Monospace-Regular.ttf,true,false,Gen Jyuu Gothic Monospace,\setmainjfont{Gen Jyuu Gothic Monospace}
+Gen Jyuu Gothic Monospace,Medium,C:/WINDOWS/fonts/GenJyuuGothic-Monospace-Medium.ttf,true,false,Gen Jyuu Gothic Monospace,\setmainjfont{Gen Jyuu Gothic Monospace}
+Gen Jyuu Gothic Monospace,Normal,C:/WINDOWS/fonts/GenJyuuGothic-Monospace-Normal.ttf,true,false,Gen Jyuu Gothic Monospace,\setmainjfont{Gen Jyuu Gothic Monospace}
+Gen Jyuu Gothic Monospace,Bold,C:/WINDOWS/fonts/GenJyuuGothic-Monospace-Bold.ttf,true,false,Gen Jyuu Gothic Monospace,\setmainjfont{Gen Jyuu Gothic Monospace}
+Gen Jyuu Gothic Monospace,Heavy,C:/WINDOWS/fonts/GenJyuuGothic-Monospace-Heavy.ttf,true,false,Gen Jyuu Gothic Monospace,\setmainjfont{Gen Jyuu Gothic Monospace}
+Gen Jyuu Gothic Monospace,Light,C:/WINDOWS/fonts/GenJyuuGothic-Monospace-Light.ttf,true,false,Gen Jyuu Gothic Monospace,\setmainjfont{Gen Jyuu Gothic Monospace}
+Gen Jyuu Gothic Monospace,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothic-Monospace-ExtraLight.ttf,true,false,Gen Jyuu Gothic Monospace,\setmainjfont{Gen Jyuu Gothic Monospace}
+Gen Jyuu Gothic P,Regular,C:/WINDOWS/fonts/GenJyuuGothic-P-Regular.ttf,true,false,Gen Jyuu Gothic P,\setmainjfont{Gen Jyuu Gothic P}
+Gen Jyuu Gothic P,Medium,C:/WINDOWS/fonts/GenJyuuGothic-P-Medium.ttf,true,false,Gen Jyuu Gothic P,\setmainjfont{Gen Jyuu Gothic P}
+Gen Jyuu Gothic P,Normal,C:/WINDOWS/fonts/GenJyuuGothic-P-Normal.ttf,true,false,Gen Jyuu Gothic P,\setmainjfont{Gen Jyuu Gothic P}
+Gen Jyuu Gothic P,Bold,C:/WINDOWS/fonts/GenJyuuGothic-P-Bold.ttf,true,false,Gen Jyuu Gothic P,\setmainjfont{Gen Jyuu Gothic P}
+Gen Jyuu Gothic P,Heavy,C:/WINDOWS/fonts/GenJyuuGothic-P-Heavy.ttf,true,false,Gen Jyuu Gothic P,\setmainjfont{Gen Jyuu Gothic P}
+Gen Jyuu Gothic P,Light,C:/WINDOWS/fonts/GenJyuuGothic-P-Light.ttf,true,false,Gen Jyuu Gothic P,\setmainjfont{Gen Jyuu Gothic P}
+Gen Jyuu Gothic P,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothic-P-ExtraLight.ttf,true,false,Gen Jyuu Gothic P,\setmainjfont{Gen Jyuu Gothic P}
+Gen Jyuu Gothic X Monospace,Regular,C:/WINDOWS/fonts/GenJyuuGothicX-Monospace-Regular.ttf,true,false,Gen Jyuu Gothic X Monospace,\setmainjfont{Gen Jyuu Gothic X Monospace}
+Gen Jyuu Gothic X Monospace,Medium,C:/WINDOWS/fonts/GenJyuuGothicX-Monospace-Medium.ttf,true,false,Gen Jyuu Gothic X Monospace,\setmainjfont{Gen Jyuu Gothic X Monospace}
+Gen Jyuu Gothic X Monospace,Normal,C:/WINDOWS/fonts/GenJyuuGothicX-Monospace-Normal.ttf,true,false,Gen Jyuu Gothic X Monospace,\setmainjfont{Gen Jyuu Gothic X Monospace}
+Gen Jyuu Gothic X Monospace,Bold,C:/WINDOWS/fonts/GenJyuuGothicX-Monospace-Bold.ttf,true,false,Gen Jyuu Gothic X Monospace,\setmainjfont{Gen Jyuu Gothic X Monospace}
+Gen Jyuu Gothic X Monospace,Heavy,C:/WINDOWS/fonts/GenJyuuGothicX-Monospace-Heavy.ttf,true,false,Gen Jyuu Gothic X Monospace,\setmainjfont{Gen Jyuu Gothic X Monospace}
+Gen Jyuu Gothic X Monospace,Light,C:/WINDOWS/fonts/GenJyuuGothicX-Monospace-Light.ttf,true,false,Gen Jyuu Gothic X Monospace,\setmainjfont{Gen Jyuu Gothic X Monospace}
+Gen Jyuu Gothic X Monospace,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothicX-Monospace-ExtraLight.ttf,true,false,Gen Jyuu Gothic X Monospace,\setmainjfont{Gen Jyuu Gothic X Monospace}
+Gen Jyuu Gothic XP,Regular,C:/WINDOWS/fonts/GenJyuuGothicX-P-Regular.ttf,true,false,Gen Jyuu Gothic XP,\setmainjfont{Gen Jyuu Gothic XP}
+Gen Jyuu Gothic XP,Medium,C:/WINDOWS/fonts/GenJyuuGothicX-P-Medium.ttf,true,false,Gen Jyuu Gothic XP,\setmainjfont{Gen Jyuu Gothic XP}
+Gen Jyuu Gothic XP,Normal,C:/WINDOWS/fonts/GenJyuuGothicX-P-Normal.ttf,true,false,Gen Jyuu Gothic XP,\setmainjfont{Gen Jyuu Gothic XP}
+Gen Jyuu Gothic XP,Bold,C:/WINDOWS/fonts/GenJyuuGothicX-P-Bold.ttf,true,false,Gen Jyuu Gothic XP,\setmainjfont{Gen Jyuu Gothic XP}
+Gen Jyuu Gothic XP,Heavy,C:/WINDOWS/fonts/GenJyuuGothicX-P-Heavy.ttf,true,false,Gen Jyuu Gothic XP,\setmainjfont{Gen Jyuu Gothic XP}
+Gen Jyuu Gothic XP,Light,C:/WINDOWS/fonts/GenJyuuGothicX-P-Light.ttf,true,false,Gen Jyuu Gothic XP,\setmainjfont{Gen Jyuu Gothic XP}
+Gen Jyuu Gothic XP,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothicX-P-ExtraLight.ttf,true,false,Gen Jyuu Gothic XP,\setmainjfont{Gen Jyuu Gothic XP}
+Gen Jyuu GothicL,Regular,C:/WINDOWS/fonts/GenJyuuGothicL-Regular.ttf,true,false,Gen Jyuu GothicL,\setmainjfont{Gen Jyuu GothicL}
+Gen Jyuu GothicL,Medium,C:/WINDOWS/fonts/GenJyuuGothicL-Medium.ttf,true,false,Gen Jyuu GothicL,\setmainjfont{Gen Jyuu GothicL}
+Gen Jyuu GothicL,Normal,C:/WINDOWS/fonts/GenJyuuGothicL-Normal.ttf,true,false,Gen Jyuu GothicL,\setmainjfont{Gen Jyuu GothicL}
+Gen Jyuu GothicL,Bold,C:/WINDOWS/fonts/GenJyuuGothicL-Bold.ttf,true,false,Gen Jyuu GothicL,\setmainjfont{Gen Jyuu GothicL}
+Gen Jyuu GothicL,Heavy,C:/WINDOWS/fonts/GenJyuuGothicL-Heavy.ttf,true,false,Gen Jyuu GothicL,\setmainjfont{Gen Jyuu GothicL}
+Gen Jyuu GothicL,Light,C:/WINDOWS/fonts/GenJyuuGothicL-Light.ttf,true,false,Gen Jyuu GothicL,\setmainjfont{Gen Jyuu GothicL}
+Gen Jyuu GothicL,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothicL-ExtraLight.ttf,true,false,Gen Jyuu GothicL,\setmainjfont{Gen Jyuu GothicL}
+Gen Jyuu GothicX,Regular,C:/WINDOWS/fonts/GenJyuuGothicX-Regular.ttf,true,false,Gen Jyuu GothicX,\setmainjfont{Gen Jyuu GothicX}
+Gen Jyuu GothicX,Medium,C:/WINDOWS/fonts/GenJyuuGothicX-Medium.ttf,true,false,Gen Jyuu GothicX,\setmainjfont{Gen Jyuu GothicX}
+Gen Jyuu GothicX,Normal,C:/WINDOWS/fonts/GenJyuuGothicX-Normal.ttf,true,false,Gen Jyuu GothicX,\setmainjfont{Gen Jyuu GothicX}
+Gen Jyuu GothicX,Bold,C:/WINDOWS/fonts/GenJyuuGothicX-Bold.ttf,true,false,Gen Jyuu GothicX,\setmainjfont{Gen Jyuu GothicX}
+Gen Jyuu GothicX,Heavy,C:/WINDOWS/fonts/GenJyuuGothicX-Heavy.ttf,true,false,Gen Jyuu GothicX,\setmainjfont{Gen Jyuu GothicX}
+Gen Jyuu GothicX,Light,C:/WINDOWS/fonts/GenJyuuGothicX-Light.ttf,true,false,Gen Jyuu GothicX,\setmainjfont{Gen Jyuu GothicX}
+Gen Jyuu GothicX,ExtraLight,C:/WINDOWS/fonts/GenJyuuGothicX-ExtraLight.ttf,true,false,Gen Jyuu GothicX,\setmainjfont{Gen Jyuu GothicX}
+Gen Shin Gothic,Regular,C:/WINDOWS/fonts/GenShinGothic-Regular.ttf,true,false,Gen Shin Gothic,\setmainjfont{Gen Shin Gothic}
+Gen Shin Gothic,Medium,C:/WINDOWS/fonts/GenShinGothic-Medium.ttf,true,false,Gen Shin Gothic,\setmainjfont{Gen Shin Gothic}
+Gen Shin Gothic,Normal,C:/WINDOWS/fonts/GenShinGothic-Normal.ttf,true,false,Gen Shin Gothic,\setmainjfont{Gen Shin Gothic}
+Gen Shin Gothic,Bold,C:/WINDOWS/fonts/GenShinGothic-Bold.ttf,true,false,Gen Shin Gothic,\setmainjfont{Gen Shin Gothic}
+Gen Shin Gothic,Heavy,C:/WINDOWS/fonts/GenShinGothic-Heavy.ttf,true,false,Gen Shin Gothic,\setmainjfont{Gen Shin Gothic}
+Gen Shin Gothic,Light,C:/WINDOWS/fonts/GenShinGothic-Light.ttf,true,false,Gen Shin Gothic,\setmainjfont{Gen Shin Gothic}
+Gen Shin Gothic,ExtraLight,C:/WINDOWS/fonts/GenShinGothic-ExtraLight.ttf,true,false,Gen Shin Gothic,\setmainjfont{Gen Shin Gothic}
+Gen Shin Gothic Monospace,Regular,C:/WINDOWS/fonts/GenShinGothic-Monospace-Regular.ttf,true,false,Gen Shin Gothic Monospace,\setmainjfont{Gen Shin Gothic Monospace}
+Gen Shin Gothic Monospace,Medium,C:/WINDOWS/fonts/GenShinGothic-Monospace-Medium.ttf,true,false,Gen Shin Gothic Monospace,\setmainjfont{Gen Shin Gothic Monospace}
+Gen Shin Gothic Monospace,Normal,C:/WINDOWS/fonts/GenShinGothic-Monospace-Normal.ttf,true,false,Gen Shin Gothic Monospace,\setmainjfont{Gen Shin Gothic Monospace}
+Gen Shin Gothic Monospace,Bold,C:/WINDOWS/fonts/GenShinGothic-Monospace-Bold.ttf,true,false,Gen Shin Gothic Monospace,\setmainjfont{Gen Shin Gothic Monospace}
+Gen Shin Gothic Monospace,Heavy,C:/WINDOWS/fonts/GenShinGothic-Monospace-Heavy.ttf,true,false,Gen Shin Gothic Monospace,\setmainjfont{Gen Shin Gothic Monospace}
+Gen Shin Gothic Monospace,Light,C:/WINDOWS/fonts/GenShinGothic-Monospace-Light.ttf,true,false,Gen Shin Gothic Monospace,\setmainjfont{Gen Shin Gothic Monospace}
+Gen Shin Gothic Monospace,ExtraLight,C:/WINDOWS/fonts/GenShinGothic-Monospace-ExtraLight.ttf,true,false,Gen Shin Gothic Monospace,\setmainjfont{Gen Shin Gothic Monospace}
+Gen Shin Gothic P,Regular,C:/WINDOWS/fonts/GenShinGothic-P-Regular.ttf,true,false,Gen Shin Gothic P,\setmainjfont{Gen Shin Gothic P}
+Gen Shin Gothic P,Medium,C:/WINDOWS/fonts/GenShinGothic-P-Medium.ttf,true,false,Gen Shin Gothic P,\setmainjfont{Gen Shin Gothic P}
+Gen Shin Gothic P,Normal,C:/WINDOWS/fonts/GenShinGothic-P-Normal.ttf,true,false,Gen Shin Gothic P,\setmainjfont{Gen Shin Gothic P}
+Gen Shin Gothic P,Bold,C:/WINDOWS/fonts/GenShinGothic-P-Bold.ttf,true,false,Gen Shin Gothic P,\setmainjfont{Gen Shin Gothic P}
+Gen Shin Gothic P,Heavy,C:/WINDOWS/fonts/GenShinGothic-P-Heavy.ttf,true,false,Gen Shin Gothic P,\setmainjfont{Gen Shin Gothic P}
+Gen Shin Gothic P,Light,C:/WINDOWS/fonts/GenShinGothic-P-Light.ttf,true,false,Gen Shin Gothic P,\setmainjfont{Gen Shin Gothic P}
+Gen Shin Gothic P,ExtraLight,C:/WINDOWS/fonts/GenShinGothic-P-ExtraLight.ttf,true,false,Gen Shin Gothic P,\setmainjfont{Gen Shin Gothic P}
+GenEi Antique Pv5,Regular,C:/WINDOWS/fonts/GenEiAntiquePv5-M.ttf,true,false,GenEi Antique Pv5,\setmainjfont{GenEi Antique Pv5}
+GenEi Antique v5,Regular,C:/WINDOWS/fonts/GenEiAntiqueNv5-M.ttf,true,false,GenEi Antique v5,\setmainjfont{GenEi Antique v5}
+GenEi Brice,Book,C:/WINDOWS/fonts/GenEiBrice.otf,true,false,GenEi Brice,\setmainjfont{GenEi Brice}
+GenEi Chikugo Mincho v3,Regular,C:/WINDOWS/fonts/GenEiChikugoMin3-R.ttf,true,false,GenEi Chikugo Mincho v3,\setmainjfont{GenEi Chikugo Mincho v3}
+GenEi Gothic M,Regular,C:/WINDOWS/fonts/GenEiGothicM-Regular.ttf,true,false,GenEi Gothic M,\setmainjfont{GenEi Gothic M}
+GenEi Gothic M,SemiBold,C:/WINDOWS/fonts/GenEiGothicM-SemiBold.ttf,true,false,GenEi Gothic M,\setmainjfont{GenEi Gothic M}
+GenEi Gothic M,Bold,C:/WINDOWS/fonts/GenEiGothicM-Bold.ttf,true,false,GenEi Gothic M,\setmainjfont{GenEi Gothic M}
+GenEi Gothic M,Heavy,C:/WINDOWS/fonts/GenEiGothicM-Heavy.ttf,true,false,GenEi Gothic M,\setmainjfont{GenEi Gothic M}
+GenEi Gothic M,Light,C:/WINDOWS/fonts/GenEiGothicM-Light.ttf,true,false,GenEi Gothic M,\setmainjfont{GenEi Gothic M}
+GenEi Gothic M,ExtraLight,C:/WINDOWS/fonts/GenEiGothicM-ExtraLight.ttf,true,false,GenEi Gothic M,\setmainjfont{GenEi Gothic M}
+GenEi Gothic M,SemiLight,C:/WINDOWS/fonts/GenEiGothicM-SemiLight.ttf,true,false,GenEi Gothic M,\setmainjfont{GenEi Gothic M}
+GenEi Gothic N,Regular,C:/WINDOWS/fonts/GenEiGothicN-Regular.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic N,SemiBold,C:/WINDOWS/fonts/GenEiGothicN-SemiBold.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic N,Bold,C:/WINDOWS/fonts/GenEiGothicN-Bold.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic N,Heavy,C:/WINDOWS/fonts/GenEiGothicN-Heavy.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic N,Light,C:/WINDOWS/fonts/GenEiGothicN-Ligh.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic N,ExtraLight,C:/WINDOWS/fonts/GenEiGothicN-ExtraLigh.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic N,H-KL,C:/WINDOWS/fonts/GenEiGothicN-H-KL.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic N,SemiLight,C:/WINDOWS/fonts/GenEiGothicN-SemiLight.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic N,U-KL,C:/WINDOWS/fonts/GenEiGothicN-U-KL.otf,true,false,GenEi Gothic N,\setmainjfont{GenEi Gothic N}
+GenEi Gothic P,Regular,C:/WINDOWS/fonts/GenEiGothicP-Regular.otf,true,false,GenEi Gothic P,\setmainjfont{GenEi Gothic P}
+GenEi Gothic P,SemiBold,C:/WINDOWS/fonts/GenEiGothicP-SemiBold.otf,true,false,GenEi Gothic P,\setmainjfont{GenEi Gothic P}
+GenEi Gothic P,Bold,C:/WINDOWS/fonts/GenEiGothicP-Bold.otf,true,false,GenEi Gothic P,\setmainjfont{GenEi Gothic P}
+GenEi Gothic P,Heavy,C:/WINDOWS/fonts/GenEiGothicP-Heavy.otf,true,false,GenEi Gothic P,\setmainjfont{GenEi Gothic P}
+GenEi Gothic P,Light,C:/WINDOWS/fonts/GenEiGothicP-Light.otf,true,false,GenEi Gothic P,\setmainjfont{GenEi Gothic P}
+GenEi Gothic P,ExtraLight,C:/WINDOWS/fonts/GenEiGothicP-ExtraLight.otf,true,false,GenEi Gothic P,\setmainjfont{GenEi Gothic P}
+GenEi Gothic P,H-KL,C:/WINDOWS/fonts/GenEiGothicP-H-KL.otf,true,false,GenEi Gothic P,\setmainjfont{GenEi Gothic P}
+GenEi Gothic P,SemiLight,C:/WINDOWS/fonts/GenEiGothicP-SemiLight.otf,true,false,GenEi Gothic P,\setmainjfont{GenEi Gothic P}
+GenEi Koburi Mincho v6,Regular,C:/WINDOWS/fonts/GenEiKoburiMin6-R.ttf,true,false,GenEi Koburi Mincho v6,\setmainjfont{GenEi Koburi Mincho v6}
+GenEi LateGo P v2,Medium,C:/WINDOWS/fonts/GenEiLateGoP_v2.ttf,true,false,GenEi LateGo P v2,\setmainjfont{GenEi LateGo P v2}
+GenEi LateGo v2,Medium,C:/WINDOWS/fonts/GenEiLateGoN_v2.ttf,true,false,GenEi LateGo v2,\setmainjfont{GenEi LateGo v2}
+GenEi LateMin P v2,Medium,C:/WINDOWS/fonts/GenEiLateMinP_v2.ttf,true,false,GenEi LateMin P v2,\setmainjfont{GenEi LateMin P v2}
+GenEi LateMin v2,Medium,C:/WINDOWS/fonts/GenEiLateMinN_v2.ttf,true,false,GenEi LateMin v2,\setmainjfont{GenEi LateMin v2}
+GenEi M Gothic v2,Regular,C:/WINDOWS/fonts/GenEiMGothic2-Regular.ttf,true,false,GenEi M Gothic v2,\setmainjfont{GenEi M Gothic v2}
+GenEi M Gothic v2,Medium,C:/WINDOWS/fonts/GenEiMGothic2-Medium.ttf,true,false,GenEi M Gothic v2,\setmainjfont{GenEi M Gothic v2}
+GenEi M Gothic v2,Bold,C:/WINDOWS/fonts/GenEiMGothic2-Bold.ttf,true,false,GenEi M Gothic v2,\setmainjfont{GenEi M Gothic v2}
+GenEi M Gothic v2,Heavy,C:/WINDOWS/fonts/GenEiMGothic2-Heavy.ttf,true,false,GenEi M Gothic v2,\setmainjfont{GenEi M Gothic v2}
+GenEi M Gothic v2,Black,C:/WINDOWS/fonts/GenEiMGothic2-Black.ttf,true,false,GenEi M Gothic v2,\setmainjfont{GenEi M Gothic v2}
+GenEi Mono Code,Regular,C:/WINDOWS/fonts/GenEiMonoCode-Regular.ttf,true,false,GenEi Mono Code,\setmainjfont{GenEi Mono Code}
+GenEi Mono Code,Bold,C:/WINDOWS/fonts/GenEiMonoCode-Bold.ttf,true,false,GenEi Mono Code,\setmainjfont{GenEi Mono Code}
+GenEi Mono Gothic,Regular,C:/WINDOWS/fonts/GenEiMonoGothic-Regular.ttf,true,false,GenEi Mono Gothic,\setmainjfont{GenEi Mono Gothic}
+GenEi Mono Gothic,Bold,C:/WINDOWS/fonts/GenEiMonoGothic-Bold.ttf,true,false,GenEi Mono Gothic,\setmainjfont{GenEi Mono Gothic}
+GenEi Nombre Roman,Roman,C:/WINDOWS/fonts/GenEiNombre-Roman.ttf,true,false,GenEi Nombre Roman,\setmainjfont{GenEi Nombre Roman}
+GenEi Nombre Venice,Regular,C:/WINDOWS/fonts/GenEiNombre-Venice.ttf,true,false,GenEi Nombre Venice,\setmainjfont{GenEi Nombre Venice}
+GenEi Nu Gothic EB,Regular,C:/WINDOWS/fonts/GenEiNuGothic-EB.ttf,true,false,GenEi Nu Gothic EB,\setmainjfont{GenEi Nu Gothic EB}
+GenEi POPle,Black,C:/WINDOWS/fonts/GenEiPOPle-Bk.ttf,true,false,GenEi POPle,\setmainjfont{GenEi POPle}
+GenEi POPle Pw,Black,C:/WINDOWS/fonts/GenEiPOPlePw-Bk.ttf,true,false,GenEi POPle Pw,\setmainjfont{GenEi POPle Pw}
+GenEi Roman Notes,W9,C:/WINDOWS/fonts/GenEiRomanNotes-W9.otf,true,false,GenEi Roman Notes,\setmainjfont{GenEi Roman Notes}
+GenEi Univer Sans,Regular,C:/WINDOWS/fonts/GenEiUniverSans-R.otf,true,false,GenEi Univer Sans,\setmainjfont{GenEi Univer Sans}
+GenEi Univer Sans,Semibold,C:/WINDOWS/fonts/GenEiUniverSans-SB.otf,true,false,GenEi Univer Sans,\setmainjfont{GenEi Univer Sans}
+GenEi Univer Sans,Bold,C:/WINDOWS/fonts/GenEiUniverSans-B.otf,true,false,GenEi Univer Sans,\setmainjfont{GenEi Univer Sans}
+GenEi Univer Sans,Heavy,C:/WINDOWS/fonts/GenEiUniverSans-H.otf,true,false,GenEi Univer Sans,\setmainjfont{GenEi Univer Sans}
+GenEi Univer Sans,Black,C:/WINDOWS/fonts/GenEiUniverSans-Bk.otf,true,false,GenEi Univer Sans,\setmainjfont{GenEi Univer Sans}
+GenEi Univer Sans,Light,C:/WINDOWS/fonts/GenEiUniverSans-L.otf,true,false,GenEi Univer Sans,\setmainjfont{GenEi Univer Sans}
+GenEi Univer Sans,Semilight,C:/WINDOWS/fonts/GenEiUniverSans-SL.otf,true,false,GenEi Univer Sans,\setmainjfont{GenEi Univer Sans}
+GenEi Web Honmon,B,C:/WINDOWS/fonts/GenEiWebHonmon-B.ttf,true,false,GenEi Web Honmon,\setmainjfont{GenEi Web Honmon}
+GenEi Web Honmon,R,C:/WINDOWS/fonts/GenEiWebHonmon-R.ttf,true,false,GenEi Web Honmon,\setmainjfont{GenEi Web Honmon}
+Harano Aji Gothic,Regular,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiGothic-Regular.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Regular,C:/WINDOWS/fonts/HaranoAjiGothic-Regular.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Medium,C:/WINDOWS/fonts/HaranoAjiGothic-Medium.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Medium,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiGothic-Medium.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Normal,C:/WINDOWS/fonts/HaranoAjiGothic-Normal.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Normal,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji-extra/HaranoAjiGothic-Normal.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Bold,C:/WINDOWS/fonts/HaranoAjiGothic-Bold.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Bold,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiGothic-Bold.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Heavy,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiGothic-Heavy.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Heavy,C:/WINDOWS/fonts/HaranoAjiGothic-Heavy.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Light,C:/WINDOWS/fonts/HaranoAjiGothic-Light.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,Light,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji-extra/HaranoAjiGothic-Light.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,ExtraLight,C:/WINDOWS/fonts/HaranoAjiGothic-ExtraLight.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Gothic,ExtraLight,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji-extra/HaranoAjiGothic-ExtraLight.otf,true,false,Harano Aji Gothic,\setmainjfont{Harano Aji Gothic}
+Harano Aji Mincho,Regular,C:/WINDOWS/fonts/HaranoAjiMincho-Regular.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Regular,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiMincho-Regular.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Medium,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji-extra/HaranoAjiMincho-Medium.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Medium,C:/WINDOWS/fonts/HaranoAjiMincho-Medium.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,SemiBold,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji-extra/HaranoAjiMincho-SemiBold.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,SemiBold,C:/WINDOWS/fonts/HaranoAjiMincho-SemiBold.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Bold,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiMincho-Bold.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Bold,C:/WINDOWS/fonts/HaranoAjiMincho-Bold.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Heavy,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji-extra/HaranoAjiMincho-Heavy.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Heavy,C:/WINDOWS/fonts/HaranoAjiMincho-Heavy.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Light,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji/HaranoAjiMincho-Light.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,Light,C:/WINDOWS/fonts/HaranoAjiMincho-Light.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,ExtraLight,C:/WINDOWS/fonts/HaranoAjiMincho-ExtraLight.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Harano Aji Mincho,ExtraLight,C:/texlive/2026/texmf-dist/fonts/opentype/public/haranoaji-extra/HaranoAjiMincho-ExtraLight.otf,true,false,Harano Aji Mincho,\setmainjfont{Harano Aji Mincho}
+Honoka Shin Antique-Kaku,Medium,C:/WINDOWS/fonts/Honoka-Shin-Antique-Kaku_M.otf,true,false,Honoka Shin Antique-Kaku,\setmainjfont{Honoka Shin Antique-Kaku}
+Honoka Shin Antique-Maru,Regular,C:/WINDOWS/fonts/Honoka-Shin-Antique-Maru_R.otf,true,false,Honoka Shin Antique-Maru,\setmainjfont{Honoka Shin Antique-Maru}
+Honoka Shin Maru-Gothic,Regular,C:/WINDOWS/fonts/Honoka-Shin-Maru-Gothic_R.otf,true,false,Honoka Shin Maru-Gothic,\setmainjfont{Honoka Shin Maru-Gothic}
+Honoka Shin Mincho,Light,C:/WINDOWS/fonts/Honoka_Shin_Mincho_L.otf,true,false,Honoka Shin Mincho,\setmainjfont{Honoka Shin Mincho}
+IPAexGothic,Regular,C:/texlive/2026/texmf-dist/fonts/truetype/public/ipaex/ipaexg.ttf,true,false,IPAexGothic,\setmainjfont{IPAexGothic}
+IPAexGothic,Regular,C:/WINDOWS/fonts/ipaexg.ttf,true,false,IPAexGothic,\setmainjfont{IPAexGothic}
+IPAGothic,Regular,C:/texlive/2026/texmf-dist/fonts/truetype/public/ipaex/ipag.ttf,true,false,IPAGothic,\setmainjfont{IPAGothic}
+IPAGothic,Regular,C:/WINDOWS/fonts/ipag.ttc,true,false,IPAGothic,\setmainjfont{IPAGothic}
+IPAGothic,Regular,C:/WINDOWS/fonts/ipag.ttf,true,false,IPAGothic,\setmainjfont{IPAGothic}
+IPAPGothic,Regular,C:/texlive/2026/texmf-dist/fonts/truetype/public/ipaex/ipagp.ttf,true,false,IPAPGothic,\setmainjfont{IPAPGothic}
+IPAPGothic,Regular,C:/WINDOWS/fonts/ipag.ttc,true,false,IPAPGothic,\setmainjfont{IPAPGothic}
+IPAPGothic,Regular,C:/WINDOWS/fonts/ipagp.ttf,true,false,IPAPGothic,\setmainjfont{IPAPGothic}
+IPAPMincho,Regular,C:/WINDOWS/fonts/ipamp.ttf,true,false,IPAPMincho,\setmainjfont{IPAPMincho}
+IPAPMincho,Regular,C:/WINDOWS/fonts/ipam.ttc,true,false,IPAPMincho,\setmainjfont{IPAPMincho}
+IPAPMincho,Regular,C:/texlive/2026/texmf-dist/fonts/truetype/public/ipaex/ipamp.ttf,true,false,IPAPMincho,\setmainjfont{IPAPMincho}
+Meiryo,Regular,C:/WINDOWS/fonts/meiryo.ttc,true,false,Meiryo,\setmainjfont{Meiryo}
+Meiryo,Bold,C:/WINDOWS/fonts/meiryob.ttc,true,false,Meiryo,\setmainjfont{Meiryo}
+Meiryo,Bold Italic,C:/WINDOWS/fonts/meiryob.ttc,true,false,Meiryo,\setmainjfont{Meiryo}
+Meiryo,Italic,C:/WINDOWS/fonts/meiryo.ttc,true,false,Meiryo,\setmainjfont{Meiryo}
+Meiryo UI,Regular,C:/WINDOWS/fonts/meiryo.ttc,true,false,Meiryo UI,\setmainjfont{Meiryo UI}
+Meiryo UI,Bold,C:/WINDOWS/fonts/meiryob.ttc,true,false,Meiryo UI,\setmainjfont{Meiryo UI}
+Meiryo UI,Bold Italic,C:/WINDOWS/fonts/meiryob.ttc,true,false,Meiryo UI,\setmainjfont{Meiryo UI}
+Meiryo UI,Italic,C:/WINDOWS/fonts/meiryo.ttc,true,false,Meiryo UI,\setmainjfont{Meiryo UI}
+MS Gothic,Regular,C:/WINDOWS/fonts/msgothic.ttc,true,false,MS Gothic,\setmainjfont{MS Gothic}
+MS Mincho,Regular,C:/WINDOWS/fonts/msmincho.ttc,true,false,MS Mincho,\setmainjfont{MS Mincho}
+MS PGothic,Regular,C:/WINDOWS/fonts/msgothic.ttc,true,false,MS PGothic,\setmainjfont{MS PGothic}
+MS PMincho,Regular,C:/WINDOWS/fonts/msmincho.ttc,true,false,MS PMincho,\setmainjfont{MS PMincho}
+MS UI Gothic,Regular,C:/WINDOWS/fonts/msgothic.ttc,true,false,MS UI Gothic,\setmainjfont{MS UI Gothic}
+Noto Sans JP,Regular,C:/WINDOWS/fonts/NotoSansJP-VF.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Regular,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Medium,C:/WINDOWS/fonts/NotoSansJP-VF.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Medium,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,SemiBold,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Bold,C:/WINDOWS/fonts/NotoSansJP-VF.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Bold,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Black,C:/WINDOWS/fonts/NotoSansJP-VF.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Black,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Light,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Light,C:/WINDOWS/fonts/NotoSansJP-VF.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,ExtraLight,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Thin,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,Thin,C:/WINDOWS/fonts/NotoSansJP-VF.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,DemiLight,C:/WINDOWS/fonts/NotoSansJP-VF.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Sans JP,ExtraBold,C:/WINDOWS/fonts/NotoSansJP-VariableFont_wght.ttf,true,false,Noto Sans JP,\setmainjfont{Noto Sans JP}
+Noto Serif JP,Regular,C:/WINDOWS/fonts/NotoSerifJP-VF.ttf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Regular,C:/WINDOWS/fonts/NotoSerifJP-Regular.otf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Medium,C:/WINDOWS/fonts/NotoSerifJP-Medium.otf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Medium,C:/WINDOWS/fonts/NotoSerifJP-VF.ttf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,SemiBold,C:/WINDOWS/fonts/NotoSerifJP-VF.ttf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,SemiBold,C:/WINDOWS/fonts/NotoSerifJP-SemiBold.otf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Bold,C:/WINDOWS/fonts/NotoSerifJP-Bold.otf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Bold,C:/WINDOWS/fonts/NotoSerifJP-VF.ttf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Black,C:/WINDOWS/fonts/NotoSerifJP-VF.ttf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Black,C:/WINDOWS/fonts/NotoSerifJP-Black.otf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Light,C:/WINDOWS/fonts/NotoSerifJP-VF.ttf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,Light,C:/WINDOWS/fonts/NotoSerifJP-Light.otf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,ExtraLight,C:/WINDOWS/fonts/NotoSerifJP-ExtraLight.otf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Noto Serif JP,ExtraLight,C:/WINDOWS/fonts/NotoSerifJP-VF.ttf,true,false,Noto Serif JP,\setmainjfont{Noto Serif JP}
+Satsuki Gendai Mincho,Medium,C:/WINDOWS/fonts/SatsukiGendaiMincho-M.ttf,true,false,Satsuki Gendai Mincho,\setmainjfont{Satsuki Gendai Mincho}
+Source Han Code JP,B,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,B It,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,EL,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,EL It,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,H,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,H It,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,L,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,L It,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,M,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,M It,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,N,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,N It,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,R,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+Source Han Code JP,R It,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source Han Code JP,\setmainjfont{Source Han Code JP}
+UDEV Gothic,Regular,C:/WINDOWS/fonts/UDEVGothic-Regular.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
+UDEV Gothic,Bold,C:/WINDOWS/fonts/UDEVGothic-Bold.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
+UDEV Gothic,Bold Italic,C:/WINDOWS/fonts/UDEVGothic-BoldItalic.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
+UDEV Gothic,Italic,C:/WINDOWS/fonts/UDEVGothic-Italic.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
+UDEV Gothic 35,Regular,C:/WINDOWS/fonts/UDEVGothic35-Regular.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
+UDEV Gothic 35,Bold,C:/WINDOWS/fonts/UDEVGothic35-Bold.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
+UDEV Gothic 35,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35-BoldItalic.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
+UDEV Gothic 35,Italic,C:/WINDOWS/fonts/UDEVGothic35-Italic.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
+UDEV Gothic 35JPDOC,Regular,C:/WINDOWS/fonts/UDEVGothic35JPDOC-Regular.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
+UDEV Gothic 35JPDOC,Bold,C:/WINDOWS/fonts/UDEVGothic35JPDOC-Bold.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
+UDEV Gothic 35JPDOC,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35JPDOC-BoldItalic.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
+UDEV Gothic 35JPDOC,Italic,C:/WINDOWS/fonts/UDEVGothic35JPDOC-Italic.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
+UDEV Gothic 35LG,Regular,C:/WINDOWS/fonts/UDEVGothic35LG-Regular.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
+UDEV Gothic 35LG,Bold,C:/WINDOWS/fonts/UDEVGothic35LG-Bold.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
+UDEV Gothic 35LG,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35LG-BoldItalic.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
+UDEV Gothic 35LG,Italic,C:/WINDOWS/fonts/UDEVGothic35LG-Italic.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
+UDEV Gothic 35NF,Regular,C:/WINDOWS/fonts/UDEVGothic35NF-Regular.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
+UDEV Gothic 35NF,Bold,C:/WINDOWS/fonts/UDEVGothic35NF-Bold.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
+UDEV Gothic 35NF,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35NF-BoldItalic.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
+UDEV Gothic 35NF,Italic,C:/WINDOWS/fonts/UDEVGothic35NF-Italic.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
+UDEV Gothic 35NFLG,Regular,C:/WINDOWS/fonts/UDEVGothic35NFLG-Regular.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
+UDEV Gothic 35NFLG,Bold,C:/WINDOWS/fonts/UDEVGothic35NFLG-Bold.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
+UDEV Gothic 35NFLG,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35NFLG-BoldItalic.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
+UDEV Gothic 35NFLG,Italic,C:/WINDOWS/fonts/UDEVGothic35NFLG-Italic.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
+UDEV Gothic JPDOC,Regular,C:/WINDOWS/fonts/UDEVGothicJPDOC-Regular.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
+UDEV Gothic JPDOC,Bold,C:/WINDOWS/fonts/UDEVGothicJPDOC-Bold.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
+UDEV Gothic JPDOC,Bold Italic,C:/WINDOWS/fonts/UDEVGothicJPDOC-BoldItalic.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
+UDEV Gothic JPDOC,Italic,C:/WINDOWS/fonts/UDEVGothicJPDOC-Italic.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
+UDEV Gothic LG,Regular,C:/WINDOWS/fonts/UDEVGothicLG-Regular.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
+UDEV Gothic LG,Bold,C:/WINDOWS/fonts/UDEVGothicLG-Bold.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
+UDEV Gothic LG,Bold Italic,C:/WINDOWS/fonts/UDEVGothicLG-BoldItalic.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
+UDEV Gothic LG,Italic,C:/WINDOWS/fonts/UDEVGothicLG-Italic.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
+UDEV Gothic NF,Regular,C:/WINDOWS/fonts/UDEVGothicNF-Regular.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
+UDEV Gothic NF,Bold,C:/WINDOWS/fonts/UDEVGothicNF-Bold.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
+UDEV Gothic NF,Bold Italic,C:/WINDOWS/fonts/UDEVGothicNF-BoldItalic.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
+UDEV Gothic NF,Italic,C:/WINDOWS/fonts/UDEVGothicNF-Italic.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
+UDEV Gothic NFLG,Regular,C:/WINDOWS/fonts/UDEVGothicNFLG-Regular.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
+UDEV Gothic NFLG,Bold,C:/WINDOWS/fonts/UDEVGothicNFLG-Bold.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
+UDEV Gothic NFLG,Bold Italic,C:/WINDOWS/fonts/UDEVGothicNFLG-BoldItalic.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
+UDEV Gothic NFLG,Italic,C:/WINDOWS/fonts/UDEVGothicNFLG-Italic.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
+Ume Mincho S3,Regular,C:/WINDOWS/fonts/ume-tms3.ttf,true,false,Ume Mincho S3,\setmainjfont{Ume Mincho S3}
+Ume P Mincho S3,Regular,C:/WINDOWS/fonts/ume-pms3.ttf,true,false,Ume P Mincho S3,\setmainjfont{Ume P Mincho S3}
+Yu Gothic,Regular,C:/WINDOWS/fonts/YuGothR.ttc,true,false,Yu Gothic,\setmainjfont{Yu Gothic}
+Yu Gothic,Medium,C:/WINDOWS/fonts/YuGothM.ttc,true,false,Yu Gothic,\setmainjfont{Yu Gothic}
+Yu Gothic,Bold,C:/WINDOWS/fonts/YuGothB.ttc,true,false,Yu Gothic,\setmainjfont{Yu Gothic}
+Yu Gothic,Light,C:/WINDOWS/fonts/YuGothL.ttc,true,false,Yu Gothic,\setmainjfont{Yu Gothic}
+Yu Gothic UI,Regular,C:/WINDOWS/fonts/YuGothM.ttc,true,false,Yu Gothic UI,\setmainjfont{Yu Gothic UI}
+Yu Gothic UI,Semibold,C:/WINDOWS/fonts/YuGothB.ttc,true,false,Yu Gothic UI,\setmainjfont{Yu Gothic UI}
+Yu Gothic UI,Bold,C:/WINDOWS/fonts/YuGothB.ttc,true,false,Yu Gothic UI,\setmainjfont{Yu Gothic UI}
+Yu Gothic UI,Light,C:/WINDOWS/fonts/YuGothL.ttc,true,false,Yu Gothic UI,\setmainjfont{Yu Gothic UI}
+Yu Gothic UI,Semilight,C:/WINDOWS/fonts/YuGothR.ttc,true,false,Yu Gothic UI,\setmainjfont{Yu Gothic UI}

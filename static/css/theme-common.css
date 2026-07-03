@@ -1,0 +1,121 @@
+html[data-app-theme="light"] {
+    color-scheme: light;
+}
+
+html[data-app-theme="dark"] {
+    color-scheme: dark;
+}
+
+html[data-app-theme="light"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) {
+    background-color: #f7fafc;
+    color: #0f172a;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) {
+    background-color: #0b1220;
+    color: #e2e8f0;
+}
+
+/* Common wrappers used by index and docs pages */
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .container,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .wrap,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .doc-wrap,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .page {
+    background-color: #111827;
+    color: #e2e8f0;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .container {
+    box-shadow: 0 18px 60px rgba(2, 6, 23, 0.78);
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .card,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .size-card,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .preview-box,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .source-list,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .result,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .size-reference {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .section,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .progress,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .size-iframe,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .device-box,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .color-iframe,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .size-reference-text {
+    border-color: #334155;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .subtitle,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .muted,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .card-desc,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .preview-title,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .lead,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .device-box-label {
+    color: #94a3b8;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .result.success {
+    background: #052e16;
+    border-left-color: #166534;
+    color: #dcfce7;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .result.error {
+    background: #3f1112;
+    border-left-color: #b91c1c;
+    color: #fee2e2;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) .btn-secondary {
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) select,
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) input[type="text"],
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) input[type="color"],
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) button {
+    background-color: #0b1220;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+
+html[data-app-theme="dark"] body:not(.light-theme):not(.dark-theme):not(.intermediate-theme) a {
+    color: #5eead4;
+}
+
+/* Floating toggle button injected by JS */
+.theme-toggle-btn {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 9999;
+    border: 1px solid #94a3b8;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1;
+    background: #ffffff;
+    color: #0f172a;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.2);
+}
+
+html[data-app-theme="dark"] .theme-toggle-btn {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-color: #475569;
+    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.5);
+}
+
+@media (max-width: 760px) {
+    .theme-toggle-btn {
+        right: 10px;
+        bottom: 10px;
+        padding: 8px 10px;
+    }
+}

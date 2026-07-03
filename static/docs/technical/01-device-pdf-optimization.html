@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デバイス別_縦書きPDF最適化設定</title>
+    <link rel="stylesheet" href="/static/docs/css/docs-common.css">
+</head>
+
+<body>
+    <main class="doc-wrap">
+        <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+        <p class="muted">source: technical/01_デバイス別_縦書きPDF最適化.md</p>
+
+        <h1>デバイス別_縦書きPDF最適化設定</h1>
+        <p>AozoraTeX Studio では、デバイスごとにページサイズ・余白・1行文字数を切り替えて縦書き可読性を最適化します。</p>
+
+        <h2>1. 標準デバイスプロファイル</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>device</th>
+                    <th>width x height (mm)</th>
+                    <th>文字数目安</th>
+                    <th>備考</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>iphone</code></td>
+                    <td>65.0 x 140.0</td>
+                    <td>33</td>
+                    <td>既定デバイス</td>
+                </tr>
+                <tr>
+                    <td><code>android</code></td>
+                    <td>70.0 x 155.5</td>
+                    <td>30</td>
+                    <td>やや広めのスマートフォン画面</td>
+                </tr>
+                <tr>
+                    <td><code>ipad</code></td>
+                    <td>158.0 x 227.0</td>
+                    <td>35</td>
+                    <td>単段組</td>
+                </tr>
+                <tr>
+                    <td><code>ipad_landscape</code></td>
+                    <td>227.0 x 158.0</td>
+                    <td>35</td>
+                    <td>二段組（<code>two_column</code>）</td>
+                </tr>
+                <tr>
+                    <td><code>pc</code></td>
+                    <td>210.0 x 297.0</td>
+                    <td>40</td>
+                    <td>A4</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2. 組版ルール</h2>
+        <ul>
+            <li>行送りと字間は JIS/JLREQ 準拠値をコード側で適用します。</li>
+            <li>色設定は <code>light</code>/<code>dark</code>/<code>intermediate</code> を切り替えます。</li>
+            <li>本文 Frame（フレーム・枠）は <code>pc</code> / <code>ipad</code> / <code>ipad_landscape</code> のみ有効化できます。</li>
+        </ul>
+
+        <h2>3. カスタマイズ手順</h2>
+        <ol>
+            <li><code>config/device_settings.custom.ini</code> に対象デバイスセクションを作成</li>
+            <li><code>font_size</code>、<code>characters_per_line</code>、余白（<code>margin_*_mm</code>）を調整</li>
+            <li>Web UI で表示確認し、必要に応じて配色と装飾も合わせて調整</li>
+        </ol>
+
+        <h2>4. 例: iPad 横向きで二段組最適化</h2>
+        <pre><code class="language-ini">[ipad_landscape]
+font_size = 13.5
+characters_per_line = 35
+width_mm = 227.0
+height_mm = 158.0
+mode = two_column
+show_page_number = true
+</code></pre>
+
+        <hr />
+        <p><a href="/static/docs/index.html">ドキュメントトップへ戻る</a></p>
+    </main>
+</body>
+
+</html>

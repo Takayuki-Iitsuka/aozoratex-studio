@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device & Paper Size Map</title>
+    <link rel="stylesheet" href="/static/docs/css/device-paper-size-map.css">
+</head>
+
+<body>
+    <main class="page">
+        <h1>Device & Paper Size Map</h1>
+        <p class="lead">
+            画面と用紙サイズを同一スケールで比較できます。URL に <code>?device=smart</code> のように付けると対象を強調表示します。
+        </p>
+
+        <div class="scroll-wrapper">
+            <section class="container">
+                <article class="device-card iphone11pro" data-device="smart" data-orientation="portrait">
+                    <div class="specs">
+                        <h2 class="tone-smart">Smart（iPhone 11 Pro）</h2>
+                        <p>5.8 Inch / Portrait</p>
+                        <p class="highlight">62.0 x 134.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card iphone11pro iphone11pro-landscape" data-device="smart" data-orientation="landscape">
+                    <div class="specs">
+                        <h2 class="tone-smart-landscape">Smart（iPhone 11 Pro）</h2>
+                        <p>5.8 Inch / Landscape</p>
+                        <p class="highlight">134.0 x 62.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card ipad" data-device="tablet" data-orientation="portrait">
+                    <div class="specs">
+                        <h2 class="tone-tablet">Tablet（iPad）</h2>
+                        <p>10.9 Inch / Portrait</p>
+                        <p class="highlight">158.0 x 227.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card ipad ipad-landscape-card" data-device="tablet" data-orientation="landscape">
+                    <div class="specs">
+                        <h2 class="tone-tablet-landscape">Tablet（iPad）</h2>
+                        <p>10.9 Inch / Landscape</p>
+                        <p class="highlight">227.0 x 158.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper a6-paper">
+                    <div class="specs">
+                        <h2 class="tone-a6">A6 Paper</h2>
+                        <p class="info">文庫本・卓上カレンダー</p>
+                        <p class="highlight">105.0 x 148.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper b6-paper">
+                    <div class="specs">
+                        <h2 class="tone-b6">B6 Paper</h2>
+                        <p class="info">単行本・手帳</p>
+                        <p class="highlight">128.0 x 182.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper a5-paper">
+                    <div class="specs">
+                        <h2 class="tone-a5">A5 Paper</h2>
+                        <p class="info">学術書・システム手帳</p>
+                        <p class="highlight">148.0 x 210.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper a4-paper" data-device="pc" data-orientation="portrait">
+                    <div class="specs">
+                        <h2 class="tone-a4">PC（A4版用紙）</h2>
+                        <p class="info">標準印刷・A4最適プロファイル</p>
+                        <p class="highlight">210.0 x 297.0 mm</p>
+                    </div>
+                </article>
+
+                <article class="device-card paper b5-paper">
+                    <div class="specs">
+                        <h2 class="tone-b5">B5 Paper</h2>
+                        <p class="info">大学ノート・週刊誌</p>
+                        <p class="highlight">182.0 x 257.0 mm</p>
+                    </div>
+                </article>
+            </section>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>name</th>
+                        <th>orientation</th>
+                        <th>width(mm)</th>
+                        <th>height(mm)</th>
+                        <th>note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>smart</td>
+                        <td>portrait</td>
+                        <td>62.0</td>
+                        <td>134.0</td>
+                        <td>iPhone 11 Pro 基準</td>
+                    </tr>
+                    <tr>
+                        <td>smart</td>
+                        <td>landscape</td>
+                        <td>134.0</td>
+                        <td>62.0</td>
+                        <td>幅高さを入れ替え</td>
+                    </tr>
+                    <tr>
+                        <td>tablet</td>
+                        <td>portrait</td>
+                        <td>158.0</td>
+                        <td>227.0</td>
+                        <td>iPad 基準</td>
+                    </tr>
+                    <tr>
+                        <td>tablet</td>
+                        <td>landscape</td>
+                        <td>227.0</td>
+                        <td>158.0</td>
+                        <td>横向き（2段組の既定）</td>
+                    </tr>
+                    <tr>
+                        <td>pc</td>
+                        <td>portrait</td>
+                        <td>210.0</td>
+                        <td>297.0</td>
+                        <td>A4 profile</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const selectedDevice = (params.get("device") || "").toLowerCase();
+        const selectedOrientation = (params.get("orientation") || "").toLowerCase();
+
+        if (selectedDevice) {
+            document.querySelectorAll(`[data-device="${selectedDevice}"]`).forEach((el) => {
+                if (!selectedOrientation || (el.dataset.orientation || "") === selectedOrientation) {
+                    el.classList.add("is-focus");
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
