@@ -9,9 +9,14 @@
 </head>
 
 <body>
+  <nav class="docs-topnav"><a href="/static/docs/index.html">← ドキュメント一覧</a></nav>
+  <nav class="docs-topnav"><a href="/static/docs/index.html">← ドキュメント一覧に戻る</a></nav>
   <main class="doc-wrap">
-    <h1>プロジェクト概要・運用</h1>
-    <p>本ページは、AozoraTeX Studio の <strong>運用基準</strong> と <strong>保守基準</strong> をまとめた詳細ガイドです。新規参加者のオンボーディングと、既存運用の見直しの両方に利用できます。</p>
+    <h1>プロジェクト概要・運用ガイド</h1>
+    <p>
+      このページは「AozoraTeX Studioをどう使えばいいか」「どう保守すればいいか」をまとめたものです。<br>
+      新しく参加する人向けのオンボーディング資料としても、日常の運用を見直すときにも役立ちます。
+    </p>
 
     <h2>1. プロジェクト目的</h2>
     <ul>
@@ -20,30 +25,29 @@
       <li>設定・配色・フォント・装飾を再利用可能な形で保存し、再現性の高い出力を維持する。</li>
     </ul>
 
-    <h2>2. 現行アーキテクチャ</h2>
+    <h2>2. 現在の仕組み（アーキテクチャ）</h2>
+    <p>簡単に言うと、以下の部品でできています：</p>
     <ul>
-      <li>変換本体: <code>src/aozoratex.py</code></li>
-      <li>Web API / UI サーバー: <code>src/aozora_server.py</code></li>
-      <li>設定ストア: <code>src/settings_store.py</code></li>
-      <li>UI: <code>static/index.html</code>, <code>static/js/index.js</code>, <code>static/css/index.css</code></li>
-      <li>設定ファイル: <code>config/global_settings.*.ini</code>, <code>config/device_settings.*.ini</code></li>
-      <li>入力/出力: <code>data/</code>, <code>out/</code></li>
+      <li><strong>変換の心臓部</strong>： <code>src/aozoratex.py</code> （HTML → LaTeX変換）</li>
+      <li><strong>画面と操作</strong>： Next.js 15（<code>src/app/page.tsx</code> + Tailwind）</li>
+      <li><strong>Pythonとの橋渡し</strong>： <code>src/api_bridge.py</code> + <code>src/server_services.py</code></li>
+      <li><strong>設定の管理</strong>： <code>src/settings_store.py</code> + <code>config/*.ini</code></li>
+      <li><strong>入力と出力</strong>： <code>data/</code>（入力HTML） → <code>out/</code>（生成物）</li>
     </ul>
 
-    <h2>3. 運用原則</h2>
+    <h2>3. 基本的な運用ルール</h2>
     <ol>
-      <li>実行パスを統一する。通常は Web UI、バッチ変換や検証は CLI を使用する。</li>
-      <li>設定は <code>default -&gt; custom</code> の優先順を維持する。</li>
-      <li>出力物と中間物を <code>out/</code> 配下に集約し、調査容易性を確保する。</li>
-      <li>仕様変更時は対応ドキュメントを同時更新し、コードと説明の乖離を防ぐ。</li>
+      <li><strong>普段はWeb画面を使う</strong>。大量処理やテストはCLIを使う。</li>
+      <li><strong>設定の優先順位</strong>： <code>default.ini</code> → <code>custom.ini</code> で上書き。</li>
+      <li><strong>出力は全部 out/ にまとめる</strong>。調査しやすくするため。</li>
+      <li><strong>ドキュメントは常に最新に</strong>。変更したら説明も一緒に更新。</li>
     </ol>
 
-    <h2>4. 品質向上フロー</h2>
+    <h2>4. 品質を保つためのチェック</h2>
     <ul>
-      <li>静的確認: <code>python -m compileall src tools</code></li>
-      <li>変換確認: サンプル HTML を対象に CLI で TEX 生成</li>
-      <li>API確認: <code>/health</code>, <code>/api/devices</code>, <code>/api/settings</code> の応答確認</li>
-      <li>ドキュメント確認: 旧用語・旧設定記述の残存チェック</li>
+      <li>Pythonの文法チェック：<code>python -m compileall src tools</code></li>
+      <li>変換テスト：サンプルHTMLでCLI実行</li>
+      <li>画面の動作確認：設定取得・デバイス一覧などが正しく返ってくるか</li>
     </ul>
 
     <h2>5. カスタマイズ運用</h2>
@@ -62,7 +66,7 @@
       <li><a href="/static/docs/technical/developer-guide.html">開発者向け説明書（詳細）</a></li>
     </ul>
 
-    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+    <p><a href="/static/docs/index.html">← ドキュメント一覧に戻る</a></p>
   </main>
 </body>
 

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML → LaTeX 変換ルール</title>
+  <link rel="stylesheet" href="/static/docs/css/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+    <h1 id="html-latex">HTML → LaTeX 変換ルール</h1>
+<h2 id="1-heading">1. 見出し（Heading）</h2>
+<table>
+<thead>
+<tr>
+<th>HTML</th>
+<th>LaTeX</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;h1 class="title"&gt;三国志&lt;/h1&gt;</code></td>
+<td><code>\AozoraTitle{三国志}</code></td>
+<td>書籍タイトル</td>
+</tr>
+<tr>
+<td><code>&lt;h2 class="subtitle"&gt;二巻の巻&lt;/h2&gt;</code></td>
+<td><code>\AozoraPart{...}{...}</code></td>
+<td>サブタイトル</td>
+</tr>
+<tr>
+<td><code>&lt;h2 class="author"&gt;吉川英治&lt;/h2&gt;</code></td>
+<td><code>\AozoraPart{...}{...}</code></td>
+<td>著者名（h2扱い）</td>
+</tr>
+<tr>
+<td><code>&lt;h3 class="o-midashi"&gt;...&lt;/h3&gt;</code></td>
+<td><code>\AozoraChapter{表示}{しおり用テキスト}</code></td>
+<td>大見出し、PDFしおり level=1</td>
+</tr>
+<tr>
+<td><code>&lt;h4 class="naka-midashi"&gt;...&lt;/h4&gt;</code></td>
+<td><code>\AozoraSection{表示}{しおり用テキスト}</code></td>
+<td>中見出し、PDFしおり level=2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-jisage-heading">2. 字下げ付き見出し（Jisage + Heading）★今回修正</h2>
+<table>
+<thead>
+<tr>
+<th>HTML</th>
+<th>LaTeX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;div class="jisage_3"&gt;&lt;h3 class="o-midashi"&gt;&lt;a&gt;偽忠狼心…&lt;/a&gt;&lt;/h3&gt;&lt;/div&gt;</code></td>
+<td><code>\AozoraChapter{\hspace{3\zw}\ltjruby{偽忠狼心}{ぎちゅうろうしん}}{偽忠狼心}</code></td>
+</tr>
+<tr>
+<td><code>&lt;div class="jisage_7"&gt;&lt;h4 class="naka-midashi"&gt;&lt;a&gt;一&lt;/a&gt;&lt;/h4&gt;&lt;/div&gt;</code></td>
+<td><code>\AozoraSection{\hspace{7\zw}一}{一}</code></td>
+</tr>
+<tr>
+<td><code>&lt;div class="jisage_N"&gt;本文テキスト&lt;/div&gt;</code></td>
+<td>本文テキスト（見出し以外の jisage は素通し）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>注意：</strong> しおりテキスト（第2引数）には <code>\hspace</code> は含まれず、純テキストのみ。</p>
+</blockquote>
+<hr />
+<h2 id="3">3. ルビ</h2>
+<table>
+<thead>
+<tr>
+<th>HTML</th>
+<th>LaTeX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;ruby&gt;&lt;rb&gt;曹操&lt;/rb&gt;&lt;rp&gt;(&lt;/rp&gt;&lt;rt&gt;そうそう&lt;/rt&gt;&lt;rp&gt;)&lt;/rp&gt;&lt;/ruby&gt;</code></td>
+<td><code>\ltjruby{曹操}{そうそう}</code></td>
+</tr>
+<tr>
+<td><code>&lt;rp&gt;（&lt;/rp&gt;</code></td>
+<td>（除去）</td>
+</tr>
+<tr>
+<td><code>&lt;rt&gt;ふりがな&lt;/rt&gt;</code></td>
+<td><code>\ltjruby</code> 第2引数へ</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4">4. 外字</h2>
+<table>
+<thead>
+<tr>
+<th>HTML</th>
+<th>LaTeX</th>
+<th>種別</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;img class="gaiji" src="gaiji/1-92/1-92-19.png" alt="譙（U+8B59相当）"&gt;</code></td>
+<td><code>\AozoraGaijiGlyph{jigmo2}{8B59}{譙}</code></td>
+<td>Jigmoフォントで解決済み</td>
+</tr>
+<tr>
+<td><code>&lt;img class="gaiji" src="..." alt="〻"&gt;</code></td>
+<td><code>\AozoraGaijiAuto{303B}{〻}</code></td>
+<td>ランタイムでJigmo検索、フォールバック 〻 あり</td>
+</tr>
+<tr>
+<td>未解決外字</td>
+<td><code>\AozoraGaijiUnknown{[GAIJI:src]}{tooltip}</code></td>
+<td>本ファイルでは 0件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>本ファイルで出現する Jigmo 解決済み外字一覧：</strong>
+譙(8B59)、滎(6ECE)、伷(4F37)、兗(5157)、邈(9088)、瓚(74DA)、〻(303B)</p>
+<hr />
+<h2 id="5">5. 改行・段落</h2>
+<table>
+<thead>
+<tr>
+<th>HTML</th>
+<th>LaTeX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;br /&gt;</code></td>
+<td><code>\n\par\n</code></td>
+</tr>
+<tr>
+<td><code>&lt;p&gt;...&lt;/p&gt;</code></td>
+<td><code>内容\n\n</code></td>
+</tr>
+<tr>
+<td>行頭全角スペース <code></code></td>
+<td>そのまま保持（<code>\@</code> 前置きなし）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6">6. 装飾・強調</h2>
+<table>
+<thead>
+<tr>
+<th>HTML</th>
+<th>LaTeX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;em class="sesame_dot"&gt;...&lt;/em&gt;</code></td>
+<td><code>\bouten{...}</code></td>
+</tr>
+<tr>
+<td><code>&lt;span class="bou"&gt;...&lt;/span&gt;</code></td>
+<td><code>\bouten{...}</code></td>
+</tr>
+<tr>
+<td><code>&lt;b&gt;...&lt;/b&gt;</code> / <code>&lt;strong&gt;...&lt;/strong&gt;</code></td>
+<td><code>\textbf{...}</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7">7. 構造ブロック</h2>
+<table>
+<thead>
+<tr>
+<th>HTML</th>
+<th>LaTeX</th>
+<th>処理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;div class="metadata"&gt;...&lt;/div&gt;</code></td>
+<td>（スキップ）</td>
+<td>別途 frontmatter に使用</td>
+</tr>
+<tr>
+<td><code>&lt;div id="contents"&gt;...&lt;/div&gt;</code></td>
+<td>（スキップ）</td>
+<td>TOCブロック除去</td>
+</tr>
+<tr>
+<td><code>&lt;div class="main_text"&gt;...&lt;/div&gt;</code></td>
+<td>本文として展開</td>
+<td>中の子ノードを変換</td>
+</tr>
+<tr>
+<td><code>&lt;div&gt;</code> / <code>&lt;span&gt;</code> 一般</td>
+<td>中身を素通し</td>
+<td>タグ自体は消滅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-pdf">8. PDFしおり構造</h2>
+<pre><code>pdfbookmark[0]  ← \AozoraPart    (h2)
+pdfbookmark[1]  ← \AozoraChapter (h3, o-midashi)
+pdfbookmark[2]  ← \AozoraSection (h4–h6, naka-midashi)
+</code></pre>
+<p>各しおりは <code>\phantomsection</code> + <code>\refstepcounter</code> でカウンター管理され、アンカーIDは <code>aozora-chapter-{part}-{chapter}</code> 形式。</p>
+  </main>
+</body>
+</html>
+
+
+

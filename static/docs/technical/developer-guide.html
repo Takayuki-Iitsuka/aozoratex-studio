@@ -47,7 +47,7 @@
                 <tr>
                     <td>pip 依存</td>
                     <td><code>requirements.txt</code></td>
-                    <td><code>beautifulsoup4</code>, <code>lxml</code>, <code>flask</code>, <code>markdown</code></td>
+                    <td><code>beautifulsoup4</code>, <code>lxml</code>, <code>markdown</code>, <code>fontTools</code></td>
                 </tr>
             </tbody>
         </table>
@@ -59,21 +59,33 @@ python -m venv .venv
 # 仮想環境有効化
 .venv\Scripts\Activate.ps1
 
+# Node 依存
+bun install  # または npm install
+
 # 依存導入
 pip install -r requirements.txt
 
-# Web UI 起動
-python -m src.aozora_server
+# Web UI 起動 (推奨)
+bun run dev
+# または
+start_server.bat
+# または
+npm run dev
 </code></pre>
-        <p>ブラウザで <code>http://localhost:5000</code> を開きます。</p>
+        <p>ブラウザで <code>http://localhost:3000</code> を開きます。</p>
+        <p class="note">注: 旧Flaskサーバー (aozora_server.py) は Next.js + Python bridge (api_bridge.py) へ完全移行済み。</p>
 
-        <h2>4. ディレクトリ構成（現行）</h2>
+        <h2>4. ディレクトリ構成（現行・Next.js移行後）</h2>
         <pre><code>aozoratex-studio/
 ├── src/
 │   ├── aozoratex.py              # HTML/XHTML -> .tex 変換本体
-│   ├── aozora_server.py          # Flask API / Web UI サーバー
+│   ├── api_bridge.py             # Node.js から呼ばれるPythonブリッジ (subprocess)
+│   ├── server_services.py        # 生成・コンパイル・色/フォント管理
 │   ├── aozoratex_generate.py     # 生成処理の薄いファサード
 │   ├── settings_store.py         # 設定ロード/保存/移行
+│   ├── app/                      # Next.js App Router (UI + API routes)
+│   ├── components/               # Reactコンポーネント
+│   ├── lib/                      # フック・APIクライアント
 │   └── templates/
 │       └── washi_texture.lua
 ├── config/
@@ -82,13 +94,13 @@ python -m src.aozora_server
 │   ├── device_settings.default.ini
 │   └── device_settings.custom.ini
 ├── static/
-│   ├── index.html                # Web UI
-│   ├── css/index.css
-│   ├── js/index.js
-│   └── docs/                     # ブラウザ閲覧用ドキュメント
-├── data/                         # 入力HTML/XHTML
-├── out/                          # 出力物（.tex / .pdf / ログ）
-└── tools/                        # 補助スクリプト
+│   ├── docs/                     # 包括的HTMLドキュメント (Bootstrap同梱はdocs専用)
+│   └── ...
+├── data/                         # 入力HTML/XHTMLサンプル
+├── out/                          # 出力物（.tex / .pdf）
+├── tools/                        # 補助スクリプト (フォント一覧等)
+├── package.json                  # Next.js / Bun 依存
+└── pyproject.toml                # Python近代化 (uv/ruff/pydantic推奨)
 </code></pre>
 
         <h2>5. Web UI 運用</h2>

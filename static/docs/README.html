@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AozoraTeX Studio</title>
+  <link rel="stylesheet" href="/static/docs/css/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+    <h1 id="aozoratex-studio">AozoraTeX Studio</h1>
+<p>青空文庫の HTML/XHTML を、デバイス最適化された縦書き PDF/TEX に変換するプロジェクトです。<br />
+Web UI と CLI の両方を提供し、配色・サイズ・フォント設定を保存して再利用できます。</p>
+<h2 id="_1">主な機能</h2>
+<ul>
+<li>HTML/XHTML → LuaLaTeX 用 <code>.tex</code> 生成</li>
+<li>Web UI からの PDF 生成（<code>latexmk</code> 使用）</li>
+<li>デバイス別設定（サイズ・余白・行間・字間・モード）</li>
+<li>背景色/文字色の視覚確認と保存</li>
+<li>統合色一覧 <code>/static/docs/color/colors.html</code>（色相順）</li>
+<li>デバイスと用紙サイズの視覚比較 <code>device-paper-size-map.html</code></li>
+<li>補助ツール</li>
+<li>LuaLaTeX 利用可能フォント抽出</li>
+<li>TeX ログ解析（Markdown + JSON レポート）</li>
+</ul>
+<h2 id="_2">ディレクトリ構成</h2>
+<pre><code class="language-text">aozoratex-studio/
+├── start_server.bat               # Windows 起動バッチ
+├── src/
+│   ├── api_bridge.py              # Next.js から Python を呼び出すブリッジ
+│   ├── aozoratex.py               # 変換本体（python -m src.aozoratex）
+│   └── settings_store.py          # 設定読み書き本体
+├── config/
+│   ├── global_settings.default.ini
+│   ├── global_settings.custom.ini
+│   ├── device_settings.default.ini
+│   ├── device_settings.custom.ini
+├── static/
+│   ├── index.html
+│   ├── color-palettes.json
+│   ├── color-palettes.js
+│   ├── css/
+│   │   └── index.css
+│   ├── js/
+│   │   └── index.js
+│   └── docs/
+│       ├── index.html
+│       ├── docs-common.css
+│       ├── docs-index.css
+│       ├── color/
+│       ├── conversion/
+│       ├── device/
+│       ├── project/
+│       └── markdown/
+├── tools/
+│   ├── fonts/
+│   │   ├── texlive_font_list.py
+│   │   └── texlive_fonts.csv
+│   └── logs/
+│       └── tex_log_parser.py
+├── data/                          # 入力HTML
+└── out/                           # 出力物
+</code></pre>
+<h2 id="_3">セットアップ</h2>
+<pre><code class="language-powershell">python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+</code></pre>
+<h2 id="_4">実行方法</h2>
+<h3 id="web-ui">Web UI</h3>
+<pre><code class="language-powershell"># 推奨
+bun run dev
+# または
+npm run dev
+# または
+start_server.bat
+</code></pre>
+<p>ブラウザで <code>http://localhost:3000</code> を開いてください。<br />
+Windows では <code>start_server.bat</code> でも起動できます。</p>
+<h3 id="cli">CLI</h3>
+<pre><code class="language-powershell">python -m src.aozoratex data/92_14545.html --device smart --out out
+</code></pre>
+<p>CLI/Web/Make いずれも、生成物は以下へ統一されます。</p>
+<ul>
+<li><code>.tex</code> と中間生成物: <code>out/work/&lt;device&gt;/</code></li>
+<li><code>.pdf</code>: <code>out/pdf/&lt;device&gt;/</code></li>
+</ul>
+<p>端末別の生成先:</p>
+<table>
+<thead>
+<tr>
+<th>端末種別</th>
+<th>TEX と中間生成物</th>
+<th>PDF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>smart</td>
+<td><code>out/work/smart/</code></td>
+<td><code>out/pdf/smart/</code></td>
+</tr>
+<tr>
+<td>tablet</td>
+<td><code>out/work/tablet/</code></td>
+<td><code>out/pdf/tablet/</code></td>
+</tr>
+<tr>
+<td>pc</td>
+<td><code>out/work/pc/</code></td>
+<td><code>out/pdf/pc/</code></td>
+</tr>
+</tbody>
+</table>
+<p>出力ファイル名は <code>元ファイル名_タイトル_作者名</code> 形式です。
+例: <code>1567_14913_走れメロス_太宰治.tex</code> / <code>1567_14913_走れメロス_太宰治.pdf</code></p>
+<p>設定保存:</p>
+<pre><code class="language-powershell">python -m src.aozoratex data/92_14545.html --device smart --bg-color &quot;#101010&quot; --fg-color &quot;#F5F5F5&quot; --save-settings
+</code></pre>
+<p>カスタム設定初期化:</p>
+<pre><code class="language-powershell">python -m src.aozoratex data/92_14545.html --device smart --reset-settings
+</code></pre>
+<h2 id="_5">設定ファイル</h2>
+<ul>
+<li><code>*.default.ini</code>: 標準設定（初期値）</li>
+<li><code>*.custom.ini</code>: Web/CLI で保存されたカスタム設定</li>
+</ul>
+<p>初期フォント名は <code>global_settings.default.ini</code> の <code>font_family</code> で一元管理しています。
+<code>device_settings.default.ini</code> の <code>font_size</code> はデバイス別の本文サイズ設定です。</p>
+<p>読み込み順は <code>default -&gt; custom</code> です。<br />
+<code>custom</code> を消す、または <code>/api/settings/reset</code> で初期値に戻せます。</p>
+<p>現行運用で編集対象となる設定ファイル:
+- <code>config/global_settings.default.ini</code>
+- <code>config/global_settings.custom.ini</code>
+- <code>config/device_settings.default.ini</code>
+- <code>config/device_settings.custom.ini</code></p>
+<p>設定ソースは <code>config/*.ini</code> のみです。<br />
+旧 <code>config/*.ini</code> からの自動移行は行いません。</p>
+<h2 id="_6">配色とサイズの確認ページ</h2>
+<ul>
+<li>統合配色一覧: <code>http://localhost:3000/static/docs/manuals/colors-visualizer.html</code></li>
+<li>サイズ比較: <code>http://localhost:3000/device-paper-size-map.html</code></li>
+</ul>
+<h2 id="_7">補助ツール</h2>
+<h3 id="_8">フォント抽出</h3>
+<pre><code class="language-powershell">python tools/fonts/texlive_font_list.py --output tools/fonts/texlive_fonts.csv
+</code></pre>
+<h3 id="tex">TeX ログ解析</h3>
+<pre><code class="language-powershell">python tools/logs/tex_log_parser.py out/work/smart/*.log
+</code></pre>
+<p>出力先: <code>out/reports/tex_logs/</code></p>
+<h2 id="_9">ドキュメント</h2>
+<ul>
+<li>ブラウザ版: <code>http://localhost:3000/docs</code></li>
+<li>変換済みHTML版: <code>http://localhost:3000/static/docs/index.html</code></li>
+</ul>
+  </main>
+</body>
+</html>
+
+
+

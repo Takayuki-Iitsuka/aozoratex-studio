@@ -5,97 +5,138 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AozoraTeX Studio ドキュメント</title>
-  <!-- Bootstrap 5.3.8 CSS -->
   <link href="/static/vendor/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/docs/css/docs-index.css">
 </head>
 
-<body class="bg-light">
-  <div class="container py-5 my-4 bg-white rounded-4 shadow-sm wrap">
-    <h1 class="mb-3 text-dark fs-2 fw-bold">AozoraTeX Studio ドキュメント</h1>
-    <p class="lead text-secondary">本ページは、AozoraTeX Studio の運用・設定・実装を段階的に参照するための <strong>公式ナビゲーション</strong> です。日常運用は概要ガイドから、調整・保守時は詳細ガイドへ進む構成に統一しています。</p>
-    <p class="text-muted small mb-4">最新更新: 端末別の生成先を out/work/&lt;device&gt; と out/pdf/&lt;device&gt; に統一しました。詳細は「出力サイズ（デバイス）の種類」と「開発者向け説明書」を参照してください。</p>
-
-    <div class="row row-cols-1 row-cols-md-2 g-4 grid">
-      <div class="col">
-        <section class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h2 class="h5 card-title fw-bold">プロジェクト概要・運用</h2>
-            <p class="card-text text-muted small">目的、構成、推奨運用、保守フローを整理した起点ページです。まず最初に参照してください。</p>
-            <a href="/static/docs/manuals/project-guide.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
-          </div>
-        </section>
+<body>
+  <nav class="docs-topnav">
+    <a href="/static/docs/index.html">📖 ドキュメント入口</a> &nbsp;|&nbsp;
+    <a href="/static/docs/system-info.html">システム情報</a> &nbsp;|&nbsp;
+    <a href="/static/docs/manuals/project-guide.html">運用ガイド</a>
+  </nav>
+  <main class="docs-shell">
+    <header class="docs-hero">
+      <p class="docs-kicker">Documentation index</p>
+      <h1>AozoraTeX Studio ドキュメント</h1>
+      <p class="docs-lead">
+        青空文庫 HTML/XHTML から LuaLaTeX PDF へ変換するための運用、設定、実装資料を整理した入口です。
+        日常運用は概要と設定ガイド、保守時は技術資料とシステム情報を参照してください。
+      </p>
+      <div class="docs-actions">
+        <a class="docs-primary-link" href="/static/docs/system-info.html">システム情報を開く</a>
+        <a class="docs-secondary-link" href="/static/docs/technical/developer-guide.html">開発者向け説明書</a>
       </div>
+    </header>
 
-      <div class="col">
-        <section class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h2 class="h5 card-title fw-bold">デバイス別組版</h2>
-            <p class="card-text text-muted small">標準デバイス5種のサイズ・行数・調整方針をまとめています。可読性調整時の基準として利用します。</p>
-            <a href="/static/docs/manuals/device-specs.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
-          </div>
-        </section>
+    <section class="docs-section" aria-labelledby="quick-start-heading">
+      <div class="docs-section-header">
+        <h2 id="quick-start-heading">概要・運用</h2>
+        <p>最初に読む資料と、日常運用で頻繁に使う資料です。</p>
       </div>
-
-      <div class="col">
-        <section class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h2 class="h5 card-title fw-bold">変換・文字コード・LaTeX設定</h2>
-            <p class="card-text text-muted small">HTML/XHTML から TEX/PDF 生成までの変換パイプライン、文字コード運用、失敗時の確認手順を解説します。</p>
-            <a href="/static/docs/manuals/conversion-guide.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
-          </div>
-        </section>
+      <div class="row row-cols-1 row-cols-lg-2 g-3">
+        <div class="col">
+          <article class="doc-card h-100">
+            <h3>プロジェクト概要・運用</h3>
+            <p>目的、構成、推奨運用、保守フローを整理した起点ページです。</p>
+            <a href="/static/docs/manuals/project-guide.html">project-guide.html</a>
+          </article>
+        </div>
+        <div class="col">
+          <article class="doc-card h-100">
+            <h3>現在の状態</h3>
+            <p>現時点の実装状況、運用上の注意、確認済み事項をまとめたページです。</p>
+            <a href="/static/docs/現在の状態.html">現在の状態.html</a>
+          </article>
+        </div>
+        <div class="col">
+          <article class="doc-card h-100">
+            <h3>README HTML</h3>
+            <p>README を HTML 文書として参照するためのページです。</p>
+            <a href="/static/docs/README.html">README.html</a>
+          </article>
+        </div>
+        <div class="col">
+          <article class="doc-card h-100 doc-card-accent">
+            <h3>システム情報</h3>
+            <p>programming language、library、framework、tool の概要と実 version を一覧化しています。</p>
+            <a href="/static/docs/system-info.html">system-info.html</a>
+          </article>
+        </div>
       </div>
+    </section>
 
-      <div class="col">
-        <section class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h2 class="h5 card-title fw-bold">配色設計ガイド</h2>
-            <p class="card-text text-muted small">配色方針、コントラスト基準、モード別の運用ルールを説明します。長時間読書向けの調整基準を含みます。</p>
-            <a href="/static/docs/manuals/color-theme.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
-          </div>
-        </section>
+    <section class="docs-section" aria-labelledby="settings-heading">
+      <div class="docs-section-header">
+        <h2 id="settings-heading">設定・変換</h2>
+        <p>PDF 出力、端末別 layout、配色、font を調整するときに使う資料です。</p>
       </div>
-
-      <div class="col">
-        <section class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h2 class="h5 card-title fw-bold">フォント選定ガイド</h2>
-            <p class="card-text text-muted small">本文・見出し向けフォントの選定基準と、学術用途での使い分け方針をまとめています。</p>
-            <a href="/static/docs/manuals/font-selection.html" class="btn btn-outline-primary btn-sm mt-auto">開く</a>
-          </div>
-        </section>
+      <div class="row row-cols-1 row-cols-lg-2 g-3">
+        <div class="col">
+          <article class="doc-card h-100">
+            <h3>変換・文字コード・LaTeX 設定</h3>
+            <p>HTML/XHTML から TEX/PDF 生成までの pipeline と失敗時の確認手順です。</p>
+            <a href="/static/docs/manuals/conversion-guide.html">conversion-guide.html</a>
+          </article>
+        </div>
+        <div class="col">
+          <article class="doc-card h-100">
+            <h3>デバイス別組版</h3>
+            <p>標準 device profile の寸法、行数、調整方針を確認できます。</p>
+            <a href="/static/docs/manuals/device-specs.html">device-specs.html</a>
+          </article>
+        </div>
+        <div class="col">
+          <article class="doc-card h-100">
+            <h3>配色設計ガイド</h3>
+            <p>色設計、contrast、長時間読書向け theme の運用基準です。</p>
+            <a href="/static/docs/manuals/color-theme.html">color-theme.html</a>
+          </article>
+        </div>
+        <div class="col">
+          <article class="doc-card h-100">
+            <h3>フォント選定ガイド</h3>
+            <p>本文・見出し向け font の選定基準と、学術用途での使い分け方針です。</p>
+            <a href="/static/docs/manuals/font-selection.html">font-selection.html</a>
+          </article>
+        </div>
       </div>
+    </section>
 
-      <div class="col">
-        <section class="card h-100 shadow-sm">
-          <div class="card-body">
-            <h2 class="h5 card-title fw-bold">参照ページ（一覧/可視化）</h2>
-            <p class="card-text text-muted small">配色一覧とデバイスサイズ比較を可視化する補助ページです。設計判断の確認に使用します。</p>
-            <ul class="list-unstyled mb-0">
-              <li><span class="text-primary me-1">&rsaquo;</span><a href="/static/docs/manuals/colors-visualizer.html" class="text-decoration-none">colors-visualizer.html (旧 colors.html)</a></li>
-              <li><span class="text-primary me-1">&rsaquo;</span><a href="/static/docs/manuals/device-paper-size-map.html" class="text-decoration-none">device-paper-size-map.html</a></li>
-            </ul>
-          </div>
-        </section>
+    <section class="docs-section" aria-labelledby="technical-heading">
+      <div class="docs-section-header">
+        <h2 id="technical-heading">技術資料</h2>
+        <p>組版仕様、可視性、計算式、開発者向けの実装資料です。</p>
       </div>
-
-      <div class="col">
-        <section class="card h-100 shadow-sm text-bg-secondary">
-          <div class="card-body">
-            <h2 class="h5 card-title fw-bold">更新案内: 端末別生成先</h2>
-            <p class="card-text small">端末別の TEX/PDF 生成先と命名規則の更新内容を確認できます。CLI/Web/Make 共通運用の確認に利用してください。</p>
-            <ul class="list-unstyled mb-0">
-              <li><span class="text-white me-1">&rsaquo;</span><a href="/static/docs/manuals/device-specs.html" class="text-white text-decoration-none">現在の出力サイズ（デバイス）の種類</a></li>
-              <li><span class="text-white me-1">&rsaquo;</span><a href="/static/docs/technical/developer-guide.html" class="text-white text-decoration-none">開発者向け説明書</a></li>
-            </ul>
-          </div>
-        </section>
+      <div class="doc-link-panel">
+        <a href="/static/docs/technical/01-device-pdf-optimization.html">端末別 PDF 最適化</a>
+        <a href="/static/docs/technical/02-vertical-pdf-visibility.html">縦書き PDF 可視性</a>
+        <a href="/static/docs/technical/03-latex-typesetting-specs.html">LaTeX 組版仕様</a>
+        <a href="/static/docs/technical/04-project-system-specs.html">プロジェクト要件およびシステム仕様書</a>
+        <a href="/static/docs/technical/05-typesetting-calculations-jis.html">JIS 組版計算</a>
+        <a href="/static/docs/technical/06-pdf-viewer-pageturn.html">PDF viewer ページめくり</a>
+        <a href="/static/docs/technical/developer-guide.html">開発者向け説明書</a>
+        <a href="/static/docs/technical/typesetting-formulas.html">組版計算式</a>
+        <a href="/static/docs/technical/lualatex-fonts.html">LuaLaTeX font 詳細</a>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Bootstrap 5.3.8 JS -->
+    <section class="docs-section" aria-labelledby="reference-heading">
+      <div class="docs-section-header">
+        <h2 id="reference-heading">補助資料・一覧</h2>
+        <p>設計判断、対応表、font catalog を確認するための補助ページです。</p>
+      </div>
+      <div class="doc-link-panel">
+        <a href="/static/docs/manuals/colors-visualizer.html">配色一覧 visualizer</a>
+        <a href="/static/docs/manuals/device-paper-size-map.html">device paper size map</a>
+        <a href="/static/docs/HTML → LaTeX 変換対応表.html">HTML → LaTeX 変換対応表</a>
+        <a href="/static/docs/パッケージ一覧.html">LuaLaTeX package 一覧</a>
+        <a href="/static/docs/tools/LuaLaTeX_フォントカタログ.html">LuaLaTeX font catalog</a>
+        <a href="/static/docs/tools/文庫本構造と三国志LaTeX組版.html">文庫本構造と三国志 LaTeX 組版</a>
+      </div>
+    </section>
+  </main>
+
   <script src="/static/vendor/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

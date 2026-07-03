@@ -1,0 +1,81 @@
+[project]
+name = "aozoratex-studio"
+version = "1.0.0"
+description = "青空文庫 HTML から LuaLaTeX 縦書き PDF を生成するスタジオ（Python コア + Next.js ブリッジ）"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+  {name = "AozoraTeX Studio contributors"}
+]
+dependencies = [
+  "beautifulsoup4>=4.11.0",
+  "lxml>=4.9.0",
+  "markdown>=3.6",
+  "fontTools>=4.40.0",
+  # 型安全設定・バリデーション用 (INI後方互換で利用可能)
+  "pydantic>=2.8,<3",
+  "pydantic-settings>=2.3",
+]
+
+[project.scripts]
+aozoratex = "src.aozoratex_cli:run_cli"
+aozoratex-bridge = "src.api_bridge:main"
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.4",
+  "pytest>=8.0",
+  "mypy>=1.10",
+  # ブリッジ代替用 (オプション)
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "python-dotenv>=1.0",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# Note on layout:
+# The project currently runs modules via `python -m src.xxx` or direct `sys.path` hacks
+# in api_bridge (src/ is added to path and contains top-level modules + "src" subpackage?).
+# To keep current "from src import" imports working without PYTHONPATH changes,
+# we treat the repo root as base and "src" as importable package dir.
+[tool.setuptools.package-dir]
+"" = "."
+packages = ["src"]
+
+# For future proper packaging consider:
+# - Moving core to src/aozoratex/ (or aozoratex_studio)
+# - Update all "from src.xxx" → "from aozoratex.xxx" or absolute
+# See plan.md for recommended Python packaging restructure.
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+# Note: This project is executed primarily via Next.js subprocess bridge or `python -m src.xxx`.
+# Use `uv sync` (recommended) or `pip install -e .` for development.
+#
+# 実行例 (uv推奨):
+#   uv venv .venv
+#   uv pip install -e ".[dev]"
+#   # または pip
+#   .venv\Scripts\pip.exe install -e ".[dev]"
+
+[tool.uv]
+dev-dependencies = [
+  "ruff>=0.4",
+  "pytest>=8.0",
+  "mypy>=1.10",
+]

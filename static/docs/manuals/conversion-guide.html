@@ -9,69 +9,101 @@
 </head>
 
 <body>
+  <nav class="docs-topnav">
+    <a href="/static/docs/index.html">← ドキュメント一覧に戻る</a>
+  </nav>
+
   <main class="doc-wrap">
     <h1>変換・文字コード・LaTeX設定ガイド</h1>
-    <p>本ページは、入力HTMLの読み込みから TEX/PDF 出力までの変換処理を、実装単位で追える詳細ガイドです。障害調査や変換ロジック改修時の基準として利用してください。</p>
+    <p>
+      このページは「青空文庫のHTMLがどのようにしてPDFになるのか」を、<strong>手順ごとにわかりやすく</strong>説明したものです。<br>
+      変換でうまくいかないときの調査や、仕組みを理解したいときに読んでください。
+    </p>
 
-    <h2>1. 変換パイプライン</h2>
+    <h2>1. 全体の流れ（変換パイプライン）</h2>
+    <p>HTML → PDF になるまでの大まかな手順は以下の通りです。</p>
     <ol>
-      <li>入力ファイル読込（ローカルファイルのみ）</li>
-      <li>文字コード判定（宣言検出 + フォールバック）</li>
-      <li>HTML パース（BeautifulSoup）</li>
-      <li>本文ノードを LaTeX 断片へ変換</li>
-      <li>テンプレートへ埋め込み TEX 出力</li>
-      <li>必要時に <code>latexmk</code> で PDF コンパイル</li>
+      <li><strong>入力ファイルを読む</strong>（data/ フォルダ内のHTMLだけ対応）</li>
+      <li><strong>文字コードを判定</strong>する</li>
+      <li><strong>HTMLを解析</strong>する（BeautifulSoup）</li>
+      <li><strong>本文をLaTeXの命令に変換</strong>する</li>
+      <li><strong>テンプレートに埋め込んで .tex ファイルを作成</strong></li>
+      <li>必要なら <code>latexmk</code> で <strong>PDFを自動生成</strong></li>
     </ol>
 
-    <h2>2. 文字コード運用</h2>
+    <h2>2. 文字コードの扱い方</h2>
+    <p>青空文庫の古いファイルは文字コードがバラバラです。AozoraTeXは以下のような優先順位で判断します。</p>
     <ul>
-      <li>候補順序: 指定値 → 宣言値 → <code>utf-8-sig</code> → <code>utf-8</code> → <code>cp932</code> → <code>shift_jis</code></li>
-      <li>内部表現は UTF-8 に統一する。</li>
-      <li>判定が不安定な入力は <code>--encoding</code> で固定する。</li>
+      <li>あなたが <code>--encoding</code> で指定したもの</li>
+      <li>HTMLの中に書かれている宣言（metaタグなど）</li>
+      <li><code>utf-8-sig</code> → <code>utf-8</code> → <code>cp932</code> → <code>shift_jis</code> の順で試す</li>
     </ul>
+    <p><strong>変換に失敗したときの対処</strong>：<br>
+    <code>--encoding cp932</code> のように明示的に指定してみてください。</p>
 
-    <h2>3. HTML から LaTeX への主な変換</h2>
+    <h2>3. HTMLのどの部分がどう変換されるか</h2>
     <table>
       <thead>
-        <tr><th>HTML要素</th><th>変換先</th><th>補足</th></tr>
+        <tr>
+          <th>HTMLの要素</th>
+          <th>LaTeXでの変換結果</th>
+          <th>補足</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td><code>&lt;ruby&gt;</code></td><td><code>\ltjruby{親}{ルビ}</code></td><td>rb/rt を再帰変換</td></tr>
-        <tr><td><code>&lt;img class="gaiji"&gt;</code></td><td><code>\AozoraGaiji{...}{...}</code></td><td>既知外字は Unicode 置換</td></tr>
-        <tr><td><code>&lt;h1&gt;〜&lt;h6&gt;</code></td><td>見出しコマンド</td><td>タイトル/中見出しを分離</td></tr>
-        <tr><td>テキストノード</td><td>エスケープ文字列</td><td>LaTeX 特殊文字を保護</td></tr>
+        <tr>
+          <td><code>&lt;ruby&gt;</code></td>
+          <td><code>\ltjruby{親}{ルビ}</code></td>
+          <td>ルビ（ふりがな）を正しく表示</td>
+        </tr>
+        <tr>
+          <td><code>&lt;img class="gaiji"&gt;</code></td>
+          <td><code>\AozoraGaiji{...}</code></td>
+          <td>外字（特殊な漢字）をUnicodeに置き換え</td>
+        </tr>
+        <tr>
+          <td><code>&lt;h1&gt;〜&lt;h6&gt;</code></td>
+          <td>見出し用のLaTeX命令</td>
+          <td>タイトルと本文の見出しを自動で分ける</td>
+        </tr>
+        <tr>
+          <td>普通のテキスト</td>
+          <td>エスケープ処理された文字列</td>
+          <td>LaTeXで特別な意味を持つ文字（&amp; % $ など）を安全にする</td>
+        </tr>
       </tbody>
     </table>
 
-    <h2>4. CLI 実行例</h2>
-    <pre><code class="language-powershell"># 単体変換
-.venv\Scripts\python.exe -m src.aozoratex data/1567_14913.html --device iphone --mode light
+    <h2>4. CLI（コマンドライン）での実行例</h2>
+    <pre><code class="language-powershell"># 1つのファイルを変換する
+.venv\Scripts\python.exe -m src.aozoratex_cli data/1567_14913.html --device smart
 
-# ディレクトリ一括変換
-.venv\Scripts\python.exe -m src.aozoratex data --device ipad_landscape --out out/ipad_landscape
+# フォルダの中の全部を一括変換
+.venv\Scripts\python.exe -m src.aozoratex_cli data --device tablet --out out/tablet
 
-# 文字コード明示
-.venv\Scripts\python.exe -m src.aozoratex data/old.html --encoding cp932 --device android
+# 文字コードが古いファイルの場合
+.venv\Scripts\python.exe -m src.aozoratex_cli data/old.html --encoding cp932 --device smart
 </code></pre>
 
-    <h2>5. Web API での PDF 生成</h2>
+    <h2>5. Web画面（Next.js）からPDFを作る場合</h2>
     <ul>
-      <li><code>POST /api/generate</code> に <code>compile_pdf=true</code> を指定すると TEX 生成後に PDF まで処理する。</li>
-      <li><code>compile_pdf=false</code> では TEX のみ生成し、変換ロジック確認を高速化できる。</li>
-      <li>失敗時はレスポンスの <code>error</code> と <code>compile_log</code> を優先的に確認する。</li>
+      <li>画面でファイルを選んで「PDF化」ボタンを押すと、内部で <code>/api/generate</code> が呼ばれます。</li>
+      <li><code>compile_pdf=true</code>（既定）だと、.tex を作った後にPDFまで完成させます。</li>
+      <li>変換だけ確認したいときは <code>compile_pdf=false</code> にすると速く終わります。</li>
     </ul>
 
-    <h2>6. 調査時チェックリスト</h2>
+    <h2>6. 変換がうまくいかないときのチェックリスト</h2>
     <ol>
-      <li>入力ファイルの存在確認（<code>data/</code> 配下か）</li>
-      <li>設定ロード確認（<code>/api/settings</code>）</li>
-      <li>変換ログ確認（<code>out/</code> 配下）</li>
-      <li>コンパイルツール確認（<code>latexmk</code>, <code>lualatex</code>）</li>
+      <li>ファイルが <code>data/</code> フォルダの中にあるか確認</li>
+      <li>Web画面の場合：設定が正しく読み込まれているか（「設定を保存する」ボタン）</li>
+      <li><code>out/</code> フォルダの中のログやエラーメッセージを見る</li>
+      <li>TeXがインストールされているか（<code>lualatex --version</code> で確認）</li>
     </ol>
 
-    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+    <p style="margin-top: 2rem;">
+      <a href="/static/docs/index.html">← ドキュメント一覧に戻る</a>
+    </p>
   </main>
 </body>
-
 </html>
 

@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 def _normalize_device_name(device: Optional[str]) -> str:
+    # 注: 正規化の主ロジックは settings_store 側に集約推奨（重複排除）
     raw = str(device or settings_store.SUPPORTED_DEVICES[0]).strip().lower()
     normalized = settings_store.DEVICE_ALIASES.get(raw, raw)
     if normalized not in settings_store.SUPPORTED_DEVICES:

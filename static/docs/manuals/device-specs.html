@@ -9,88 +9,81 @@
 </head>
 
 <body>
+    <nav class="docs-topnav">
+        <a href="/static/docs/index.html">← ドキュメント一覧に戻る</a>
+    </nav>
+
     <main class="doc-wrap">
-        <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
-        <p class="muted">source: manuals/現在の出力サイズ（デバイス）の種類.md</p>
+        <h1>出力サイズ（デバイス）の種類</h1>
+        <p>
+          AozoraTeX Studio では、<strong>3種類の標準サイズ</strong>を用意しています。<br>
+          スマホ・タブレット・A4印刷それぞれに最適化したPDFを作ることができます。
+        </p>
 
-        <h1>現在の出力サイズ（デバイス）の種類</h1>
-        <p>現行バージョンでは、<code>config/device_settings.default.ini</code> に定義された 3 種類の標準デバイスを使用します。</p>
-
+        <h2>3種類の標準デバイス</h2>
         <table>
             <thead>
                 <tr>
-                    <th>No.</th>
-                    <th>device</th>
-                    <th>基準サイズ(mm)</th>
-                    <th>用途</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td><code>smart</code></td>
-                    <td>62.0 x 134.0</td>
-                    <td>iPhone 11 Pro 基準のスマートフォン表示</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td><code>tablet</code></td>
-                    <td>158.0 x 227.0</td>
-                    <td>iPad 基準。Portrait / Landscape を切替可能</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td><code>pc</code></td>
-                    <td>210.0 x 297.0</td>
-                    <td>A4 出力</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>向き（Orientation）</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>device</th>
-                    <th>対応向き</th>
-                    <th>説明</th>
+                    <th>名前</th>
+                    <th>基準サイズ（mm）</th>
+                    <th>主な用途</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td><code>smart</code></td>
-                    <td>portrait / landscape</td>
-                    <td>基準は portrait。landscape 指定時は幅・高さを入れ替えて出力。</td>
+                    <td>62.0 × 134.0</td>
+                    <td>スマホ向け（iPhone 11 Pro 基準）</td>
                 </tr>
                 <tr>
                     <td><code>tablet</code></td>
-                    <td>portrait / landscape</td>
-                    <td>Web UI で向き選択が可能。landscape 時は 2 段組を既定値とする。</td>
+                    <td>158.0 × 227.0</td>
+                    <td>タブレット向け（iPad 基準）。縦横切り替え可能</td>
                 </tr>
                 <tr>
                     <td><code>pc</code></td>
-                    <td>portrait</td>
-                    <td>A4 固定。</td>
+                    <td>210.0 × 297.0</td>
+                    <td>A4用紙で印刷したいとき</td>
                 </tr>
             </tbody>
         </table>
 
-        <h2>補足</h2>
-        <ul>
-            <li>CLI の <code>--device</code> 既定値は <code>smart</code> です。</li>
-            <li>Web UI / CLI / Make は同じデバイス設定（<code>config/*.ini</code>）を参照します。</li>
-            <li>旧デバイス名（<code>iphone</code> / <code>android</code> / <code>ipad</code> / <code>ipad_landscape</code>）は内部で互換変換されます。</li>
-        </ul>
-
-        <h2>端末別の生成先</h2>
-        <p>CLI/Web/Make いずれも、端末別の生成先は以下で統一されます。</p>
-
+        <h2>縦向き・横向き（Orientation）</h2>
         <table>
             <thead>
                 <tr>
-                    <th>device</th>
-                    <th>TEX と中間生成物</th>
-                    <th>PDF</th>
+                    <th>デバイス</th>
+                    <th>対応する向き</th>
+                    <th>補足</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>smart</code></td>
+                    <td>縦（portrait） / 横（landscape）</td>
+                    <td>横にしたときは幅と高さを入れ替えて出力します。</td>
+                </tr>
+                <tr>
+                    <td><code>tablet</code></td>
+                    <td>縦 / 横</td>
+                    <td>Web画面で簡単に切り替えられます。横向き時は2段組が標準です。</td>
+                </tr>
+                <tr>
+                    <td><code>pc</code></td>
+                    <td>縦のみ</td>
+                    <td>A4は基本的に縦で出力します。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>生成されるファイルの置き場所</h2>
+        <p>どのデバイスを選んでも、出力先のルールは統一されています。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>デバイス</th>
+                    <th>.tex や中間ファイル</th>
+                    <th>完成したPDF</th>
                 </tr>
             </thead>
             <tbody>
@@ -112,11 +105,36 @@
             </tbody>
         </table>
 
-        <p>出力ファイル名は <code>元ファイル名_タイトル_作者名</code> 形式です。</p>
+        <h2>補足</h2>
+        <ul>
+            <li>CLIで <code>--device</code> を指定しないと、自動的に <code>smart</code> になります。</li>
+            <li>Web UI・CLI・Makefile すべてが同じ <code>config/*.ini</code> の設定を参照しています。</li>
+            <li>古い名前（iphone, android, ipad など）は内部で自動的に変換されます。</li>
+        </ul>
 
-        <hr />
-        <p><a href="/static/docs/index.html">ドキュメントトップへ戻る</a></p>
+        <p style="margin-top: 2rem;">
+            <a href="/static/docs/index.html">← ドキュメント一覧に戻る</a>
+        </p>
     </main>
 </body>
+</html>
+                </tr>
+                <tr>
+                    <td><code>tablet</code></td>
+                    <td><code>out/work/tablet/</code></td>
+                    <td><code>out/pdf/tablet/</code></td>
+                </tr>
+                <tr>
+                    <td><code>pc</code></td>
+                    <td><code>out/work/pc/</code></td>
+                    <td><code>out/pdf/pc/</code></td>
+                </tr>
+            </tbody>
+        </table>
 
+        <p style="margin-top: 2rem;">
+            <a href="/static/docs/index.html">← ドキュメント一覧に戻る</a>
+        </p>
+    </main>
+</body>
 </html>

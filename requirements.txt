@@ -1,9 +1,9 @@
-# AozoraTeX Studio Requirements
+# AozoraTeX Studio CLI Core Requirements
+# 注意: Python依存管理は pyproject.toml + uv へ移行推奨 (2026年現在)
+# 互換のためこのファイルも維持。uv/pip install -e .[dev] を優先してください。
 beautifulsoup4>=4.11.0
 lxml>=4.9.0
-flask>=2.3.0
 markdown>=3.6
-waitress>=3.0.0
-flask-socketio>=5.3.0
-Flask-Caching>=2.1.0
-Flask-WTF>=1.2.1
+fontTools>=4.40.0
+pydantic>=2.8,<3
+pydantic-settings>=2.3

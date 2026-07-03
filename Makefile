@@ -11,6 +11,7 @@ CLEAN_TEX_FILES = $(sort $(wildcard $(OUT_DIR)/*.tex) $(wildcard $(OUT_DIR)/*/*.
 
 # 装飾オプション（空欄なら ini 設定を使用）
 # 例: make pdf-PC WASHI=1 FRAME=2
+# 注意: 現在は Next.js UI または CLI 経由の生成を推奨（make ターゲットは補助）
 WASHI ?=
 FRAME ?=
 COVER_TEXTURE ?=
@@ -59,6 +60,7 @@ ifneq ($(strip $(DEVICE_ORIENTATION)),)
 endif
 
 # `make` が `sh` で実行されても動くように OS 分岐
+# 注: .latexmkrc により共通フラグを一元管理。詳細設定は .latexmkrc を参照。
 ifeq ($(OS),Windows_NT)
   RM_INTERMEDIATE = cmd /c del /s /q *.log *.aux *.ltjruby 2>nul || exit 0
   RM_PDF          = powershell -NoProfile -Command "Get-ChildItem -Recurse -Filter '*.pdf' | Remove-Item -Force"
@@ -110,7 +112,7 @@ help:
 	@printf "\n"
 	@printf '%s\n' 'Available commands:'
 	@printf '%s\n' '  make install             - Install Python dependencies'
-	@printf '%s\n' '  make server              - Start Flask server (port 5000)'
+	@printf '%s\n' '  make server              - Start Next.js dev server (port 3000) (Bun/npm recommended)'
 	@printf '%s\n' '  make test                - Run sample conversion test (.tex only)'
 	@printf '%s\n' '  make test-all            - Run conversion tests for multiple devices'
 	@printf '%s\n' '  make clean               - Remove intermediate files (keep out/*.pdf and out/*.tex)'
@@ -130,10 +132,11 @@ install:
 	@echo Installing Python packages...
 	.venv\Scripts\pip.exe install -r requirements.txt
 
-# Flask サーバー起動
+# Next.js / Bun サーバー起動
 server:
-	@echo Starting Flask server on http://0.0.0.0:5000
-	.venv\Scripts\python.exe -m src.aozora_server
+	@echo Starting Next.js server on http://127.0.0.1:3000
+	bun run dev
+
 
 # テスト実行（Smart用）— .tex 生成のみ
 test:

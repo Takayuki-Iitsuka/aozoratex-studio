@@ -1,156 +1,105 @@
 # AozoraTeX Studio
 
-青空文庫の HTML/XHTML を、デバイス最適化された縦書き PDF/TEX に変換するプロジェクトです。  
-Web UI と CLI の両方を提供し、配色・サイズ・フォント設定を保存して再利用できます。
+AozoraTeX Studio は、青空文庫の HTML/XHTML を LuaLaTeX（LuaTeX 系 LaTeX エンジン）向けの `.tex` と、端末別に最適化した PDF（Portable Document Format／携帯文書形式）へ変換する project（プロジェクト）です。
+
+Web UI（Web User Interface／Web ユーザーインターフェース）と CLI（Command Line Interface／コマンドラインインターフェース）の両方から利用できます。縦書き組版に特化し、jlreq クラス + luatexja 系パッケージにより、美しい文庫本風 PDF を生成します。
 
 ## 主な機能
 
-- HTML/XHTML → LuaLaTeX 用 `.tex` 生成
-- Web UI からの PDF 生成（`latexmk` 使用）
-- デバイス別設定（サイズ・余白・行間・字間・モード）
-- 背景色/文字色の視覚確認と保存
-- 統合色一覧 `/static/docs/color/colors.html`（色相順）
-- デバイスと用紙サイズの視覚比較 `device-paper-size-map.html`
-- 補助ツール
-  - LuaLaTeX 利用可能フォント抽出
-  - TeX ログ解析（Markdown + JSON レポート）
-
-## ディレクトリ構成
-
-```text
-aozoratex-studio/
-├── start_server.bat               # Windows 起動バッチ
-├── src/
-│   ├── aozora_server.py           # Flask サーバー本体（python -m src.aozora_server）
-│   ├── aozoratex.py               # 変換本体（python -m src.aozoratex）
-│   └── settings_store.py          # 設定読み書き本体
-├── config/
-│   ├── global_settings.default.ini
-│   ├── global_settings.custom.ini
-│   ├── device_settings.default.ini
-│   ├── device_settings.custom.ini
-├── static/
-│   ├── index.html
-│   ├── color-palettes.json
-│   ├── color-palettes.js
-│   ├── css/
-│   │   └── index.css
-│   ├── js/
-│   │   └── index.js
-│   └── docs/
-│       ├── index.html
-│       ├── docs-common.css
-│       ├── docs-index.css
-│       ├── color/
-│       ├── conversion/
-│       ├── device/
-│       ├── project/
-│       └── markdown/
-├── tools/
-│   ├── fonts/
-│   │   ├── texlive_font_list.py
-│   │   └── texlive_fonts.csv
-│   └── logs/
-│       └── tex_log_parser.py
-├── data/                          # 入力HTML
-└── out/                           # 出力物
-```
+- HTML/XHTML から LuaLaTeX 用 `.tex` を生成（ルビ・外字・見出し・奥付対応）
+- Next.js（React + TypeScript + Tailwind）によるモダン Web UI
+- `latexmk` による PDF compile（PDF コンパイル）
+- `smart`、`tablet`、`pc` の device profile（端末別プロファイル）＋ 縦横向き切替
+- 背景色・文字色・フォント・和紙背景・外枠フレーム・表紙テクスチャ・段組などの高度な装飾管理
+- カラーパレット・ライブプレビュー対応
+- 包括的な HTML ドキュメント群（`static/docs/`）
 
 ## セットアップ
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
+
+# Python 依存 (pyproject.toml 推奨)
+# uv 推奨: uv pip install -e ".[dev]"
+# または
 pip install -r requirements.txt
+# または (pyproject 利用時)
+.venv\Scripts\pip.exe install -e ".[dev]"
+
+# Node 依存（Next.js 用）
+bun install   # または npm install
 ```
 
-## 実行方法
-
-### Web UI
+## 起動
 
 ```powershell
-python -m src.aozora_server
+# 推奨（Bun / npm）
+start_server.bat
+# または
+bun run dev
+# または
+npm run dev
 ```
 
-ブラウザで `http://localhost:5000` を開いてください。  
-Windows では `start_server.bat` でも起動できます。
+ブラウザで次を開きます。
 
-### CLI
+```text
+http://localhost:3000
+```
+
+## CLI 実行例
 
 ```powershell
-python -m src.aozoratex data/92_14545.html --device smart --out out
+.venv\Scripts\python.exe -m src.aozoratex_cli data/1567_14913.html --device smart --out out
 ```
 
-CLI/Web/Make いずれも、生成物は以下へ統一されます。
+出力先は次の構成です。
 
-- `.tex` と中間生成物: `out/work/<device>/`
+- `.tex` と intermediate file（中間ファイル）: `out/work/<device>/`
 - `.pdf`: `out/pdf/<device>/`
-
-端末別の生成先:
-
-| 端末種別 | TEX と中間生成物 | PDF |
-|---|---|---|
-| smart | `out/work/smart/` | `out/pdf/smart/` |
-| tablet | `out/work/tablet/` | `out/pdf/tablet/` |
-| pc | `out/work/pc/` | `out/pdf/pc/` |
-
-出力ファイル名は `元ファイル名_タイトル_作者名` 形式です。
-例: `1567_14913_走れメロス_太宰治.tex` / `1567_14913_走れメロス_太宰治.pdf`
-
-設定保存:
-
-```powershell
-python -m src.aozoratex data/92_14545.html --device smart --bg-color "#101010" --fg-color "#F5F5F5" --save-settings
-```
-
-カスタム設定初期化:
-
-```powershell
-python -m src.aozoratex data/92_14545.html --device smart --reset-settings
-```
-
-## 設定ファイル
-
-- `*.default.ini`: 標準設定（初期値）
-- `*.custom.ini`: Web/CLI で保存されたカスタム設定
-
-初期フォント名は `global_settings.default.ini` の `font_family` で一元管理しています。
-`device_settings.default.ini` の `font_size` はデバイス別の本文サイズ設定です。
-
-読み込み順は `default -> custom` です。  
-`custom` を消す、または `/api/settings/reset` で初期値に戻せます。
-
-現行運用で編集対象となる設定ファイル:
-- `config/global_settings.default.ini`
-- `config/global_settings.custom.ini`
-- `config/device_settings.default.ini`
-- `config/device_settings.custom.ini`
-
-設定ソースは `config/*.ini` のみです。  
-旧 `settings.ini` からの自動移行は行いません。
-
-## 配色とサイズの確認ページ
-
-- 統合配色一覧: `http://localhost:5000/static/docs/manuals/colors-visualizer.html`
-- サイズ比較: `http://localhost:5000/device-paper-size-map.html`
-
-## 補助ツール
-
-### フォント抽出
-
-```powershell
-python tools/fonts/texlive_font_list.py --output tools/fonts/texlive_fonts.csv
-```
-
-### TeX ログ解析
-
-```powershell
-python tools/logs/tex_log_parser.py out/work/smart/*.log
-```
-
-出力先: `out/reports/tex_logs/`
 
 ## ドキュメント
 
-- ブラウザ版: `http://localhost:5000/docs`
-- 変換済みHTML版: `http://localhost:5000/static/docs/markdown/index.html`
+起動後に次を開きます。
+
+```text
+http://localhost:3000/static/docs/index.html
+```
+
+静的ファイルの入口は `static/docs/index.html` です。技術仕様・デバイス最適化・変換対応表・フォントカタログなどが整備されています。
+
+## 主要ディレクトリ
+
+```text
+src/                    Python コア変換ロジック + API ブリッジ
+src/app/                Next.js App Router（UI + API routes）
+src/components/         React コンポーネント
+src/lib/                フック・API クライアント
+static/docs/            包括的 HTML ドキュメント
+static/                 カラーパレット・ベンダー資産・旧静的資産
+config/                 設定ファイル（*.default.ini / *.custom.ini）
+data/                   入力用青空文庫 HTML/XHTML サンプル
+out/                    生成物（.tex / .pdf）
+tests/                  テスト
+tools/                  補助ツール（フォント一覧生成など）
+```
+
+## 現行アーキテクチャ（2026年時点・レビュー後改善適用）
+
+- **Frontend**: Next.js 15 + React 19 + TypeScript + Tailwind CSS + framer-motion + lucide-react + zod (validation) + sonner (toast)
+- **Backend bridge**: Next.js API Routes → `src/api_bridge.py`（Python プロセス spawn）。実験的 FastAPI長寿命サーバー雛形 `src/server_fastapi.py` あり
+- **Core logic**: `src/aozoratex.py`（BeautifulSoup パース → LaTeX 変換）、`src/server_services.py`（生成・コンパイル・フォント・色管理）
+- **Settings**: `src/settings_store.py`（default/custom INI マージ） + pyproject.toml (pydantic準備)
+- **TeX**: LuaLaTeX + jlreq（tate） + luatexja 系 + TikZ 装飾 + .latexmkrc
+- **Runtime**: Windows + PowerShell 7 + TeX Live 2026 + Python 3.14 + Bun / Node
+- **追加ツール**: prettier, ruff (推奨), uv (推奨)
+
+## 開発メモ
+
+- 旧 Flask サーバー構成（`src/aozora_server.py`）から Next.js + Python ブリッジ構成へ移行済み。
+- 2026年レビューにより、pyproject.toml、zodバリデーション、.latexmkrc、FastAPI実験的ブリッジを導入。
+- ドキュメントはすべて最新構成に更新されています。古い参照は削除・注記済み。
+- TeX（テック）処理は LuaLaTeX と LuaTeX-ja 系 package（パッケージ）を使います。
+- コードコメントは日本語で記述しています（プロジェクト規約）。
+- 推奨ツール: `bun run format`, `uv` (Python), `ruff`。詳細は plan.md を参照。

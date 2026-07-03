@@ -14,6 +14,8 @@ aozoratex.py
 このリポジトリの想定:
 - Windows 上での実行を想定（パス区切りや cp932 の存在を考慮）
 - 入力はローカルファイルのみ（URL 取得はしない）
+
+注意: 本ファイルは変換コア。Web/CLI は api_bridge / server_services / aozoratex_cli を経由してください。
 """
 
 # ---- 標準ライブラリ ----

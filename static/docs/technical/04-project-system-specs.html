@@ -16,7 +16,7 @@
 <h2 id="2">2. システム・アーキテクチャ要件</h2>
 <ul>
 <li><strong>コア言語:</strong> Python（DOM 解析、ファイルI/O、システムコール、ローカルサーバー構築）</li>
-<li><strong>バックエンド（ローカルサーバー）:</strong> カスタマイズ用フロントエンドのエンドポイントとして、Pythonの軽量フレームワーク（Flask または FastAPI 等。※要選定）を使用してローカルサーバーを立ち上げる。</li>
+<li><strong>バックエンド（Python bridge）:</strong> Next.js API Routes から <code>api_bridge.py</code> + <code>server_services.py</code> を経由して Python コア（<code>aozoratex.py</code>）を呼び出します。Flask は使用していません。</li>
 <li><strong>フロントエンド:</strong> <ul>
 <li><code>colors.html</code> 等の HTML/JS/CSS で UI を構築する。</li>
 <li>サイズや背景色・文字色のカスタマイズを容易にする。</li>

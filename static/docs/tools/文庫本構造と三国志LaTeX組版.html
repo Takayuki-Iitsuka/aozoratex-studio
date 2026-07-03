@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文庫本構造と三国志LaTeX組版</title>
+  <link rel="stylesheet" href="/static/docs/css/docs-common.css">
+</head>
+<body>
+  <main class="doc-wrap">
+    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
+    <p><strong>思考プロセス (Thinking Process)</strong></p>
+<ol>
+<li><strong>原典の構造分析 (Analysis of Original Source Structure)</strong><ul>
+<li>情報源・根拠：青空文庫 (Aozora Bunko) および一般的な文庫版（講談社文庫や新潮文庫等）の出版形態。</li>
+<li>吉川英治の『三国志』は、全体が「桃園の巻」「群星の巻」「草莽の巻」などの10の「巻 (Volume)」で構成されています。</li>
+<li>各「巻 (Volume)」の中には、「黄巾賊」のような短い「見出し (Heading) / エピソード (Episode)」が連なっています。</li>
+<li>見出しの中は「段落 (Paragraph)」の連続であり、実用書のような明確な「節 (Section)」は見られませんが、時間経過や視点移動の際に「空白行 (Blank Line)」やアステリスク等を用いた場面転換が存在します。</li>
+</ul>
+</li>
+<li><strong>LaTeXコマンドとのマッピング (Mapping with LaTeX Commands)</strong><ul>
+<li>文庫本の階層と、LaTeXの Book Class (書籍クラス) のコマンドを対応させる必要があります。</li>
+<li>全10巻（文庫本で数十冊分相当）を1つのPDF (Portable Document Format) に統合する場合、最上位階層の定義が重要になります。</li>
+</ul>
+</li>
+<li><strong>PDF機能の要件定義 (Requirement Definition for PDF Features)</strong><ul>
+<li>Table of Contents (目次) と Bookmark (しおり) 機能をふんだんに使用するという要件から、<code>hyperref</code> (hyperrefパッケージ) や <code>bookmark</code> (bookmarkパッケージ) による Navigation (ナビゲーション機能) の最適化が求められます。</li>
+</ul>
+</li>
+</ol>
+<hr />
+<p><strong>『三国志』の文章構造とLuaLaTeXへの適応提案 (Proposals for Adaptation)</strong></p>
+<p>以上の分析を踏まえ、Windows OS (Windows OS) 環境におけるLuaLaTeXでの組版を前提とした、3つの適応アイデア (Ideas) を提案します。</p>
+<h3 id="1partchapter-standard-hierarchical-structure">提案1：<code>\part</code>と<code>\chapter</code>を基軸とする標準的階層構造 (Standard Hierarchical Structure)</h3>
+<p>10の「巻」を <code>\part</code>、各エピソードを <code>\chapter</code> とする王道の構成です。</p>
+<ul>
+<li><strong>編・部 (Part)</strong> -&gt; <code>\part{桃園の巻}</code> 等</li>
+<li><strong>章 (Chapter)</strong> -&gt; <code>\chapter{黄巾賊}</code> 等</li>
+<li><strong>節 (Section)</strong> -&gt; <code>\section*{（空白行・場面転換）}</code> ※星印などを中央揃えで配置し、目次には出さない (No TOC entry)</li>
+<li><strong>項 (Paragraph)</strong> -&gt; 通常の改行による段落</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">項目 (Item)</th>
+<th style="text-align: left;">詳細 (Details)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Merit (メリット)</strong></td>
+<td style="text-align: left;">LaTeXの Book Class (書籍クラス) の標準仕様に最も適合しており、Table of Contents (目次自動生成: <code>\tableofcontents</code>) がそのまま機能します。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Demerit (デメリット)</strong></td>
+<td style="text-align: left;">全てのエピソードを章として扱うため、Table of Contents (目次) だけで数十ページを消費する長大なものになります。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Risk (リスク)</strong></td>
+<td style="text-align: left;">1つのファイルに全10巻の情報を詰め込むと、Windowsの TeX Live (TeX Live) 環境等においてコンパイル時の Memory Exhaustion (メモリ不足) や処理遅延を引き起こすリスクがあります。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2chaptersection-downgrading-hierarchy">提案2：<code>\chapter</code>と<code>\section</code>へのダウングレード (Downgrading Hierarchy)</h3>
+<p>「巻」を <code>\chapter</code>、「エピソード」を <code>\section</code> に一段階下げる構成です。</p>
+<ul>
+<li><strong>編・部 (Part)</strong> -&gt; <code>\chapter{桃園の巻}</code></li>
+<li><strong>章 (Chapter)</strong> -&gt; <code>\section{黄巾賊}</code></li>
+<li><strong>節 (Section)</strong> -&gt; <code>\subsection*{（場面転換）}</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">項目 (Item)</th>
+<th style="text-align: left;">詳細 (Details)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Merit (メリット)</strong></td>
+<td style="text-align: left;">巻ごとに別々のPDFとして出力しやすく、後から複数ファイルに分割管理 (File Splitting) する際に容易です。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Demerit (デメリット)</strong></td>
+<td style="text-align: left;">Book Class (書籍クラス) を使用する場合、エピソードが「章」扱いにならないため、エピソードごとに改丁（奇数ページから新しい話が始まる仕様）にするなどの自動ページ調整が難しくなります。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Risk (リスク)</strong></td>
+<td style="text-align: left;">書籍としての格式が損なわれ、実用書のような見た目になってしまう懸念があります。古代中国の重厚な雰囲気を活かす組版からは離れるかもしれません。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3bookmark-virtual-hierarchy-using-bookmarks">提案3：Bookmark (しおり) のみを用いた仮想階層の構築 (Virtual Hierarchy using Bookmarks)</h3>
+<p>紙面（PDF上）の Table of Contents (目次) には「巻 (Volume)」のみを表示させ、PDFの Navigation Panel (ナビゲーションパネル) 上の Bookmark (しおり) にのみ全てのエピソードを表示させるハイブリッド構造です。</p>
+<ul>
+<li><code>tocdepth</code> (目次の深さカウンター) を <code>0</code> (Partのみ) に制限。</li>
+<li><code>bookmark</code> パッケージの機能で、ビューアの左側に詳細なツリー構造 (Tree Structure) を構築。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">項目 (Item)</th>
+<th style="text-align: left;">詳細 (Details)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Merit (メリット)</strong></td>
+<td style="text-align: left;">紙面上の Table of Contents (目次) は数ページでスッキリと美しく保ちつつ、PDF上では一瞬で特定のエピソードへ飛べる強力な Searchability (検索性) を確保できます。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Demerit (デメリット)</strong></td>
+<td style="text-align: left;"><code>hyperref</code> (hyperref) パッケージの詳細な設定が必要になり、コードが複雑化します。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Risk (リスク)</strong></td>
+<td style="text-align: left;">PDFビューアの機能に依存するため、閲覧環境によってはしおりが機能しないことや、紙として Printout (印刷) した際に詳細な目次が一切失われてしまうリスクがあります。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>別の視点・潜在的なリスク (Alternative Perspectives and Potential Risks)</strong></p>
+<p>私の提案に対する反論・別の視点 (Alternative Perspectives) を提示します。</p>
+<ol>
+<li><strong>データ構造の複雑化に対する反論 (Counterargument against Complex Data Structure):</strong>
+    PDFの機能をふんだんに使おうとするあまり、階層構造を細かく分けすぎること（例えば、場面転換ごとに意味づけタグを付与すること）は、Source Code (ソースコード) を乱雑にします。小説のような連続した Text (テキスト) においては、論理的な Markup (マークアップ) よりも、単純な空白や装飾記号で済ませる方が、執筆の Maintainability (保守性) が高いという強力な視点があります。</li>
+<li><strong>史学的な注釈の優先度 (Priority of Historical Annotation):</strong>
+    質問者様は史学科で古代中国文化に関心を持たれているため、単なる「小説の文字起こし」ではなく、史実との比較や人物名への Footnote (脚注) / Endnote (後注) を多用する可能性があります。その場合、文章の構造階層よりも、注釈を管理・ジャンプするための Cross-reference (相互参照) 機能の充実度に処理能力と時間を割くべきだという反論が成り立ちます。</li>
+</ol>
+  </main>
+</body>
+</html>
+
+
+

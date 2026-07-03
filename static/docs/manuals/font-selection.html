@@ -7,83 +7,81 @@
   <link rel="stylesheet" href="/static/docs/css/docs-common.css">
 </head>
 <body>
+  <nav class="docs-topnav"><a href="/static/docs/index.html">← ドキュメント一覧に戻る</a></nav>
   <main class="doc-wrap">
-    <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
-    <p class="muted">source: manuals/フォント選定（統合管理）</p>
-
     <h1>フォント選定ガイド</h1>
     <p>
-      史学・古典系の文書では、<strong>Readability（可読性）</strong> に加えて
-      <strong>Compatibility（外字・異体字への対応力）</strong> が重要です。
-      本ページは、本文と見出しの運用方針を一貫した基準でまとめた公式ガイドです。
+      青空文庫のような古典・史学系の文書では、ただ読みやすいだけでなく、<strong>外字や異体字が正しく出るか</strong> がとても重要です。<br>
+      このページでは「本文用」と「見出し用」のフォントの選び方とおすすめを、わかりやすくまとめています。
     </p>
 
-    <h2>選定方針</h2>
-    <p>
-      学術用途では、出現頻度が低い文字でも正しく描画できることを最優先にします。
-      そのうえで、<strong>Aesthetics（審美性）</strong> を評価し、文書全体の読みやすさと雰囲気を調整します。
-    </p>
+    <h2>選定の考え方（3つの軸）</h2>
+    <p>学術・古典文書では、以下の順で優先して考えます。</p>
     <table>
       <thead>
         <tr>
+          <th>優先順</th>
           <th>評価軸</th>
-          <th>内容</th>
-          <th>運用上の扱い</th>
+          <th>意味</th>
+          <th>どう扱うか</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Readability（可読性）</td>
-          <td>長文読解時の疲労の少なさ、字面の安定性</td>
-          <td>本文フォント選定の基本軸</td>
-        </tr>
-        <tr>
+          <td>1</td>
           <td>Compatibility（互換性）</td>
-          <td>外字・異体字・拡張漢字の収録範囲</td>
-          <td>学術文書では最優先</td>
+          <td>外字・異体字・珍しい漢字が出るか</td>
+          <td>学術文書ではこれを最優先</td>
         </tr>
         <tr>
-          <td>Aesthetics（審美性）</td>
-          <td>文学的な雰囲気、見出しの印象形成</td>
+          <td>2</td>
+          <td>Readability（可読性）</td>
+          <td>長時間読んでも疲れにくいか</td>
+          <td>本文フォントの基本</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Aesthetics（見た目の美しさ）</td>
+          <td>雰囲気や印象が良いか</td>
           <td>互換性を満たした上で調整</td>
         </tr>
       </tbody>
     </table>
 
-    <h2>既定（デフォルト）推奨</h2>
+    <h2>おすすめの既定フォント</h2>
     <p>
-      既定フォントは <strong>IPAmjMincho</strong> を推奨します。
-      <strong>Compatibility（互換性）</strong> が高く、文字欠けリスクを最小化できるためです。
+      標準でおすすめしているのは <strong>IPAmjMincho</strong> です。<br>
+      理由：外字や異体字への対応力が非常に強く、文字化けの心配が少ないためです。
     </p>
 
-    <h2>本文向けフォント</h2>
+    <h2>本文（メイン）におすすめのフォント</h2>
     <table>
       <thead>
         <tr>
-          <th>フォント</th>
-          <th>LaTeX 設定例</th>
-          <th>メリット</th>
-          <th>留意点</th>
+          <th>フォント名</th>
+          <th>設定例</th>
+          <th>おすすめポイント</th>
+          <th>注意点</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>IPAmjMincho</td>
           <td><code>\setmainjfont{IPAmjMincho}</code></td>
-          <td>外字・異体字への対応力が高く、学術文書で安定</td>
-          <td>ウェイトの選択肢が少なく、強調設計は工夫が必要</td>
+          <td>外字対応が抜群。学術用途で最も安心</td>
+          <td>ウェイトの種類が少ない</td>
         </tr>
         <tr>
           <td>Shippori Mincho</td>
           <td><code>\setmainjfont{Shippori Mincho}</code></td>
-          <td>活版調の表情があり、文学文書で高い没入感</td>
-          <td>特殊文字で <strong>Fallback（代替描画）</strong> が起きる可能性</td>
+          <td>活版印刷のような温かみがあり、文学作品向き</td>
+          <td>稀に特殊文字で代替表示になる</td>
         </tr>
         <tr>
           <td>Yu Mincho</td>
           <td><code>\setmainjfont{Yu Mincho}</code></td>
-          <td>可読性と雰囲気のバランスが良く、環境構築が容易</td>
-          <td>個性は控えめで、外字網羅性は IPAmjMincho に劣る</td>
+          <td>バランスが良く、インストールしやすい</td>
+          <td>外字対応はIPAmjMinchoよりやや劣る</td>
         </tr>
       </tbody>
     </table>
@@ -135,6 +133,10 @@
 \newfontfamily\academicfont{IPAmjMincho}
 本文中で特殊字が必要な箇所は {\academicfont 𠮷} のように局所指定する。
 </code></pre>
+
+    <p style="margin-top: 2rem;">
+      <a href="/static/docs/index.html">← ドキュメント一覧に戻る</a>
+    </p>
   <h1>LuaLaTeX 推奨フォントカタログ</h1>
 <h2>書体別ランキング・設定コマンド・フォント特性 完全早見表</h2>
 <blockquote>

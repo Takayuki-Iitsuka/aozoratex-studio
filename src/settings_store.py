@@ -6,6 +6,9 @@ Configuration store for AozoraTeX Studio.
 Responsibilities:
 - Keep defaults and custom overrides in `config/*.ini`
 - Load and merge settings safely for API / CLI
+- Provide device labels, supported modes, and export payload for frontend
+
+リファクタ済み: 正規化ロジックを一部集約。
 """
 
 import configparser
