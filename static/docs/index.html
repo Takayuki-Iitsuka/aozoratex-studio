@@ -1,143 +1,268 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AozoraTeX Studio ドキュメント</title>
-  <link href="/static/vendor/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/static/docs/css/docs-index.css">
+  <title>AozoraTeX Studio - Documentation Hub</title>
+  <link rel="stylesheet" href="/static/docs/css/docs-common.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-
 <body>
   <nav class="docs-topnav">
-    <a href="/static/docs/index.html">📖 ドキュメント入口</a> &nbsp;|&nbsp;
-    <a href="/static/docs/system-info.html">システム情報</a> &nbsp;|&nbsp;
-    <a href="/static/docs/manuals/project-guide.html">運用ガイド</a>
+    <div class="nav-content">
+      <div class="nav-left">
+        <i data-lucide="book-open" class="nav-icon"></i>
+        <span class="nav-title">AozoraTeX Studio Docs</span>
+      </div>
+      <div class="nav-right">
+        <a href="/static/docs/system-info.html">
+          <i data-lucide="cpu"></i> システム情報
+        </a>
+        <a href="/static/docs/manuals/project-guide.html">
+          <i data-lucide="compass"></i> 運用ガイド
+        </a>
+      </div>
+    </div>
   </nav>
+
   <main class="docs-shell">
-    <header class="docs-hero">
-      <p class="docs-kicker">Documentation index</p>
-      <h1>AozoraTeX Studio ドキュメント</h1>
-      <p class="docs-lead">
-        青空文庫 HTML/XHTML から LuaLaTeX PDF へ変換するための運用、設定、実装資料を整理した入口です。
-        日常運用は概要と設定ガイド、保守時は技術資料とシステム情報を参照してください。
-      </p>
-      <div class="docs-actions">
-        <a class="docs-primary-link" href="/static/docs/system-info.html">システム情報を開く</a>
-        <a class="docs-secondary-link" href="/static/docs/technical/developer-guide.html">開発者向け説明書</a>
+    <header class="docs-hero glass-panel">
+      <div class="hero-content">
+        <p class="docs-kicker">Documentation Hub</p>
+        <h1 class="hero-title">AozoraTeX Studio<br><span class="text-gradient">Developer & User Guide</span></h1>
+        <p class="docs-lead">
+          青空文庫形式から美しいLuaLaTeX経由のPDFを生成するための総合ドキュメント。<br>
+          最新のシステム構成、運用ガイド、設定リファレンス、技術仕様を網羅しています。
+        </p>
+        <div class="docs-actions">
+          <a class="docs-primary-link" href="/static/docs/manuals/project-guide.html">
+            <i data-lucide="rocket"></i> 運用を始める
+          </a>
+          <a class="docs-secondary-link" href="/static/docs/system-info.html">
+            <i data-lucide="info"></i> 最新のシステム情報
+          </a>
+        </div>
       </div>
     </header>
 
-    <section class="docs-section" aria-labelledby="quick-start-heading">
-      <div class="docs-section-header">
-        <h2 id="quick-start-heading">概要・運用</h2>
-        <p>最初に読む資料と、日常運用で頻繁に使う資料です。</p>
-      </div>
-      <div class="row row-cols-1 row-cols-lg-2 g-3">
-        <div class="col">
-          <article class="doc-card h-100">
-            <h3>プロジェクト概要・運用</h3>
-            <p>目的、構成、推奨運用、保守フローを整理した起点ページです。</p>
-            <a href="/static/docs/manuals/project-guide.html">project-guide.html</a>
-          </article>
-        </div>
-        <div class="col">
-          <article class="doc-card h-100">
-            <h3>現在の状態</h3>
-            <p>現時点の実装状況、運用上の注意、確認済み事項をまとめたページです。</p>
-            <a href="/static/docs/現在の状態.html">現在の状態.html</a>
-          </article>
-        </div>
-        <div class="col">
-          <article class="doc-card h-100">
-            <h3>README HTML</h3>
-            <p>README を HTML 文書として参照するためのページです。</p>
-            <a href="/static/docs/README.html">README.html</a>
-          </article>
-        </div>
-        <div class="col">
-          <article class="doc-card h-100 doc-card-accent">
-            <h3>システム情報</h3>
-            <p>programming language、library、framework、tool の概要と実 version を一覧化しています。</p>
-            <a href="/static/docs/system-info.html">system-info.html</a>
-          </article>
-        </div>
-      </div>
-    </section>
+    <div class="docs-layout">
+      <aside class="docs-sidebar glass-panel">
+        <nav class="sidebar-nav">
+          <div class="sidebar-group">
+            <h3 class="sidebar-heading">📌 概要・運用</h3>
+            <a href="#quick-start" class="sidebar-link">起点となる資料</a>
+            <a href="#settings" class="sidebar-link">設定・変換ガイド</a>
+          </div>
+          <div class="sidebar-group">
+            <h3 class="sidebar-heading">⚙️ 技術・仕様</h3>
+            <a href="#technical" class="sidebar-link">技術資料</a>
+            <a href="#reference" class="sidebar-link">補助資料・一覧</a>
+          </div>
+        </nav>
+      </aside>
 
-    <section class="docs-section" aria-labelledby="settings-heading">
-      <div class="docs-section-header">
-        <h2 id="settings-heading">設定・変換</h2>
-        <p>PDF 出力、端末別 layout、配色、font を調整するときに使う資料です。</p>
-      </div>
-      <div class="row row-cols-1 row-cols-lg-2 g-3">
-        <div class="col">
-          <article class="doc-card h-100">
-            <h3>変換・文字コード・LaTeX 設定</h3>
-            <p>HTML/XHTML から TEX/PDF 生成までの pipeline と失敗時の確認手順です。</p>
-            <a href="/static/docs/manuals/conversion-guide.html">conversion-guide.html</a>
-          </article>
-        </div>
-        <div class="col">
-          <article class="doc-card h-100">
-            <h3>デバイス別組版</h3>
-            <p>標準 device profile の寸法、行数、調整方針を確認できます。</p>
-            <a href="/static/docs/manuals/device-specs.html">device-specs.html</a>
-          </article>
-        </div>
-        <div class="col">
-          <article class="doc-card h-100">
-            <h3>配色設計ガイド</h3>
-            <p>色設計、contrast、長時間読書向け theme の運用基準です。</p>
-            <a href="/static/docs/manuals/color-theme.html">color-theme.html</a>
-          </article>
-        </div>
-        <div class="col">
-          <article class="doc-card h-100">
-            <h3>フォント選定ガイド</h3>
-            <p>本文・見出し向け font の選定基準と、学術用途での使い分け方針です。</p>
-            <a href="/static/docs/manuals/font-selection.html">font-selection.html</a>
-          </article>
-        </div>
-      </div>
-    </section>
+      <div class="docs-content">
+        <section id="quick-start" class="docs-section glass-panel">
+          <div class="section-header-modern">
+            <div class="icon-box"><i data-lucide="flag"></i></div>
+            <div>
+              <h2>概要・運用</h2>
+              <p>最初に読むべき資料と、日常運用で頻繁に使う資料。</p>
+            </div>
+          </div>
+          <div class="docs-grid">
+            <article class="doc-card hover-lift">
+              <div class="card-icon"><i data-lucide="map"></i></div>
+              <h3>プロジェクト概要・運用</h3>
+              <p>目的、構成、推奨運用、保守フローを整理した起点となるページです。</p>
+              <a href="/static/docs/manuals/project-guide.html" class="card-link">
+                読む <i data-lucide="arrow-right"></i>
+              </a>
+            </article>
+            <article class="doc-card hover-lift">
+              <div class="card-icon"><i data-lucide="activity"></i></div>
+              <h3>現在の状態</h3>
+              <p>現時点の実装状況、運用上の注意、確認済み事項の最新まとめ。</p>
+              <a href="/static/docs/現在の状態.html" class="card-link">
+                読む <i data-lucide="arrow-right"></i>
+              </a>
+            </article>
+            <article class="doc-card hover-lift">
+              <div class="card-icon"><i data-lucide="file-text"></i></div>
+              <h3>README</h3>
+              <p>リポジトリのREADMEをHTML文書として参照します。</p>
+              <a href="/static/docs/README.html" class="card-link">
+                読む <i data-lucide="arrow-right"></i>
+              </a>
+            </article>
+            <article class="doc-card hover-lift doc-card-accent">
+              <div class="card-icon"><i data-lucide="server"></i></div>
+              <h3>システム情報</h3>
+              <p>言語、ライブラリ、フレームワーク、ツールの詳細とバージョン一覧。</p>
+              <a href="/static/docs/system-info.html" class="card-link">
+                読む <i data-lucide="arrow-right"></i>
+              </a>
+            </article>
+          </div>
+        </section>
 
-    <section class="docs-section" aria-labelledby="technical-heading">
-      <div class="docs-section-header">
-        <h2 id="technical-heading">技術資料</h2>
-        <p>組版仕様、可視性、計算式、開発者向けの実装資料です。</p>
-      </div>
-      <div class="doc-link-panel">
-        <a href="/static/docs/technical/01-device-pdf-optimization.html">端末別 PDF 最適化</a>
-        <a href="/static/docs/technical/02-vertical-pdf-visibility.html">縦書き PDF 可視性</a>
-        <a href="/static/docs/technical/03-latex-typesetting-specs.html">LaTeX 組版仕様</a>
-        <a href="/static/docs/technical/04-project-system-specs.html">プロジェクト要件およびシステム仕様書</a>
-        <a href="/static/docs/technical/05-typesetting-calculations-jis.html">JIS 組版計算</a>
-        <a href="/static/docs/technical/06-pdf-viewer-pageturn.html">PDF viewer ページめくり</a>
-        <a href="/static/docs/technical/developer-guide.html">開発者向け説明書</a>
-        <a href="/static/docs/technical/typesetting-formulas.html">組版計算式</a>
-        <a href="/static/docs/technical/lualatex-fonts.html">LuaLaTeX font 詳細</a>
-      </div>
-    </section>
+        <section id="settings" class="docs-section glass-panel">
+          <div class="section-header-modern">
+            <div class="icon-box"><i data-lucide="settings"></i></div>
+            <div>
+              <h2>設定・変換ガイド</h2>
+              <p>PDF出力、端末別レイアウト、配色、フォントを調整するためのリファレンス。</p>
+            </div>
+          </div>
+          <div class="docs-grid">
+            <article class="doc-card hover-lift">
+              <div class="card-icon"><i data-lucide="refresh-cw"></i></div>
+              <h3>変換・LaTeX設定</h3>
+              <p>HTMLからTEX/PDF生成までのパイプラインと失敗時の確認手順。</p>
+              <a href="/static/docs/manuals/conversion-guide.html" class="card-link">
+                読む <i data-lucide="arrow-right"></i>
+              </a>
+            </article>
+            <article class="doc-card hover-lift">
+              <div class="card-icon"><i data-lucide="smartphone"></i></div>
+              <h3>デバイス別組版</h3>
+              <p>標準デバイスの寸法、行数、余白、調整方針の完全マニュアル。</p>
+              <a href="/static/docs/manuals/device-specs.html" class="card-link">
+                読む <i data-lucide="arrow-right"></i>
+              </a>
+            </article>
+            <article class="doc-card hover-lift">
+              <div class="card-icon"><i data-lucide="palette"></i></div>
+              <h3>配色設計ガイド</h3>
+              <p>色設計、コントラスト比、長時間読書向けテーマの運用基準。</p>
+              <a href="/static/docs/manuals/color-theme.html" class="card-link">
+                読む <i data-lucide="arrow-right"></i>
+              </a>
+            </article>
+            <article class="doc-card hover-lift">
+              <div class="card-icon"><i data-lucide="type"></i></div>
+              <h3>フォント選定ガイド</h3>
+              <p>本文・見出し向けフォントの選定基準と、学術用途での使い分け方針。</p>
+              <a href="/static/docs/manuals/font-selection.html" class="card-link">
+                読む <i data-lucide="arrow-right"></i>
+              </a>
+            </article>
+          </div>
+        </section>
 
-    <section class="docs-section" aria-labelledby="reference-heading">
-      <div class="docs-section-header">
-        <h2 id="reference-heading">補助資料・一覧</h2>
-        <p>設計判断、対応表、font catalog を確認するための補助ページです。</p>
+        <section id="technical" class="docs-section glass-panel">
+          <div class="section-header-modern">
+            <div class="icon-box"><i data-lucide="code"></i></div>
+            <div>
+              <h2>技術資料</h2>
+              <p>開発者・管理者向けの詳細なアーキテクチャや仕様書。</p>
+            </div>
+          </div>
+          <div class="doc-link-list">
+            <a href="/static/docs/technical/01-device-pdf-optimization.html" class="list-item">
+              <i data-lucide="file-json"></i>
+              <div class="list-content">
+                <strong>端末別 PDF 最適化</strong>
+                <span>デバイスごとのPDF出力最適化アルゴリズム</span>
+              </div>
+            </a>
+            <a href="/static/docs/technical/02-vertical-pdf-visibility.html" class="list-item">
+              <i data-lucide="book-open-check"></i>
+              <div class="list-content">
+                <strong>縦書き PDF 可視性</strong>
+                <span>日本語縦書き特有の可読性向上施策</span>
+              </div>
+            </a>
+            <a href="/static/docs/technical/03-latex-typesetting-specs.html" class="list-item">
+              <i data-lucide="align-justify"></i>
+              <div class="list-content">
+                <strong>LaTeX 組版仕様</strong>
+                <span>LuaLaTeXを用いた高度な組版ルール</span>
+              </div>
+            </a>
+            <a href="/static/docs/technical/04-project-system-specs.html" class="list-item">
+              <i data-lucide="database"></i>
+              <div class="list-content">
+                <strong>システム仕様書</strong>
+                <span>プロジェクトの全体要件とシステム設計</span>
+              </div>
+            </a>
+            <a href="/static/docs/technical/05-typesetting-calculations-jis.html" class="list-item">
+              <i data-lucide="calculator"></i>
+              <div class="list-content">
+                <strong>JIS 組版計算</strong>
+                <span>JIS X 4051に基づく文字割付計算式</span>
+              </div>
+            </a>
+            <a href="/static/docs/technical/06-pdf-viewer-pageturn.html" class="list-item">
+              <i data-lucide="monitor-play"></i>
+              <div class="list-content">
+                <strong>PDF viewer ページめくり</strong>
+                <span>右開きPDFの最適なビューア表示設定</span>
+              </div>
+            </a>
+            <a href="/static/docs/technical/developer-guide.html" class="list-item">
+              <i data-lucide="terminal"></i>
+              <div class="list-content">
+                <strong>開発者向け説明書</strong>
+                <span>環境構築・API・拡張手法のガイド</span>
+              </div>
+            </a>
+            <a href="/static/docs/technical/typesetting-formulas.html" class="list-item">
+              <i data-lucide="sigma"></i>
+              <div class="list-content">
+                <strong>組版計算式</strong>
+                <span>余白・行間・文字サイズの動的計算ロジック</span>
+              </div>
+            </a>
+            <a href="/static/docs/technical/lualatex-fonts.html" class="list-item">
+              <i data-lucide="type"></i>
+              <div class="list-content">
+                <strong>LuaLaTeX font 詳細</strong>
+                <span>luatexja-fontspecでのフォントマッピング詳細</span>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <section id="reference" class="docs-section glass-panel">
+          <div class="section-header-modern">
+            <div class="icon-box"><i data-lucide="library"></i></div>
+            <div>
+              <h2>補助資料・一覧</h2>
+              <p>設計判断、対応表、カタログを確認するためのページ。</p>
+            </div>
+          </div>
+          <div class="doc-link-panel">
+            <a href="/static/docs/manuals/colors-visualizer.html" class="panel-link"><i data-lucide="palette"></i> 配色一覧 visualizer</a>
+            <a href="/static/docs/manuals/device-paper-size-map.html" class="panel-link"><i data-lucide="smartphone"></i> device paper size map</a>
+            <a href="/static/docs/HTML → LaTeX 変換対応表.html" class="panel-link"><i data-lucide="arrow-left-right"></i> HTML → LaTeX 変換対応表</a>
+            <a href="/static/docs/パッケージ一覧.html" class="panel-link"><i data-lucide="box"></i> LuaLaTeX package 一覧</a>
+            <a href="/static/docs/tools/LuaLaTeX_フォントカタログ.html" class="panel-link"><i data-lucide="book"></i> LuaLaTeX font catalog</a>
+            <a href="/static/docs/tools/文庫本構造と三国志LaTeX組版.html" class="panel-link"><i data-lucide="book-text"></i> 文庫本構造と三国志 LaTeX 組版</a>
+          </div>
+        </section>
       </div>
-      <div class="doc-link-panel">
-        <a href="/static/docs/manuals/colors-visualizer.html">配色一覧 visualizer</a>
-        <a href="/static/docs/manuals/device-paper-size-map.html">device paper size map</a>
-        <a href="/static/docs/HTML → LaTeX 変換対応表.html">HTML → LaTeX 変換対応表</a>
-        <a href="/static/docs/パッケージ一覧.html">LuaLaTeX package 一覧</a>
-        <a href="/static/docs/tools/LuaLaTeX_フォントカタログ.html">LuaLaTeX font catalog</a>
-        <a href="/static/docs/tools/文庫本構造と三国志LaTeX組版.html">文庫本構造と三国志 LaTeX 組版</a>
-      </div>
-    </section>
+    </div>
   </main>
-
-  <script src="/static/vendor/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    lucide.createIcons();
+    
+    // Smooth scrolling for sidebar links
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href').substring(1);
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          window.scrollTo({
+            top: targetSection.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
 </body>
-
 </html>

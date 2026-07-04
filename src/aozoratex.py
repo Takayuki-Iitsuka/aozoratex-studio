@@ -50,10 +50,11 @@ WORKDIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = WORKDIR / "src" / "templates"
 WASHI_LUA_TEMPLATE_FILE = TEMPLATE_DIR / "washi_texture.lua"
 JIGMO_COVERAGE_LUA_FILE = TEMPLATE_DIR / "jigmo_coverage.lua"
-ASSETS_DIR = WORKDIR / "assets"
+ASSETS_DIR = WORKDIR / "static" / "assets"
+BACKGROUND_ASSETS_DIR = ASSETS_DIR / "backgrounds"
 BACKGROUND_ASSET_DIRS: dict[str, Path] = {
-    "cover": ASSETS_DIR / "cover",
-    "washi": ASSETS_DIR / "washi",
+    "cover": BACKGROUND_ASSETS_DIR / "cover",
+    "washi": BACKGROUND_ASSETS_DIR / "washi",
 }
 BACKGROUND_ASSET_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 DEFAULT_COVER_IMAGE_OPACITY = 0.92
@@ -125,6 +126,16 @@ def _resolve_background_asset_path(
             candidate = candidate.resolve()
         if candidate.exists() and candidate.is_file():
             return candidate
+
+        # 旧構成 `assets/<kind>/...` を保存済み設定から読み込んだ場合も、
+        # 新構成 `static/assets/backgrounds/<kind>/...` へ読み替える。
+        legacy_prefix = f"assets/{kind}/"
+        if raw.startswith(legacy_prefix):
+            migrated_candidate = (
+                BACKGROUND_ASSETS_DIR / kind / raw.removeprefix(legacy_prefix)
+            ).resolve()
+            if migrated_candidate.exists() and migrated_candidate.is_file():
+                return migrated_candidate
     if candidate_paths:
         return candidate_paths[0]
     return None
@@ -665,7 +676,7 @@ def get_pdf_size(
     include_custom: bool = True,
 ) -> tuple[float, float]:
     """デバイス名から用紙サイズ (width, height) mm を返す。"""
-    device_name = device or "smart"
+    device_name = settings_store.normalize_device_name(device)
     profile = settings_store.get_device_settings(
         device_name,
         include_custom=include_custom,
@@ -686,7 +697,7 @@ def get_pdf_settings(
     - font_size は ini の値（小数可）
     - line_leading_ratio / character_spacing は JIS 準拠の計算値（コード内定義）
     """
-    device_name = device or "smart"
+    device_name = settings_store.normalize_device_name(device)
     global_settings = settings_store.get_global_settings(include_custom=include_custom)
     profile = settings_store.get_device_settings(
         device_name,
@@ -778,7 +789,7 @@ def get_device_layout_settings(
     include_custom: bool = True,
 ) -> dict[str, Any]:
     return settings_store.get_device_settings(
-        device or "smart",
+        settings_store.normalize_device_name(device),
         include_custom=include_custom,
     )
 
@@ -1603,6 +1614,15 @@ WASHI_SECTION_COLORS: dict[str, dict[str, str]] = {
 }
 
 
+def _washi_device_profile_key(device: str) -> str:
+    normalized = settings_store.normalize_device_name(device)
+    if normalized in settings_store.TABLET_DEVICES:
+        return "tablet"
+    if normalized == "pc":
+        return "pc"
+    return "smart"
+
+
 def _build_washi_render_values(
     device: str,
     section: str,
@@ -1610,7 +1630,10 @@ def _build_washi_render_values(
     page_height_mm: float,
     base_bg_hex: str,
 ) -> dict[str, str]:
-    device_profile = WASHI_DEVICE_PROFILES.get(device, WASHI_DEVICE_PROFILES["smart"])
+    device_profile = WASHI_DEVICE_PROFILES.get(
+        _washi_device_profile_key(device),
+        WASHI_DEVICE_PROFILES["smart"],
+    )
     section_profile = WASHI_SECTION_PROFILES.get(
         section,
         WASHI_SECTION_PROFILES["main"],
@@ -2311,7 +2334,7 @@ def build_tex_file(
     ``%`` を使用する LaTeX テンプレートは ``%(key)s`` 形式のスタイル書式で埋め込みます
     （``str.format()`` は ``{`` ``}`` の出現が多いLaTeXでは使いづらいため避けています）。
     """
-    device_name = device or "smart"
+    device_name = settings_store.normalize_device_name(device)
     include_custom = not use_default_settings
     font, font_size, spacing, character_spacing = get_pdf_settings(
         device_name,
@@ -2374,17 +2397,17 @@ def build_tex_file(
     if resolved_body_column_mode not in {"single_column", "two_column"}:
         resolved_body_column_mode = "single_column"
     if (
-        device_name == "tablet"
+        device_name in settings_store.TABLET_DEVICES
         and resolved_orientation == "landscape"
         and body_column_mode is None
     ):
         resolved_body_column_mode = "two_column"
 
-    if device_name in {"smart"}:
+    if device_name in settings_store.SMARTPHONE_DEVICES:
         resolved_body_column_mode = "single_column"
 
     show_page_number = resolved_page_number_enabled
-    if device_name in {"smart"}:
+    if device_name in settings_store.SMARTPHONE_DEVICES:
         show_page_number = False
 
     columns = 2 if resolved_body_column_mode == "two_column" else 1
@@ -2545,7 +2568,7 @@ def build_tex_file(
     )
 
     # iPhone / Android は本文の Frame（フレーム・枠）を常に無効化する。
-    frame_allowed_devices = {"pc", "tablet"}
+    frame_allowed_devices = settings_store.DEVICE_COLUMN_OPTION_DEVICES
     if device_name not in frame_allowed_devices:
         resolved_main_frame_enabled = False
 

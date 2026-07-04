@@ -1,15 +1,15 @@
 body {
     margin: 0;
     padding: 24px;
-    font-family: "Segoe UI", "Yu Gothic", sans-serif;
-    background: #f8f9fa;
-    color: #212529;
+    font-family: var(--font-inter, "Inter"), var(--font-noto-sans-jp, "Noto Sans JP"), "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+    background: #fafafa;
+    color: #18181b;
     transition: background-color 0.3s, color 0.3s;
 }
 
 body.dark-theme {
-    background: #101419;
-    color: #e6edf3;
+    background: #09090b;
+    color: #f4f4f5;
 }
 
 body.intermediate-theme {
@@ -89,9 +89,9 @@ body.intermediate-theme .tool label {
 .tool input,
 .tool select,
 .tool button {
-    border: 1px solid #ced4da;
-    background: #ffffff;
-    color: #212529;
+    border: 1px solid #e4e4e7;
+    background: rgba(255, 255, 255, 0.6);
+    color: #18181b;
     border-radius: 8px;
     padding: 10px 12px;
     font-size: 14px;
@@ -100,9 +100,9 @@ body.intermediate-theme .tool label {
 body.dark-theme .tool input,
 body.dark-theme .tool select,
 body.dark-theme .tool button {
-    border-color: #334155;
-    background: #0f172a;
-    color: #e6edf3;
+    border-color: #27272a;
+    background: rgba(19, 19, 22, 0.6);
+    color: #f4f4f5;
 }
 
 body.intermediate-theme .tool input,
@@ -164,12 +164,13 @@ body.dark-theme .summary {
 }
 
 .card {
-    border-radius: 12px;
-    border: 1px solid #dee2e6;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     min-height: 240px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 body.dark-theme .card {
@@ -213,11 +214,11 @@ body.intermediate-theme .meta {
     padding: 12px;
     display: flex;
     gap: 8px;
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 body.dark-theme .actions {
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 body.intermediate-theme .actions {

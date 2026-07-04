@@ -41,13 +41,13 @@ def run_cli() -> None:
     parser.add_argument(
         "--device",
         choices=device_choices,
-        help="PDF output device: smart | tablet | pc (legacy aliases are accepted)",
-        default="smart",
+        help="PDF output device: iphone | iphone_plus | android_phone | ipad | ipad_pro | android_tablet | pc (legacy aliases are accepted)",
+        default="iphone",
     )
     parser.add_argument(
         "--device-orientation",
         choices=list(settings_store.SUPPORTED_ORIENTATIONS),
-        help="device orientation: portrait | landscape (smart/tablet only)",
+        help="device orientation: portrait | landscape (tablet profiles only)",
         default=None,
     )
     parser.add_argument(
@@ -97,7 +97,7 @@ def run_cli() -> None:
         "--main-frame",
         dest="main_frame_enabled",
         action="store_true",
-        help="enable decorative Frame on body/final pages (pc/tablet only)",
+        help="enable decorative Frame on body/final pages (pc/tablet profiles only)",
     )
     parser.add_argument(
         "--no-main-frame",
@@ -140,7 +140,7 @@ def run_cli() -> None:
     parser.add_argument(
         "--cover-image",
         default=None,
-        help="cover background image path under assets/cover or absolute path",
+        help="cover background image path under static/assets/backgrounds/cover or absolute path",
     )
     parser.add_argument(
         "--cover-image-opacity",
@@ -151,7 +151,7 @@ def run_cli() -> None:
     parser.add_argument(
         "--washi-image",
         default=None,
-        help="washi background image path under assets/washi or absolute path",
+        help="washi background image path under static/assets/backgrounds/washi or absolute path",
     )
     parser.add_argument(
         "--washi-image-opacity",
@@ -166,9 +166,7 @@ def run_cli() -> None:
     )
     args = parser.parse_args()
 
-    normalized_device = settings_store.DEVICE_ALIASES.get(args.device, args.device)
-    if normalized_device not in settings_store.SUPPORTED_DEVICES:
-        normalized_device = settings_store.SUPPORTED_DEVICES[0]
+    normalized_device = settings_store.normalize_device_name(args.device)
     if args.device_orientation is None:
         args.device_orientation = settings_store.DEVICE_ORIENTATION_HINTS.get(args.device)
 
@@ -327,3 +325,8 @@ def run_cli() -> None:
     logger.info("done: %d/%d", success_count, len(inputs))
     if success_count == 0:
         sys.exit(1)
+
+
+# `python -m src.aozoratex_cli` での直接実行に対応（README 記載の実行方法）
+if __name__ == "__main__":
+    run_cli()

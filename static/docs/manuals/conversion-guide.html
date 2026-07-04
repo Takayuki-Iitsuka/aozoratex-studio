@@ -13,7 +13,7 @@
     <a href="/static/docs/index.html">← ドキュメント一覧に戻る</a>
   </nav>
 
-  <main class="doc-wrap">
+  <main class="doc-wrap glass-panel">
     <h1>変換・文字コード・LaTeX設定ガイド</h1>
     <p>
       このページは「青空文庫のHTMLがどのようにしてPDFになるのか」を、<strong>手順ごとにわかりやすく</strong>説明したものです。<br>
@@ -23,23 +23,23 @@
     <h2>1. 全体の流れ（変換パイプライン）</h2>
     <p>HTML → PDF になるまでの大まかな手順は以下の通りです。</p>
     <ol>
-      <li><strong>入力ファイルを読む</strong>（data/ フォルダ内のHTMLだけ対応）</li>
-      <li><strong>文字コードを判定</strong>する</li>
-      <li><strong>HTMLを解析</strong>する（BeautifulSoup）</li>
-      <li><strong>本文をLaTeXの命令に変換</strong>する</li>
-      <li><strong>テンプレートに埋め込んで .tex ファイルを作成</strong></li>
-      <li>必要なら <code>latexmk</code> で <strong>PDFを自動生成</strong></li>
+      <li><strong>入力ファイルを読む</strong>（BeautifulSoupでHTML解析、文字コードの自動判定）</li>
+      <li><strong>作品情報の抽出</strong>（タイトル、著者名、底本情報などのメタデータを取得）</li>
+      <li><strong>本文をLaTeXの命令に変換</strong>（ルビや外字、傍点などの青空文庫特有の記法をLaTeXマクロに変換）</li>
+      <li><strong>装飾・デバイス設定の適用</strong>（デバイスごとのサイズや段組、和紙背景・フレーム・表紙テクスチャ等の装飾を反映）</li>
+      <li><strong>テンプレートに埋め込んで <code>.tex</code> ファイルを作成</strong>（<code>out/work/{device_id}/</code> フォルダに保存）</li>
+      <li><strong>LuaLaTeX でコンパイル</strong>（必要なら <code>latexmk</code> を使用し PDF を自動生成し、<code>out/pdf/{device_id}/</code> フォルダに配置）</li>
     </ol>
 
     <h2>2. 文字コードの扱い方</h2>
     <p>青空文庫の古いファイルは文字コードがバラバラです。AozoraTeXは以下のような優先順位で判断します。</p>
     <ul>
-      <li>あなたが <code>--encoding</code> で指定したもの</li>
+      <li>あなたが <code>--encoding</code> で指定したもの（CLIの場合）</li>
       <li>HTMLの中に書かれている宣言（metaタグなど）</li>
-      <li><code>utf-8-sig</code> → <code>utf-8</code> → <code>cp932</code> → <code>shift_jis</code> の順で試す</li>
+      <li><code>utf-8-sig</code> → <code>utf-8</code> → <code>cp932</code> → <code>shift_jis</code> の順でフォールバック</li>
     </ul>
-    <p><strong>変換に失敗したときの対処</strong>：<br>
-    <code>--encoding cp932</code> のように明示的に指定してみてください。</p>
+    <p><strong>変換時の文字化けへの対処</strong>：<br>
+    CLIでは <code>--encoding cp932</code> のように明示的に指定してみてください。Web UIからのアップロード時は自動判定が行われます。</p>
 
     <h2>3. HTMLのどの部分がどう変換されるか</h2>
     <table>
@@ -52,51 +52,67 @@
       </thead>
       <tbody>
         <tr>
-          <td><code>&lt;ruby&gt;</code></td>
+          <td><code>&lt;ruby&gt;</code> / <code>&lt;rb&gt;</code> / <code>&lt;rt&gt;</code></td>
           <td><code>\ltjruby{親}{ルビ}</code></td>
-          <td>ルビ（ふりがな）を正しく表示</td>
+          <td>ルビ（ふりがな）をLuaTeX-jaの命令で正しく表示</td>
         </tr>
         <tr>
           <td><code>&lt;img class="gaiji"&gt;</code></td>
-          <td><code>\AozoraGaiji{...}</code></td>
-          <td>外字（特殊な漢字）をUnicodeに置き換え</td>
+          <td><code>\AozoraGaiji{...}</code> / Unicode</td>
+          <td>外字（特殊な漢字）をUnicodeに置き換え、または独自マクロ化</td>
+        </tr>
+        <tr>
+          <td><code>&lt;em class="sesame_dot"&gt;</code> など</td>
+          <td><code>\kenten{テキスト}</code></td>
+          <td>傍点や圏点をLaTeXのルビ/圏点マクロで表現</td>
         </tr>
         <tr>
           <td><code>&lt;h1&gt;〜&lt;h6&gt;</code></td>
-          <td>見出し用のLaTeX命令</td>
-          <td>タイトルと本文の見出しを自動で分ける</td>
+          <td><code>\section*</code> などの見出し命令</td>
+          <td>タイトルと本文の見出しを自動で分けて変換</td>
         </tr>
         <tr>
           <td>普通のテキスト</td>
           <td>エスケープ処理された文字列</td>
-          <td>LaTeXで特別な意味を持つ文字（&amp; % $ など）を安全にする</td>
+          <td>LaTeXで特別な意味を持つ文字（<code>&amp; % $ # _ { } \</code> など）を安全にエスケープ</td>
         </tr>
       </tbody>
     </table>
 
-    <h2>4. CLI（コマンドライン）での実行例</h2>
-    <pre><code class="language-powershell"># 1つのファイルを変換する
-.venv\Scripts\python.exe -m src.aozoratex_cli data/1567_14913.html --device smart
-
-# フォルダの中の全部を一括変換
-.venv\Scripts\python.exe -m src.aozoratex_cli data --device tablet --out out/tablet
-
-# 文字コードが古いファイルの場合
-.venv\Scripts\python.exe -m src.aozoratex_cli data/old.html --encoding cp932 --device smart
-</code></pre>
-
-    <h2>5. Web画面（Next.js）からPDFを作る場合</h2>
+    <h2>4. 装飾とレンダリングモード</h2>
+    <p>最新の AozoraTeX Studio では、美しいPDFを作るための背景描画モードが用意されています。</p>
     <ul>
-      <li>画面でファイルを選んで「PDF化」ボタンを押すと、内部で <code>/api/generate</code> が呼ばれます。</li>
-      <li><code>compile_pdf=true</code>（既定）だと、.tex を作った後にPDFまで完成させます。</li>
-      <li>変換だけ確認したいときは <code>compile_pdf=false</code> にすると速く終わります。</li>
+      <li><strong>レンダリングモード（<code>tikz</code> / <code>image</code>）</strong><br>
+          ベクター描画の <code>tikz</code>（くっきり綺麗だがコンパイルが少し遅い）と、画像貼り付けの <code>image</code>（コンパイルが速い）を選べます。
+      </li>
+      <li><strong>装飾オプション</strong><br>
+          表紙テクスチャ、和紙背景、装飾フレームなどの有無を <code>config/global_settings.custom.ini</code> または Web UI からコントロール可能です。
+      </li>
     </ul>
 
-    <h2>6. 変換がうまくいかないときのチェックリスト</h2>
+    <h2>5. CLI（コマンドライン）での実行例</h2>
+    <pre><code class="language-powershell"># 1つのファイルを変換する
+.venv\Scripts\python.exe -m src.aozoratex_cli data/1567_14913.html --device iphone
+
+# フォルダの中の全部を一括変換し、背景や文字色を変える
+.venv\Scripts\python.exe -m src.aozoratex_cli data --device ipad --bg-color "#FDF6E3" --fg-color "#657B83"
+
+# 装飾を付けて変換する
+.venv\Scripts\python.exe -m src.aozoratex_cli data/1567_14913.html --main-washi --main-frame --cover-texture
+</code></pre>
+
+    <h2>6. Web画面（Next.js）からPDFを作る場合</h2>
+    <ul>
+      <li>画面でファイルを選んで「PDFを生成する」ボタンを押すと、内部で <code>/api/generate</code> API が呼ばれます。</li>
+      <li>APIは <code>compile_pdf=true</code>（既定）で CLI 相当のロジックを呼び出し、<code>.tex</code> を作った後にPDFまで完成させます。</li>
+      <li>UIで選んだデバイス（<code>iphone</code>, <code>ipad</code> など）や、背景色・文字色・段組・装飾オプションなどの状態は、APIリクエスト時に JSON として送信され、変換処理にすべて反映されます。</li>
+    </ul>
+
+    <h2>7. 変換がうまくいかないときのチェックリスト</h2>
     <ol>
-      <li>ファイルが <code>data/</code> フォルダの中にあるか確認</li>
-      <li>Web画面の場合：設定が正しく読み込まれているか（「設定を保存する」ボタン）</li>
-      <li><code>out/</code> フォルダの中のログやエラーメッセージを見る</li>
+      <li>ファイルが <code>data/</code> フォルダ等、アクセス可能な場所にあるか確認（CLIの場合）</li>
+      <li>Web画面の場合：設定が正しく読み込まれているか（右上のギアアイコンから設定を確認）</li>
+      <li><code>out/work/&lt;デバイス名&gt;/</code> フォルダの中の <code>.log</code> ファイルや、<code>.tex</code> ファイルの中身を見る</li>
       <li>TeXがインストールされているか（<code>lualatex --version</code> で確認）</li>
     </ol>
 
@@ -106,4 +122,3 @@
   </main>
 </body>
 </html>
-

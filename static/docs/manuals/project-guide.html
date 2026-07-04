@@ -11,51 +11,55 @@
 <body>
   <nav class="docs-topnav"><a href="/static/docs/index.html">← ドキュメント一覧</a></nav>
   <nav class="docs-topnav"><a href="/static/docs/index.html">← ドキュメント一覧に戻る</a></nav>
-  <main class="doc-wrap">
+  <main class="doc-wrap glass-panel">
     <h1>プロジェクト概要・運用ガイド</h1>
     <p>
       このページは「AozoraTeX Studioをどう使えばいいか」「どう保守すればいいか」をまとめたものです。<br>
-      新しく参加する人向けのオンボーディング資料としても、日常の運用を見直すときにも役立ちます。
+      新しく参加する人向けのオンボーディング資料としても、日常の運用を見直すときにも役立ちます。<br>
+      現在、システムは <strong>Next.js 16 (App Router)</strong> を中心としたモダンなスタックと、安定した <strong>Python 変換エンジン</strong>のハイブリッド構成で稼働しています。
     </p>
 
     <h2>1. プロジェクト目的</h2>
     <ul>
-      <li>青空文庫 HTML/XHTML を LuaLaTeX 向け TEX へ変換し、デバイス最適化された PDF 読書体験を提供する。</li>
-      <li>Web UI と CLI の二経路で同じ設定体系（<code>config/*.ini</code>）を利用し、運用差分を最小化する。</li>
+      <li>青空文庫 HTML/XHTML を LuaLaTeX 向け TEX へ変換し、デバイスに最適化された高品質な PDF 読書体験を提供する。</li>
+      <li>Next.js ベースの Web UI と Python CLI の二経路で同じ設定体系（<code>config/*.ini</code> および JSONベースの設定）を利用し、運用差分を最小化する。</li>
       <li>設定・配色・フォント・装飾を再利用可能な形で保存し、再現性の高い出力を維持する。</li>
+      <li>Pydantic を用いた堅牢な設定値検証により、安全な実行環境を提供する。</li>
     </ul>
 
     <h2>2. 現在の仕組み（アーキテクチャ）</h2>
-    <p>簡単に言うと、以下の部品でできています：</p>
+    <p>システムは以下のコンポーネントが密接に連携して動作しています：</p>
     <ul>
-      <li><strong>変換の心臓部</strong>： <code>src/aozoratex.py</code> （HTML → LaTeX変換）</li>
-      <li><strong>画面と操作</strong>： Next.js 15（<code>src/app/page.tsx</code> + Tailwind）</li>
-      <li><strong>Pythonとの橋渡し</strong>： <code>src/api_bridge.py</code> + <code>src/server_services.py</code></li>
-      <li><strong>設定の管理</strong>： <code>src/settings_store.py</code> + <code>config/*.ini</code></li>
-      <li><strong>入力と出力</strong>： <code>data/</code>（入力HTML） → <code>out/</code>（生成物）</li>
+      <li><strong>フロントエンド (UI/UX)</strong>： Next.js 16、React 19、Tailwind CSS v4 で構築されたリッチなクライアントUI (<code>src/app/page.tsx</code> など)。Framer Motion (motion) による滑らかなアニメーションを備えています。</li>
+      <li><strong>バックエンド/API ブリッジ</strong>： Node.js (Next.js API Routes) から Python プロセスを非同期で呼び出す <code>src/api_bridge.py</code> および <code>src/server_fastapi.py</code> などの橋渡し層。</li>
+      <li><strong>変換の心臓部 (Core)</strong>： <code>src/aozoratex.py</code> を中心とした Python プログラム。BeautifulSoup4 と lxml を用いた高速で高度な HTML 解析と、文字列ベースの LaTeX テンプレート生成を担当します。</li>
+      <li><strong>設定の管理</strong>： <code>src/settings_store.py</code> と Pydantic による設定検証。<code>config/*.ini</code> から安全に設定を読み込み・バリデーションします。</li>
+      <li><strong>入力と出力</strong>： <code>data/</code> ディレクトリに配置した青空文庫形式HTMLを入力とし、生成物 (TEX, PDF) は <code>out/</code> に一元的に出力されます。</li>
     </ul>
 
     <h2>3. 基本的な運用ルール</h2>
     <ol>
-      <li><strong>普段はWeb画面を使う</strong>。大量処理やテストはCLIを使う。</li>
-      <li><strong>設定の優先順位</strong>： <code>default.ini</code> → <code>custom.ini</code> で上書き。</li>
-      <li><strong>出力は全部 out/ にまとめる</strong>。調査しやすくするため。</li>
-      <li><strong>ドキュメントは常に最新に</strong>。変更したら説明も一緒に更新。</li>
+      <li><strong>普段はWeb画面を使う</strong>。Next.js 開発サーバー (<code>npm run dev</code>) を起動し、ブラウザ上で直感的に操作します。</li>
+      <li><strong>大量処理やテストはCLIを使う</strong>。<code>uv run aozoratex</code> や <code>python -m src.aozoratex_cli</code> を利用して高速なバッチ処理を行います。</li>
+      <li><strong>設定の優先順位</strong>： <code>config/default.ini</code> をベースとし、<code>config/custom.ini</code> で環境やユーザーごとの設定を上書きします。</li>
+      <li><strong>出力は全部 out/ にまとめる</strong>。TEXソースや中間ファイル、最終的なPDFを隔離し、Gitリポジトリをクリーンに保つためです。</li>
+      <li><strong>依存関係の管理</strong>： Node.js 側は <code>package.json</code>、Python 側は <code>pyproject.toml</code> (uv推奨) で厳格に管理します。</li>
     </ol>
 
     <h2>4. 品質を保つためのチェック</h2>
     <ul>
-      <li>Pythonの文法チェック：<code>python -m compileall src tools</code></li>
-      <li>変換テスト：サンプルHTMLでCLI実行</li>
-      <li>画面の動作確認：設定取得・デバイス一覧などが正しく返ってくるか</li>
+      <li><strong>TypeScript / フロントエンド</strong>： <code>npm run lint</code> (ESLint v9), <code>npm run format:check</code> (Prettier) による静的解析。</li>
+      <li><strong>Python コード</strong>： <code>ruff</code> による高速な Lint、<code>mypy</code> による型チェック (<code>uv run ruff check .</code> / <code>uv run mypy src</code>)。</li>
+      <li><strong>変換テスト</strong>： <code>pytest</code> を用いたユニットテスト。サンプルHTMLを用いたCLI実行による回帰テスト。</li>
+      <li><strong>画面の動作確認</strong>： Next.js UI 上で、設定の取得・デバイス一覧の取得・PDF生成フローが正しく機能するか確認します。</li>
     </ul>
 
     <h2>5. カスタマイズ運用</h2>
     <ul>
-      <li>配色追加: <code>static/color-palettes.json</code> を編集</li>
-      <li>デバイス調整: <code>config/device_settings.custom.ini</code> に上書き値を追加</li>
-      <li>既定変更: <code>config/*.default.ini</code> のみ編集し、影響範囲を明示する</li>
-      <li>装飾制御: Web UI または CLI オプション（<code>--main-washi</code> など）で反映</li>
+      <li><strong>配色追加</strong>: <code>static/color-palettes.json</code> を編集し、Web UI から選べるテーマを増やすことができます。</li>
+      <li><strong>デバイス調整</strong>: <code>config/device_settings.custom.ini</code> に各デバイス (Kindle, iPadなど) 向けの余白やフォントサイズ設定を追加します。</li>
+      <li><strong>既定値の変更</strong>: <code>config/default.ini</code> 等のデフォルト値ファイルは慎重に編集し、影響範囲を明確にします。</li>
+      <li><strong>装飾・テクスチャ制御</strong>: Web UI または CLI オプション（<code>--main-washi</code> など）で和紙背景などの装飾を動的に切り替えます。</li>
     </ul>
 
     <h2>6. 関連ドキュメント</h2>

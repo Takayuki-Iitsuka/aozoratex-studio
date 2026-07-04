@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python -c \"import sys; sys.path.insert\\(0,''.''\\); from src import aozoratex; print\\(''OK''\\)\")",
-      "Bash(python -m pytest tests/test_aozoratex.py -v)",
-      "Bash(.venv/Scripts/python.exe -m unittest tests.test_aozoratex -v)"
-    ]
-  }
-}

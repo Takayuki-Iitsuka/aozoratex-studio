@@ -19,17 +19,18 @@ export function Terminal({ logs, visible }: TerminalProps) {
   if (!visible) return null;
 
   return (
-    <section className="rounded-2xl border border-white/5 bg-zinc-900/60 p-6 space-y-4">
-      <div className="flex items-center justify-between border-b border-white/5 pb-4">
+    <section className="rounded-2xl border border-border bg-card/60 p-6 space-y-4">
+      <div className="flex items-center justify-between border-b border-border/60 pb-4">
         <div className="space-y-1">
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <h2 className="text-base font-bold text-foreground flex items-center gap-2">
             <TerminalIcon size={16} /> コンパイル・ログ
           </h2>
-          <p className="text-xs text-zinc-400">リアルタイムのコンパイル進捗状況です。</p>
+          <p className="text-xs text-muted-foreground">リアルタイムのコンパイル進捗状況です。</p>
         </div>
       </div>
 
-      <div className="h-64 rounded-xl bg-zinc-950 border border-white/5 p-4 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+      {/* ログはテーマに関わらずダーク端末風の配色で表示する */}
+      <div className="h-64 rounded-xl bg-zinc-950 border border-border p-4 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1">
         {logs.map((log, idx) => (
           <div
             key={idx}

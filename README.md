@@ -77,7 +77,8 @@ src/app/                Next.js App Router（UI + API routes）
 src/components/         React コンポーネント
 src/lib/                フック・API クライアント
 static/docs/            包括的 HTML ドキュメント
-static/                 カラーパレット・ベンダー資産・旧静的資産
+static/assets/          表紙・和紙などの公開静的画像資産
+static/                 カラーパレット・ベンダー資産・静的ドキュメント
 config/                 設定ファイル（*.default.ini / *.custom.ini）
 data/                   入力用青空文庫 HTML/XHTML サンプル
 out/                    生成物（.tex / .pdf）
@@ -87,7 +88,7 @@ tools/                  補助ツール（フォント一覧生成など）
 
 ## 現行アーキテクチャ（2026年時点・レビュー後改善適用）
 
-- **Frontend**: Next.js 15 + React 19 + TypeScript + Tailwind CSS + framer-motion + lucide-react + zod (validation) + sonner (toast)
+- **Frontend**: Next.js 16 (Turbopack) + React 19 + TypeScript + Tailwind CSS 4 + motion (旧 framer-motion) + lucide-react + zod 4 (validation) + sonner (toast)
 - **Backend bridge**: Next.js API Routes → `src/api_bridge.py`（Python プロセス spawn）。実験的 FastAPI長寿命サーバー雛形 `src/server_fastapi.py` あり
 - **Core logic**: `src/aozoratex.py`（BeautifulSoup パース → LaTeX 変換）、`src/server_services.py`（生成・コンパイル・フォント・色管理）
 - **Settings**: `src/settings_store.py`（default/custom INI マージ） + pyproject.toml (pydantic準備)

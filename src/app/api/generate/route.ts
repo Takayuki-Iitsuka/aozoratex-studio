@@ -122,8 +122,9 @@ export async function POST(req: NextRequest) {
         Connection: "keep-alive",
       },
     });
-  } catch (err: any) {
-    return new Response(`data: ${JSON.stringify({ type: "error", error: err.message })}\n\n`, {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return new Response(`data: ${JSON.stringify({ type: "error", error: message })}\n\n`, {
       headers: {
         "Content-Type": "text/event-stream",
       },

@@ -142,22 +142,23 @@ export function useCompile() {
                       });
                     }
                   }
-                } catch (e) {
+                } catch {
                   // Ignore parsing errors of raw chunks
                 }
               }
             }
           }
         }
-      } catch (err: any) {
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
         console.error("Compilation error:", err);
         setCompileLogs((prev) => [
           ...prev,
-          { type: "error", content: `Error occurred during compile execution: ${err.message}` },
+          { type: "error", content: `Error occurred during compile execution: ${message}` },
         ]);
         setResultAlert({
           success: false,
-          message: `接続失敗: ${err.message}`,
+          message: `接続失敗: ${message}`,
         });
         break;
       }

@@ -11,35 +11,35 @@
     <a href="/static/docs/index.html">← ドキュメント一覧に戻る</a>
   </nav>
 
-  <main class="doc-wrap">
+  <main class="doc-wrap glass-panel">
     <h1>AozoraTeX Studio システム情報</h1>
-    <p class="muted">確認日：2026年（皇紀2686年・令和8年）7月3日</p>
+    <p class="muted">確認日：2026年（皇紀2686年・令和8年）7月4日</p>
 
     <p>
-      このページでは、本システムで使用している<strong>言語・フレームワーク・ライブラリ・ツール</strong>の概要とバージョン情報を詳細に記載しています。
+      このページでは、本システムで使用している<strong>言語・フレームワーク・ライブラリ・ツール</strong>の最新の概要とバージョン情報を詳細に記載しています。
     </p>
 
     <!-- システム概要 -->
     <h2>システム概要</h2>
     <p>
       AozoraTeX Studio は、青空文庫のHTML/XHTMLを高品質な<strong>縦書きPDF</strong>へ変換するツールです。<br>
-      アーキテクチャは「Next.js（フロントエンド + API） + Pythonブリッジ + LuaLaTeX（組版エンジン）」のハイブリッド構成になっています。
+      アーキテクチャは「Next.js (App Router) + API Routes によるフロントエンド」と「Python による変換エンジン・ブリッジ」、そして「LuaLaTeX (jlreq)」の高度なハイブリッド構成になっています。
     </p>
 
     <div class="system-grid">
       <section class="system-card">
         <h2>主な言語</h2>
         <ul>
-          <li><strong>Python 3</strong>（変換処理のコア）</li>
-          <li><strong>TypeScript / JavaScript</strong>（UIとAPI）</li>
-          <li><strong>LaTeX / Lua</strong>（組版記述）</li>
-          <li><strong>HTML + CSS</strong></li>
+          <li><strong>TypeScript / JavaScript</strong>（UIとNext.js API基盤）</li>
+          <li><strong>Python 3.11+</strong>（変換処理のコア、検証、ブリッジ）</li>
+          <li><strong>LaTeX / Lua</strong>（組版記述、HarfBuzz連動）</li>
+          <li><strong>HTML + Tailwind CSS v4</strong>（スタイリング）</li>
         </ul>
       </section>
       <section class="system-card">
         <h2>主なフレームワーク</h2>
         <ul>
-          <li><strong>Next.js 15</strong>（App Router）</li>
+          <li><strong>Next.js 16</strong>（App Router）</li>
           <li><strong>React 19</strong></li>
           <li><strong>jlreq</strong>（LaTeX文書クラス、縦組）</li>
         </ul>
@@ -55,17 +55,17 @@
       <tbody>
         <tr>
           <td>OS</td>
-          <td>Windows 11</td>
-          <td>PowerShell 7推奨</td>
+          <td>Windows 11 / 10</td>
+          <td>PowerShell 7 等推奨</td>
         </tr>
         <tr>
           <td>Python</td>
-          <td>3.14.3</td>
-          <td>.venv 内で実行</td>
+          <td>3.14.3 (要求 3.11+)</td>
+          <td><code>uv</code> を用いた仮想環境 (<code>.venv</code>) 推奨</td>
         </tr>
         <tr>
-          <td>Node.js / Bun</td>
-          <td>Bun 推奨 / Node.js 互換</td>
+          <td>Node.js</td>
+          <td>Node.js v20+ / Bun</td>
           <td>Next.js 開発サーバー起動用</td>
         </tr>
         <tr>
@@ -80,53 +80,53 @@
     <h2>2. フロントエンド (Next.js スタック)</h2>
     <table>
       <thead>
-        <tr><th>名称</th><th>バージョン</th><th>役割</th></tr>
+        <tr><th>名称</th><th>バージョン (package.json)</th><th>役割</th></tr>
       </thead>
       <tbody>
         <tr>
           <td>Next.js</td>
-          <td>^15.5.20</td>
+          <td>^16.2.10</td>
           <td>Reactフレームワーク。App Router、API Routes、静的ファイル配信を担当</td>
         </tr>
         <tr>
-          <td>React</td>
+          <td>React / React DOM</td>
           <td>^19.2.7</td>
-          <td>UIライブラリ</td>
-        </tr>
-        <tr>
-          <td>React DOM</td>
-          <td>^19.2.7</td>
-          <td>DOMレンダリング</td>
+          <td>最新のUIライブラリとDOMレンダリング</td>
         </tr>
         <tr>
           <td>TypeScript</td>
           <td>^5.9.3</td>
-          <td>型付きJavaScript</td>
+          <td>堅牢な型付きJavaScript</td>
         </tr>
         <tr>
           <td>Tailwind CSS</td>
-          <td>^3.4.19</td>
-          <td>ユーティリティファーストCSSフレームワーク</td>
+          <td>^4.3.2</td>
+          <td>ユーティリティファーストCSSフレームワーク (PostCSS連携 <code>@tailwindcss/postcss</code>)</td>
         </tr>
         <tr>
-          <td>PostCSS + Autoprefixer</td>
-          <td>^8.5.16 / ^10.5.2</td>
-          <td>CSS処理とベンダープレフィックス自動付与</td>
+          <td>motion (Framer Motion)</td>
+          <td>^12.42.2</td>
+          <td>高度なUIアニメーションライブラリ</td>
         </tr>
         <tr>
-          <td>framer-motion</td>
-          <td>^11.18.2</td>
-          <td>アニメーションライブラリ</td>
+          <td>sonner</td>
+          <td>^1.7.1</td>
+          <td>トースト通知コンポーネント</td>
+        </tr>
+        <tr>
+          <td>zod</td>
+          <td>^4.4.3</td>
+          <td>TypeScriptファーストのスキーマ宣言・バリデーション</td>
         </tr>
         <tr>
           <td>lucide-react</td>
           <td>^0.468.0</td>
-          <td>アイコン集</td>
+          <td>モダンで軽量なアイコンセット</td>
         </tr>
         <tr>
           <td>clsx / tailwind-merge</td>
           <td>^2.1.1 / ^2.6.1</td>
-          <td>クラス名結合ユーティリティ</td>
+          <td>クラス名結合および競合解決ユーティリティ</td>
         </tr>
         <tr>
           <td>class-variance-authority</td>
@@ -138,146 +138,96 @@
 
     <h3>フロントエンド開発ツール</h3>
     <ul>
-      <li><strong>ESLint</strong> + <strong>eslint-config-next</strong> (^9.39.4 / ^15.5.20) — コード品質チェック</li>
+      <li><strong>ESLint v9</strong> + <strong>eslint-config-next</strong> (^16.2.10) — 厳格なコード品質チェック</li>
+      <li><strong>Prettier</strong> (^3.4.2) — コードフォーマッター</li>
       <li><strong>@types/node</strong>, <strong>@types/react</strong>, <strong>@types/react-dom</strong> — TypeScript型定義</li>
     </ul>
 
     <!-- Python本体 -->
-    <h2>3. Python 本体</h2>
+    <h2>3. Python 本体とパッケージ管理</h2>
     <table>
       <thead>
-        <tr><th>項目</th><th>Exact Version (.venv確認)</th><th>備考</th></tr>
+        <tr><th>項目</th><th>詳細 (pyproject.toml準拠)</th><th>備考</th></tr>
       </thead>
       <tbody>
-        <tr><td>Python</td><td>3.14.3</td><td>.venv 内で実行</td></tr>
-        <tr><td>pip</td><td>25.3</td><td>パッケージ管理ツール</td></tr>
+        <tr><td>Python</td><td>>= 3.11 (現状 3.14.3)</td><td>Pydantic等のモダンな型ヒントを活用</td></tr>
+        <tr><td>パッケージ管理</td><td>uv (または pip)</td><td>高速なパッケージマネージャ <code>uv sync</code> 推奨</td></tr>
+        <tr><td>プロジェクト管理</td><td><code>pyproject.toml</code></td><td>依存関係、スクリプト、Lint設定の統合</td></tr>
       </tbody>
     </table>
 
-    <p><strong>注意</strong>： .venv には現在アクティブなパッケージと過去の Flask 時代レガシー両方が残っています。以下で分類して記載。</p>
-
-    <!-- HTML / パース関連 -->
-    <h2>4. HTML / XML パース関連（HTML処理）</h2>
+    <!-- コア処理関連 -->
+    <h2>4. 変換エンジン・コア処理 (Python)</h2>
     <table>
       <thead>
-        <tr><th>Package</th><th>Exact Version</th><th>役割</th></tr>
+        <tr><th>Package</th><th>Version</th><th>役割</th></tr>
       </thead>
       <tbody>
         <tr>
           <td>beautifulsoup4</td>
-          <td>4.15.0</td>
+          <td>>=4.11.0 (現状 4.15.0)</td>
           <td>HTML/XHTMLのパーサー。青空文庫特有のルビ・外字・注記・見出し構造を解析する最重要ライブラリ。</td>
         </tr>
         <tr>
           <td>lxml</td>
-          <td>6.1.1</td>
-          <td>高速HTML/XMLパーサー。BeautifulSoupで parser="lxml" として使用。</td>
+          <td>>=4.9.0 (現状 6.1.1)</td>
+          <td>高速HTML/XMLパーサー。BeautifulSoupで <code>parser="lxml"</code> として使用。</td>
         </tr>
         <tr>
-          <td>soupsieve</td>
-          <td>2.8.4</td>
-          <td>beautifulsoup4 の CSS セレクタエンジン（依存）。</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- テンプレートエンジン関連 -->
-    <h2>5. テンプレートエンジン関連</h2>
-    <table>
-      <thead>
-        <tr><th>Package</th><th>Exact Version</th><th>役割 / 備考</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Jinja2</td>
-          <td>3.1.6</td>
-          <td>フル機能テンプレートエンジン（レガシーとして .venv に残存）。現在のメイン組版テンプレートは Python 生文字列フォーマットで実装。</td>
-        </tr>
-        <tr>
-          <td>MarkupSafe</td>
-          <td>3.0.3</td>
-          <td>Jinja2 の HTML エスケープ用依存。</td>
-        </tr>
-      </tbody>
-    </table>
-    <p><small>実際の .tex テンプレート生成は <code>src/aozoratex.py</code> 内の生文字列 + <code>render_template_block()</code>。Lua テンプレートも使用。</small></p>
-
-    <!-- Markdown -->
-    <h2>6. Markdown 処理</h2>
-    <table>
-      <thead>
-        <tr><th>Package</th><th>Exact Version</th><th>役割</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Markdown</td>
-          <td>3.10.2</td>
+          <td>markdown</td>
+          <td>>=3.6 (現状 3.10.2)</td>
           <td>Markdown → HTML 変換。</td>
         </tr>
-      </tbody>
-    </table>
-
-    <!-- Font / 外字 -->
-    <h2>7. フォント / 外字処理</h2>
-    <table>
-      <thead>
-        <tr><th>Package</th><th>Exact Version</th><th>役割</th></tr>
-      </thead>
-      <tbody>
         <tr>
-          <td>fonttools</td>
-          <td>4.63.0</td>
-          <td>フォント解析。外字（gaiji）の Unicode カバレッジ調査で使用。</td>
+          <td>fontTools</td>
+          <td>>=4.40.0 (現状 4.63.0)</td>
+          <td>フォント解析。外字の Unicode カバレッジ調査で使用。</td>
+        </tr>
+        <tr>
+          <td>pydantic</td>
+          <td>>=2.8, &lt;3</td>
+          <td>データバリデーション。設定情報の型安全なパースとスキーマ定義に利用。</td>
+        </tr>
+        <tr>
+          <td>pydantic-settings</td>
+          <td>>=2.3</td>
+          <td>環境変数やINIファイルからの設定読み込み・管理。</td>
         </tr>
       </tbody>
     </table>
 
-    <!-- アクティブコア -->
-    <h2>8. 現在アクティブな Python コア依存（.venv exact）</h2>
+    <!-- 開発ツール関連 -->
+    <h2>5. Python 開発・テストツール</h2>
     <table>
       <thead>
-        <tr><th>Package</th><th>Exact Version</th><th>役割</th></tr>
+        <tr><th>Package</th><th>Version</th><th>役割 / 備考</th></tr>
       </thead>
       <tbody>
-        <tr><td>beautifulsoup4</td><td>4.15.0</td><td>HTML解析（最重要）</td></tr>
-        <tr><td>lxml</td><td>6.1.1</td><td>高速パーサー</td></tr>
-        <tr><td>fonttools</td><td>4.63.0</td><td>外字カバレッジ</td></tr>
-        <tr><td>Markdown</td><td>3.10.2</td><td>Markdown変換</td></tr>
-      </tbody>
-    </table>
-
-    <!-- 標準ライブラリ -->
-    <h2>9. Python 標準ライブラリ（多用）</h2>
-    <ul>
-      <li><code>pathlib</code>, <code>subprocess</code>, <code>argparse</code>, <code>configparser</code></li>
-      <li><code>json</code>, <code>logging</code>, <code>re</code>, <code>dataclasses</code>, <code>typing</code>, <code>shutil</code>, <code>csv</code> など</li>
-    </ul>
-
-    <!-- レガシー -->
-    <h2>10. レガシー依存（.venv に残存）</h2>
-    <p>旧 Flask 時代のパッケージ（exact）。</p>
-    <table>
-      <thead>
-        <tr><th>Package</th><th>Exact Version</th><th>旧役割</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Flask</td><td>3.1.3</td><td>Web フレームワーク</td></tr>
-        <tr><td>Flask-Caching</td><td>2.4.0</td><td>キャッシュ</td></tr>
-        <tr><td>Flask-SocketIO</td><td>5.6.1</td><td>リアルタイム通信</td></tr>
-        <tr><td>Flask-WTF</td><td>1.3.0</td><td>フォーム</td></tr>
-        <tr><td>Werkzeug</td><td>3.1.8</td><td>WSGI</td></tr>
-        <tr><td>WTForms</td><td>3.2.2</td><td>フォーム</td></tr>
-        <tr><td>waitress</td><td>3.0.2</td><td>WSGI サーバー</td></tr>
-        <tr><td>python-socketio</td><td>5.16.3</td><td>Socket.IO</td></tr>
-        <tr><td>python-engineio</td><td>4.13.3</td><td>Engine.IO</td></tr>
-        <tr><td>Jinja2</td><td>3.1.6</td><td>テンプレート</td></tr>
-        <tr><td>MarkupSafe</td><td>3.0.3</td><td>HTML エスケープ</td></tr>
-        <tr><td>その他</td><td>bidict 0.23.1, blinker 1.9.0, cachelib 0.14.0, click 8.4.2 など</td><td>旧依存群</td></tr>
+        <tr>
+          <td>ruff</td>
+          <td>>=0.4</td>
+          <td>超高速なPython Linter & Formatter。<code>pyproject.toml</code> でルールを定義。</td>
+        </tr>
+        <tr>
+          <td>mypy</td>
+          <td>>=1.10</td>
+          <td>静的型チェッカー。Pydanticとの組み合わせで堅牢なコードベースを維持。</td>
+        </tr>
+        <tr>
+          <td>pytest</td>
+          <td>>=8.0</td>
+          <td>ユニットテスト・回帰テストフレームワーク。</td>
+        </tr>
+        <tr>
+          <td>fastapi / uvicorn</td>
+          <td>>=0.115 / >=0.30</td>
+          <td>(オプション) Python側の独立したAPIサーバー起動用。</td>
+        </tr>
       </tbody>
     </table>
 
     <!-- 組版システム -->
-    <h2>11. 組版システム (LuaLaTeX + jlreq)</h2>
+    <h2>6. 組版システム (LuaLaTeX + jlreq)</h2>
     <table>
       <thead>
         <tr><th>項目</th><th>バージョン / 名称</th><th>詳細</th></tr>
@@ -311,13 +261,9 @@
         <tr><td>luatexja-fontspec</td><td>フォント指定（fontspec風のインターフェース）</td></tr>
         <tr><td>luatexja-ruby</td><td>ルビ（ふりがな）組版</td></tr>
         <tr><td>graphicx</td><td>画像挿入</td></tr>
-        <tr><td>hyperref</td><td>ハイパーリンク・PDFメタデータ</td></tr>
-        <tr><td>bookmark</td><td>PDFブックマークの高度な制御</td></tr>
-        <tr><td>pdfcomment</td><td>PDF注釈（条件付き読み込み）</td></tr>
-        <tr><td>xcolor</td><td>色指定</td></tr>
-        <tr><td>eso-pic</td><td>背景描画（ページ全体へのオーバーレイ）</td></tr>
+        <tr><td>hyperref / bookmark</td><td>ハイパーリンク・PDFブックマークの高度な制御</td></tr>
+        <tr><td>xcolor / eso-pic</td><td>色指定、背景描画（ページ全体へのオーバーレイ）</td></tr>
         <tr><td>tikz + calc</td><td>ベクター描画（和紙背景、表紙装飾、フレーム）</td></tr>
-        <tr><td>lltjext</td><td>luatexjaの拡張</td></tr>
       </tbody>
     </table>
 
@@ -327,27 +273,12 @@
       <li><code>washi_texture.lua</code> — 和紙背景のTikZテクスチャ生成</li>
     </ul>
 
-    <!-- 開発・運用ツール -->
-    <h2>12. 開発・運用ツール</h2>
-    <table>
-      <thead>
-        <tr><th>ツール</th><th>役割</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Makefile</td><td>PDF生成、クリーンアップなどの補助コマンド集</td></tr>
-        <tr><td>start_server.bat</td><td>Windowsでの簡単起動スクリプト（Bun/npm自動判別）</td></tr>
-        <tr><td>ESLint + Next.js設定</td><td>フロントエンドのコード品質管理</td></tr>
-        <tr><td>Python標準ツール</td><td><code>python -m compileall</code> などによる静的チェック</td></tr>
-      </tbody>
-    </table>
-
     <!-- 補足 -->
     <h2>補足・バージョン確認方法</h2>
     <ul>
-      <li><strong>Python依存</strong>： <code>.venv\Scripts\pip list</code> または <code>pip freeze</code> で確認（<code>requirements.txt</code> は最低バージョン指定）</li>
-      <li><strong>Node依存</strong>： <code>bun list</code> または <code>npm list</code>（<code>package.json</code> 参照）</li>
-      <li><strong>TeX環境</strong>： <code>lualatex --version</code> および <code>latexmk -v</code></li>
-      <li>Bootstrapはドキュメント表示用に <code>static/vendor/bootstrap-5.3.8-dist/</code> に同梱されていますが、メインUIでは使用していません。</li>
+      <li><strong>Node依存 (フロントエンド)</strong>： <code>npm ls</code> または <code>package.json</code> 参照。</li>
+      <li><strong>Python依存 (バックエンド)</strong>： <code>uv pip list</code> または <code>.venv/Scripts/pip list</code> で確認。</li>
+      <li><strong>TeX環境</strong>： <code>lualatex --version</code> および <code>latexmk -v</code>。</li>
     </ul>
 
     <p style="margin-top: 2rem;">

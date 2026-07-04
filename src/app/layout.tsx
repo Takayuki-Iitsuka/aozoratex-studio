@@ -1,6 +1,22 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { Inter, Noto_Sans_JP } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import { AppShell } from "@/components/layout/AppShell";
+import { SettingsProvider } from "@/lib/contexts/SettingsContext";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  variable: "--font-noto-sans-jp",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "AozoraTeX Studio",
@@ -9,10 +25,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja">
-      <body className="antialiased min-h-screen">
-        {children}
-        <Toaster position="top-center" richColors closeButton />
+    // next-themes が <html> の class を書き換えるため suppressHydrationWarning が必要
+    <html lang="ja" suppressHydrationWarning>
+      <body className={`${inter.variable} ${notoSansJP.variable} antialiased min-h-screen`}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
+          <SettingsProvider>
+            <AppShell>{children}</AppShell>
+          </SettingsProvider>
+          <Toaster position="top-center" richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

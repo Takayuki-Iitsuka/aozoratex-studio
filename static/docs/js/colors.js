@@ -52,8 +52,17 @@ function setTheme(theme) {
     document.body.classList.add(`${theme}-theme`);
 }
 
-function setWashi(enabled) {
-    document.body.classList.toggle("washi-active", enabled);
+// 背景プレビューの切替。
+// "none" = 背景なし / "noise" = SVGノイズによる簡易和紙 / それ以外 = 和紙画像のURL
+function setBackground(value) {
+    document.body.classList.remove("washi-active", "washi-image-active");
+    document.body.style.removeProperty("--washi-image");
+    if (value === "noise") {
+        document.body.classList.add("washi-active");
+    } else if (value && value !== "none") {
+        document.body.classList.add("washi-image-active");
+        document.body.style.setProperty("--washi-image", `url("${value}")`);
+    }
 }
 
 const MAX_SCHEMES = 36;
@@ -62,7 +71,12 @@ const pageState = {
     selectedFont: "Yu Mincho",
 };
 const WEB_UI_MESSAGE_TYPE = "AOZORATEX_APPLY_COLOR_SCHEME";
+const ACK_MESSAGE_TYPE = "AOZORATEX_APPLY_COLOR_SCHEME_ACK";
+const SETTINGS_CHANNEL_NAME = "aozoratex-settings";
+const PENDING_SCHEME_KEY = "aozoratex_pending_color_scheme";
+const ACK_TIMEOUT_MS = 400;
 
+// BroadcastChannel 非対応環境向けの後方互換経路（iframe親 / opener への postMessage）
 function notifyWebUiFromCatalog(scheme) {
     const payload = {
         type: WEB_UI_MESSAGE_TYPE,
@@ -76,7 +90,7 @@ function notifyWebUiFromCatalog(scheme) {
             sent = true;
         }
     } catch (_error) {
-        // Ignore and continue to opener fallback.
+        // 失敗時は opener へフォールバック
     }
 
     try {
@@ -85,10 +99,70 @@ function notifyWebUiFromCatalog(scheme) {
             sent = true;
         }
     } catch (_error) {
-        // Ignore and continue to link fallback.
+        // 送信不可（保留保存にフォールバック）
     }
 
     return sent;
+}
+
+let toastTimer = null;
+function showToast(message) {
+    const toastEl = document.getElementById("toast");
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.hidden = false;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        toastEl.hidden = true;
+    }, 3500);
+}
+
+function savePendingScheme(scheme) {
+    try {
+        localStorage.setItem(PENDING_SCHEME_KEY, JSON.stringify(scheme));
+        return true;
+    } catch (_error) {
+        return false;
+    }
+}
+
+function reportApplyResult(scheme, delivered) {
+    if (delivered) {
+        showToast(`「${scheme.name}」を設定とプレビューに反映しました。`);
+    } else if (savePendingScheme(scheme)) {
+        showToast(`「${scheme.name}」を反映しました（アプリを次に開いたときに適用されます）。`);
+    } else {
+        showToast("反映できませんでした。アプリのタブを開いてから再度お試しください。");
+    }
+}
+
+// 「設定に反映」の本体。ページ遷移は行わず、BroadcastChannel でアプリ本体へ通知する。
+// アプリからの ACK が返らない場合は localStorage に保留保存し、次回アプリ起動時に適用される。
+function applySchemeToApp(scheme) {
+    let channel = null;
+    try {
+        channel = new BroadcastChannel(SETTINGS_CHANNEL_NAME);
+    } catch (_error) {
+        channel = null;
+    }
+
+    if (!channel) {
+        reportApplyResult(scheme, notifyWebUiFromCatalog(scheme));
+        return;
+    }
+
+    let acked = false;
+    channel.onmessage = (event) => {
+        if (event.data && event.data.type === ACK_MESSAGE_TYPE) {
+            acked = true;
+        }
+    };
+    channel.postMessage({ type: WEB_UI_MESSAGE_TYPE, scheme });
+
+    setTimeout(() => {
+        channel.close();
+        reportApplyResult(scheme, acked);
+    }, ACK_TIMEOUT_MS);
 }
 
 function schemeSimilarityKey(item) {
@@ -254,8 +328,9 @@ function createSchemes(data) {
         });
     });
 
-    const intermediatePresets =
-        (data.preset_modes && (data.preset_modes.intermediate || data.preset_modes.sepia)) || [];
+    // intermediate 専用プリセットが定義されている場合のみ生成する。
+    // sepia へのフォールバックは preset カードとの重複（古紙色が2枚出る）を招くため行わない
+    const intermediatePresets = (data.preset_modes && data.preset_modes.intermediate) || [];
     intermediatePresets.forEach((preset) => {
         const ratio = contrast(preset.bg, preset.fg);
         const item = {
@@ -337,40 +412,41 @@ function renderCards(items, sampleText) {
         card.style.backgroundColor = item.bg;
         card.style.color = item.fg;
 
+        // 説明部はページテーマに追従せず常に固定配色（ライトニュートラル）で表示する
         const meta = document.createElement("div");
         meta.className = "meta";
         meta.innerHTML = `
             <strong>${item.name}</strong>
             <div>${item.category} / ${item.mode}</div>
-            <div>BG: ${item.bg} / FG: ${item.fg}</div>
+            <div>BG: <span class="swatch" style="background-color:${item.bg}"></span>${item.bg} / FG: <span class="swatch" style="background-color:${item.fg}"></span>${item.fg}</div>
             <div>Contrast: ${item.contrast.toFixed(2)}:1</div>
         `;
 
         const sample = document.createElement("div");
         sample.className = "sample";
         sample.style.fontFamily = `"${pageState.selectedFont}", "Yu Mincho", "MS Mincho", serif`;
-        sample.textContent = sampleText;
+        const sampleInner = document.createElement("span");
+        sampleInner.className = "sample-text";
+        sampleInner.textContent = sampleText;
+        sample.appendChild(sampleInner);
 
         const actions = document.createElement("div");
         actions.className = "actions";
-        const link = document.createElement("a");
         const targetMode = (item.mode === "preset" || item.mode === "intermediate") ? "intermediate" : item.mode;
-        link.href = `/?bg=${encodeURIComponent(item.bg)}&fg=${encodeURIComponent(item.fg)}&mode=${encodeURIComponent(targetMode)}&font=${encodeURIComponent(pageState.selectedFont)}`;
-        link.textContent = "Web UIで使う";
-        link.addEventListener("click", (event) => {
-            const sent = notifyWebUiFromCatalog({
+        const applyButton = document.createElement("button");
+        applyButton.type = "button";
+        applyButton.className = "apply-button";
+        applyButton.textContent = "設定に反映";
+        applyButton.addEventListener("click", () => {
+            applySchemeToApp({
                 name: item.name,
                 mode: targetMode,
                 bg: item.bg,
                 fg: item.fg,
                 font: pageState.selectedFont,
             });
-
-            if (sent) {
-                event.preventDefault();
-            }
         });
-        actions.appendChild(link);
+        actions.appendChild(applyButton);
 
         card.appendChild(meta);
         card.appendChild(sample);
@@ -379,13 +455,23 @@ function renderCards(items, sampleText) {
     });
 }
 
+// フォント一覧の取得。失敗しても throw せず固定フォントにフォールバックする
+// （このページの操作系がフォントAPIの成否に巻き込まれないようにするため）
 async function loadFonts(refresh) {
-    const query = refresh ? "?refresh=1" : "";
-    const response = await fetch(`/api/lualatex-fonts${query}`);
-    const payload = await response.json();
-    const fonts = Array.isArray(payload.fonts) ? payload.fonts : [];
     const select = document.getElementById("font-filter");
     const status = document.getElementById("font-status");
+
+    let fonts = [];
+    let lualatexAvailable = false;
+    try {
+        const query = refresh ? "?refresh=1" : "";
+        const response = await fetch(`/api/lualatex-fonts${query}`);
+        const payload = await response.json();
+        fonts = Array.isArray(payload.fonts) ? payload.fonts : [];
+        lualatexAvailable = Boolean(payload.lualatex_available);
+    } catch (error) {
+        console.error("フォント一覧の取得に失敗:", error);
+    }
 
     select.innerHTML = "";
     if (fonts.length === 0) {
@@ -413,15 +499,34 @@ async function loadFonts(refresh) {
     pageState.selectedFont = hasPreferred ? preferred : fonts[0].name;
     select.value = pageState.selectedFont;
 
-    status.textContent = payload.lualatex_available
+    status.textContent = lualatexAvailable
         ? `${fonts.length}件 / LuaLaTeX: OK`
         : `${fonts.length}件 / LuaLaTeX: NG`;
 }
 
-function getPaletteData() {
-    if (window.COLOR_PALETTE_DATA) {
-        return Promise.resolve(window.COLOR_PALETTE_DATA);
+// 和紙背景画像の一覧を取得し、プレビュー用URL（/assets/washi/<ファイル名>）へ変換する。
+// 取得できない環境では空配列を返し、「なし / 和紙（ノイズ）」のみで動作する
+async function loadWashiAssets() {
+    try {
+        const response = await fetch("/api/background-assets");
+        const payload = await response.json();
+        const washi = Array.isArray(payload.washi) ? payload.washi : [];
+        return washi
+            .map((item) => {
+                const file = String(item.path || "").split("/").pop();
+                if (!file) return null;
+                return {
+                    name: item.name || file,
+                    url: `/assets/washi/${encodeURIComponent(file)}`,
+                };
+            })
+            .filter(Boolean);
+    } catch (_error) {
+        return [];
     }
+}
+
+function getPaletteData() {
     return fetch("/static/color-palettes.json").then((r) => r.json());
 }
 
@@ -432,56 +537,65 @@ function init() {
     const fontEl = document.getElementById("font-filter");
     const fontRefreshEl = document.getElementById("font-refresh");
     const countEl = document.getElementById("count");
-    const titleEl = document.getElementById("page-title");
+    const backgroundEl = document.getElementById("background-filter");
     const themeRadios = document.querySelectorAll('input[name="theme"]');
-    const washiToggle = document.getElementById("washi-toggle");
 
-    Promise.all([getPaletteData(), loadFonts(false)])
-        .then(([data]) => {
-            const allSchemes = createSchemes(data);
-            const sampleText = data.sample_text || "Sample Text";
+    let allSchemes = null;
+    let sampleText = "Sample Text";
 
-            function refresh() {
-                const filtered = filterSchemes(allSchemes, searchEl.value, modeEl.value);
-                const sorted = sortSchemes(filtered, sortEl.value);
-                renderCards(sorted, sampleText);
-                countEl.textContent = `${sorted.length} 件（上限 ${MAX_SCHEMES}）`;
-                titleEl.textContent = "Color Scheme 一覧（統合版）";
-            }
+    function refresh() {
+        if (!allSchemes) return; // パレットデータ未着の間は何もしない
+        const filtered = filterSchemes(allSchemes, searchEl.value, modeEl.value);
+        const sorted = sortSchemes(filtered, sortEl.value);
+        renderCards(sorted, sampleText);
+        if (countEl) countEl.textContent = `${sorted.length} 件`;
+    }
 
-            modeEl.addEventListener("change", refresh);
-            sortEl.addEventListener("change", refresh);
-            searchEl.addEventListener("input", refresh);
-            fontEl.addEventListener("change", () => {
-                pageState.selectedFont = fontEl.value || "Yu Mincho";
-                refresh();
-            });
-            fontRefreshEl.addEventListener("click", () => {
-                loadFonts(true)
-                    .then(refresh)
-                    .catch((error) => {
-                        console.error(error);
-                    });
-            });
-
-            themeRadios.forEach((radio) => {
-                radio.addEventListener("change", (e) => setTheme(e.target.value));
-            });
-            washiToggle.addEventListener("change", (e) => setWashi(e.target.checked));
-
-            refresh();
-        })
-        .catch((error) => {
-            countEl.textContent = "読み込み失敗";
-            console.error(error);
-        });
+    // イベントリスナはデータ取得の成否に依存させず、同期的に登録する
+    // （API取得失敗時にテーマ・背景切替が死なないようにするため）
+    modeEl.addEventListener("change", refresh);
+    sortEl.addEventListener("change", refresh);
+    searchEl.addEventListener("input", refresh);
+    fontEl.addEventListener("change", () => {
+        pageState.selectedFont = fontEl.value || "Yu Mincho";
+        refresh();
+    });
+    fontRefreshEl.addEventListener("click", () => {
+        loadFonts(true).then(refresh);
+    });
+    themeRadios.forEach((radio) => {
+        radio.addEventListener("change", (e) => setTheme(e.target.value));
+    });
+    if (backgroundEl) {
+        backgroundEl.addEventListener("change", () => setBackground(backgroundEl.value));
+    }
 
     const currentTheme = document.querySelector('input[name="theme"]:checked')?.value || "light";
     setTheme(currentTheme);
-    if (washiToggle) {
-        setWashi(washiToggle.checked);
-    }
+    setBackground(backgroundEl ? backgroundEl.value : "none");
+
+    loadFonts(false).then(refresh);
+
+    getPaletteData()
+        .then((data) => {
+            allSchemes = createSchemes(data);
+            sampleText = data.sample_text || sampleText;
+            refresh();
+        })
+        .catch((error) => {
+            if (countEl) countEl.textContent = "読み込み失敗";
+            console.error(error);
+        });
+
+    loadWashiAssets().then((images) => {
+        if (!backgroundEl) return;
+        images.forEach((image) => {
+            const option = document.createElement("option");
+            option.value = image.url;
+            option.textContent = image.name;
+            backgroundEl.appendChild(option);
+        });
+    });
 }
 
 document.addEventListener("DOMContentLoaded", init);
-

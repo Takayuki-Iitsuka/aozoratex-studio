@@ -4,315 +4,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>開発者向け説明書</title>
+    <title>開発者向け説明書 - AozoraTeX Studio</title>
     <link rel="stylesheet" href="/static/docs/css/docs-common.css">
 </head>
 
 <body>
-    <main class="doc-wrap">
+    <main class="doc-wrap glass-panel">
         <p><a href="/static/docs/index.html">ドキュメント一覧へ戻る</a></p>
-        <p class="muted">source: manuals/開発者向け説明書.md</p>
+        <p class="muted">source: manuals/開発者向け説明書.md (Updated)</p>
 
         <h1>開発者向け説明書</h1>
-        <p>AozoraTeX Studio の現行実装（<code>src/</code> + <code>config/*.ini</code> + <code>static/</code>）を前提にした運用ガイドです。
-        </p>
+        <p>AozoraTeX Studio の現行実装（Next.js App Routerフロントエンド ＋ Pythonブリッジ・バックエンド）を前提にした詳細な運用・開発ガイドです。</p>
 
-        <h2>1. 目的</h2>
+        <h2>1. システムアーキテクチャの概要</h2>
+        <p>当システムは、UIとAPIを提供する<strong>Next.js (Node.js/Bun)</strong>と、実際のファイル処理やTeX生成を担う<strong>Python</strong>プログラムが連携するハイブリッド構成をとっています。</p>
         <ul>
-            <li>青空文庫 HTML/XHTML を LuaLaTeX 向け <code>.tex</code> へ変換する。</li>
-            <li>Web UI と CLI の両方で、デバイス別レイアウトと配色を管理する。</li>
-            <li>設定変更を <code>config/*.default.ini</code> / <code>config/*.custom.ini</code> に分離して保守性を高める。</li>
+            <li><strong>フロントエンド (Next.js)</strong>: React 19, Tailwind CSS v4, Framer Motion を用いたモダンなSPAとして構築。</li>
+            <li><strong>Web API (Next.js API Routes)</strong>: <code>src/app/api/</code> 配下でリクエストを受け付け、Pythonのサブプロセスを呼び出します。</li>
+            <li><strong>バックエンド連携 (Python Bridge)</strong>: <code>src/api_bridge.py</code> が Next.js からのJSON入力を標準入力等で受け取り、適切なPythonモジュール（<code>src/server_services.py</code>等）に処理をディスパッチします。</li>
+            <li><strong>コア変換エンジン (Python)</strong>: <code>src/aozoratex.py</code> が HTML/XHTML をパースし、<code>LuaLaTeX</code> 向けの <code>.tex</code> に変換します。</li>
         </ul>
 
-        <h2>2. 前提環境</h2>
+        <h2>2. 前提環境・開発ツールの要件</h2>
         <table>
             <thead>
                 <tr>
                     <th>項目</th>
                     <th>要件</th>
-                    <th>補足</th>
+                    <th>補足・推奨</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
+                    <td>Node.js / Bun</td>
+                    <td>Node v20+ または Bun</td>
+                    <td>UIのビルド・開発サーバー実行に使用。パッケージ管理は <code>bun install</code> または <code>npm install</code></td>
+                </tr>
+                <tr>
                     <td>Python</td>
-                    <td>3.10 以上</td>
-                    <td>仮想環境（<code>.venv</code>）推奨</td>
+                    <td>3.11 以上</td>
+                    <td>パッケージ管理・仮想環境には <strong>uv</strong> の使用を強く推奨。</td>
                 </tr>
                 <tr>
                     <td>TeX Live</td>
                     <td>LuaLaTeX が利用可能</td>
-                    <td>PDF 生成には <code>latexmk</code> と <code>lualatex</code> が必要</td>
-                </tr>
-                <tr>
-                    <td>pip 依存</td>
-                    <td><code>requirements.txt</code></td>
-                    <td><code>beautifulsoup4</code>, <code>lxml</code>, <code>markdown</code>, <code>fontTools</code></td>
+                    <td>PDF 生成には <code>latexmk</code> と <code>lualatex</code>（LuaHBTeXなど）が必要。</td>
                 </tr>
             </tbody>
         </table>
 
-        <h2>3. クイックスタート</h2>
-        <pre><code class="language-powershell"># 仮想環境作成（初回）
-python -m venv .venv
+        <h2>3. クイックスタート (開発環境構築)</h2>
+        <pre><code class="language-powershell"># 1. Python仮想環境の構築 (uvを使用する場合)
+uv venv .venv
+uv pip install -e ".[dev]"
 
-# 仮想環境有効化
-.venv\Scripts\Activate.ps1
+# (標準の pip を使用する場合)
+# python -m venv .venv
+# .venv\Scripts\Activate.ps1
+# pip install -e ".[dev]"
 
-# Node 依存
+# 2. Node依存パッケージのインストール
 bun install  # または npm install
 
-# 依存導入
-pip install -r requirements.txt
-
-# Web UI 起動 (推奨)
-bun run dev
-# または
-start_server.bat
-# または
-npm run dev
+# 3. 開発サーバー起動
+bun run dev  # または npm run dev, start_server.bat などを利用
 </code></pre>
         <p>ブラウザで <code>http://localhost:3000</code> を開きます。</p>
-        <p class="note">注: 旧Flaskサーバー (aozora_server.py) は Next.js + Python bridge (api_bridge.py) へ完全移行済み。</p>
+        <p class="note">注: 以前のFlaskサーバー (<code>aozora_server.py</code>) は完全に廃止され、Next.js API Routes + Pythonサブプロセスブリッジへと移行完了しています。</p>
 
-        <h2>4. ディレクトリ構成（現行・Next.js移行後）</h2>
+        <h2>4. ディレクトリ構成</h2>
         <pre><code>aozoratex-studio/
 ├── src/
-│   ├── aozoratex.py              # HTML/XHTML -> .tex 変換本体
-│   ├── api_bridge.py             # Node.js から呼ばれるPythonブリッジ (subprocess)
-│   ├── server_services.py        # 生成・コンパイル・色/フォント管理
-│   ├── aozoratex_generate.py     # 生成処理の薄いファサード
-│   ├── settings_store.py         # 設定ロード/保存/移行
-│   ├── app/                      # Next.js App Router (UI + API routes)
-│   ├── components/               # Reactコンポーネント
-│   ├── lib/                      # フック・APIクライアント
-│   └── templates/
-│       └── washi_texture.lua
+│   ├── app/                      # Next.js App Router (フロントエンド UI + バックエンド API Routes)
+│   ├── components/               # Reactコンポーネント群 (Tailwind, framer-motion)
+│   ├── lib/                      # フロントエンドの各種フック・ユーティリティ
+│   ├── api_bridge.py             # 【超重要】Node.js から呼ばれるPythonディスパッチャ (CLI/JSON I/O)
+│   ├── aozoratex.py              # HTML/XHTML -> .tex 変換コアロジック
+│   ├── server_services.py        # PDF生成・コンパイル・色/フォント管理サービス
+│   ├── settings_store.py         # INI/Pydantic を利用した設定の読み書き・バリデーション
+│   └── templates/                # 変換時に埋め込まれる各種Lua/Texテンプレート
 ├── config/
-│   ├── global_settings.default.ini
-│   ├── global_settings.custom.ini
-│   ├── device_settings.default.ini
-│   └── device_settings.custom.ini
+│   ├── global_settings.default.ini  # プロジェクト標準設定
+│   ├── global_settings.custom.ini   # ユーザー上書き設定 (UIから変更可能)
+│   ├── device_settings.default.ini  # デバイス標準レイアウト
+│   └── device_settings.custom.ini   # デバイス別レイアウト上書き
 ├── static/
-│   ├── docs/                     # 包括的HTMLドキュメント (Bootstrap同梱はdocs専用)
+│   ├── docs/                     # 本ドキュメント等 (静的HTML配信)
 │   └── ...
-├── data/                         # 入力HTML/XHTMLサンプル
-├── out/                          # 出力物（.tex / .pdf）
-├── tools/                        # 補助スクリプト (フォント一覧等)
-├── package.json                  # Next.js / Bun 依存
-└── pyproject.toml                # Python近代化 (uv/ruff/pydantic推奨)
+├── data/                         # 変換対象となる入力HTML/XHTMLサンプル
+├── out/                          # 出力物 (.tex / .pdf の生成先)
+├── pyproject.toml                # Pythonプロジェクト定義 (pydantic, ruff, mypy等)
+└── package.json                  # Next.jsプロジェクト定義
 </code></pre>
 
-        <h2>5. Web UI 運用</h2>
+        <h2>5. データフローと連携の仕組み</h2>
         <ol>
-            <li>入力ファイルを選択</li>
-            <li>出力デバイスを選択</li>
-            <li>カラーモードと配色を選択</li>
-            <li>フォントと装飾オプションを選択</li>
-            <li>単体または一括で PDF 生成</li>
+            <li><strong>UI 操作</strong>: ユーザーがブラウザで変換対象ファイルやデバイス、テーマを選択し、生成ボタンを押下。</li>
+            <li><strong>Next.js API</strong>: <code>src/app/api/generate/route.ts</code> などがリクエストを受理。</li>
+            <li><strong>プロセス起動</strong>: Node.js (Next.js) が <code>python src/api_bridge.py &lt;コマンド&gt;</code> をサブプロセスとして非同期に spawn します。</li>
+            <li><strong>Python 処理実行</strong>: <code>api_bridge.py</code> は標準入力から設定やパラメータ（JSON）を受け取り、<code>aozoratex.py</code> や <code>server_services.py</code> を呼び出してTeXファイル生成と <code>latexmk</code> によるコンパイルを行います。</li>
+            <li><strong>結果の返却 (SSE)</strong>: Pythonプロセスの標準出力に流れるログを Next.js が Server-Sent Events (SSE) としてキャッチし、リアルタイムでUIへストリーミングします。</li>
         </ol>
-        <p>設定保存は <code>/api/settings</code>、初期化は <code>/api/settings/reset</code> を利用します。</p>
 
-        <h2>6. CLI 運用</h2>
-        <pre><code class="language-powershell">python -m src.aozoratex data/92_14545.html --device iphone --mode light --out out
+        <h2>6. CLI 運用 (コマンドラインでの直接実行)</h2>
+        <p>APIを経由せずに、Pythonプログラムを直接叩いて変換することも可能です。</p>
+        <pre><code class="language-powershell">python -m src.aozoratex_cli data/92_14545.html --device iphone --mode light --out out
 </code></pre>
+        <p>出力先ディレクトリは統一されており、<code>out/work/&lt;device&gt;/</code>（TeX と中間生成物）および <code>out/pdf/&lt;device&gt;/</code>（PDF本体）へ出力されます。</p>
 
-        <p>CLI/Web/Make いずれも、生成先は <code>out/work/&lt;device&gt;/</code>（TEX と中間生成物）および
-            <code>out/pdf/&lt;device&gt;/</code>（PDF）へ統一します。</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>device</th>
-                    <th>TEX と中間生成物</th>
-                    <th>PDF</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>iphone</code></td>
-                    <td><code>out/work/iphone/</code></td>
-                    <td><code>out/pdf/iphone/</code></td>
-                </tr>
-                <tr>
-                    <td><code>android</code></td>
-                    <td><code>out/work/android/</code></td>
-                    <td><code>out/pdf/android/</code></td>
-                </tr>
-                <tr>
-                    <td><code>ipad</code></td>
-                    <td><code>out/work/ipad/</code></td>
-                    <td><code>out/pdf/ipad/</code></td>
-                </tr>
-                <tr>
-                    <td><code>ipad_landscape</code></td>
-                    <td><code>out/work/ipad_landscape/</code></td>
-                    <td><code>out/pdf/ipad_landscape/</code></td>
-                </tr>
-                <tr>
-                    <td><code>pc</code></td>
-                    <td><code>out/work/pc/</code></td>
-                    <td><code>out/pdf/pc/</code></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p>出力ファイル名は <code>元ファイル名_タイトル_作者名</code> 形式です。</p>
-
-        <h3>主要オプション</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>オプション</th>
-                    <th>説明</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>--device</code></td>
-                    <td><code>iphone</code>/<code>android</code>/<code>ipad</code>/<code>ipad_landscape</code>/<code>pc</code>
-                    </td>
-                </tr>
-                <tr>
-                    <td><code>--mode</code></td>
-                    <td><code>light</code>/<code>dark</code>/<code>intermediate</code></td>
-                </tr>
-                <tr>
-                    <td><code>--bg-color</code>, <code>--fg-color</code></td>
-                    <td>HEX 色を直接上書き</td>
-                </tr>
-                <tr>
-                    <td><code>--save-settings</code></td>
-                    <td>現在設定を <code>*.custom.ini</code> へ保存</td>
-                </tr>
-                <tr>
-                    <td><code>--reset-settings</code></td>
-                    <td><code>*.custom.ini</code> を初期化</td>
-                </tr>
-                <tr>
-                    <td><code>--main-washi</code>, <code>--main-frame</code>, <code>--cover-texture</code></td>
-                    <td>装飾オプションの明示制御</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>7. デバイスプロファイル</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>device</th>
-                    <th>サイズ(mm)</th>
-                    <th>備考</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>iphone</code></td>
-                    <td>65 x 140</td>
-                    <td>CLI 既定値</td>
-                </tr>
-                <tr>
-                    <td><code>android</code></td>
-                    <td>70 x 155.5</td>
-                    <td>Android 現代型</td>
-                </tr>
-                <tr>
-                    <td><code>ipad</code></td>
-                    <td>158 x 227</td>
-                    <td>単段組</td>
-                </tr>
-                <tr>
-                    <td><code>ipad_landscape</code></td>
-                    <td>227 x 158</td>
-                    <td>二段組</td>
-                </tr>
-                <tr>
-                    <td><code>pc</code></td>
-                    <td>210 x 297</td>
-                    <td>A4</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>8. 設定ファイル設計</h2>
+        <h2>7. Pythonモジュールのカスタマイズポイント</h2>
         <ul>
-            <li><code>global_settings.default.ini</code>: プロジェクト標準値</li>
-            <li><code>global_settings.custom.ini</code>: ユーザー上書き</li>
-            <li><code>device_settings.default.ini</code>: デバイス標準値</li>
-            <li><code>device_settings.custom.ini</code>: デバイス上書き</li>
-        </ul>
-        <p>読み込み順は <code>default -&gt; custom</code> で、実行時は <code>config/*.ini</code> のみを参照します。</p>
-
-        <h2>9. API 一覧（抜粋）</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Endpoint</th>
-                    <th>用途</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>GET /api/data-files</code></td>
-                    <td>入力候補一覧</td>
-                </tr>
-                <tr>
-                    <td><code>GET /api/devices</code></td>
-                    <td>デバイス設定取得</td>
-                </tr>
-                <tr>
-                    <td><code>GET /api/settings</code></td>
-                    <td>現在設定取得</td>
-                </tr>
-                <tr>
-                    <td><code>POST /api/settings</code></td>
-                    <td>設定保存</td>
-                </tr>
-                <tr>
-                    <td><code>POST /api/settings/reset</code></td>
-                    <td>設定初期化</td>
-                </tr>
-                <tr>
-                    <td><code>POST /api/generate</code></td>
-                    <td>単体生成</td>
-                </tr>
-                <tr>
-                    <td><code>POST /api/generate-batch</code></td>
-                    <td>一括生成</td>
-                </tr>
-                <tr>
-                    <td><code>GET /health</code></td>
-                    <td>ヘルスチェック</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>10. カスタマイズポイント</h2>
-        <ul>
-            <li>配色候補: <code>static/color-palettes.json</code></li>
-            <li>UI 挙動: <code>static/js/index.js</code></li>
-            <li>UI 見た目: <code>static/css/index.css</code></li>
-            <li>組版ロジック: <code>src/aozoratex.py</code></li>
-            <li>設定バリデーション/移行: <code>src/settings_store.py</code></li>
+            <li><strong>組版・変換ロジックの調整</strong>: <code>src/aozoratex.py</code> 内のHTMLパース処理やTeXタグへの置換ルールを変更します。</li>
+            <li><strong>設定・バリデーションの拡張</strong>: <code>src/settings_store.py</code> に <code>pydantic</code> モデルを追加・修正することで、より堅牢な設定管理が行えます。</li>
+            <li><strong>APIブリッジのコマンド追加</strong>: フロントエンドから新しいPythonの機能を利用したい場合は、<code>src/api_bridge.py</code> の <code>DISPATCH</code> テーブルにコマンドハンドラを新規登録します。</li>
         </ul>
 
-        <h2>11. トラブルシューティング</h2>
-        <h3>依存導入に失敗する</h3>
-        <pre><code class="language-powershell">python -m pip install --upgrade pip
-pip install -r requirements.txt
-</code></pre>
-
-        <h3>PDF が生成されない</h3>
+        <h2>8. Next.js (フロントエンド) のカスタマイズポイント</h2>
         <ul>
-            <li><code>latexmk</code> と <code>lualatex</code> の PATH を確認する。</li>
-            <li>まず <code>compile_pdf=false</code> で <code>.tex</code> 生成可否を確認する。</li>
-            <li><code>out/work/&lt;device&gt;/</code> のログを確認する。</li>
-        </ul>
-
-        <h3>フォントが反映されない</h3>
-        <ul>
-            <li>フォント名を <code>config/global_settings.custom.ini</code> の <code>font_family</code> に設定する。</li>
-            <li>Web UI の「フォント一覧を再取得」を実行する。</li>
+            <li><strong>UIコンポーネント</strong>: <code>src/components/</code> 配下のReactコンポーネントを修正。Tailwind CSS v4によるユーティリティクラスを利用しています。</li>
+            <li><strong>APIルートの追加</strong>: <code>src/app/api/</code> 配下に新しいディレクトリ（<code>[機能名]/route.ts</code>）を作成し、Node.jsベースのバックエンド処理を実装します。</li>
+            <li><strong>テーマとカラースキーム</strong>: UI自体のテーマ（ダーク・ライト）は <code>next-themes</code> を利用。PDF生成用のカラーリストは <code>static/color-palettes.json</code> など外部データを参照する仕様です。</li>
         </ul>
 
         <hr />

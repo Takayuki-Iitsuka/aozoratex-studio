@@ -18,19 +18,21 @@ export function StepCard({
   children,
 }: StepCardProps) {
   return (
-    <section className="rounded-2xl border border-white/5 bg-zinc-900/60 p-6 space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/5 pb-4">
+    <section className="rounded-2xl border border-border bg-card/60 p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-border/60 pb-4">
         <div className="space-y-1">
           {stepLabel && (
-            <div className="text-xs font-semibold text-purple-400 uppercase tracking-widest">
+            <div className="text-xs font-semibold text-accent uppercase tracking-widest">
               {stepLabel}
             </div>
           )}
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
             {icon}
             {title}
           </h2>
-          {description && <p className="text-zinc-400 text-xs leading-normal">{description}</p>}
+          {description && (
+            <p className="text-muted-foreground text-xs leading-normal">{description}</p>
+          )}
         </div>
         {headerAction && <div className="self-start sm:self-auto">{headerAction}</div>}
       </div>

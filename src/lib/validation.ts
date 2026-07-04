@@ -6,7 +6,19 @@
  */
 import { z } from "zod";
 
-export const DeviceSchema = z.enum(["smart", "tablet", "pc"]);
+export const DeviceSchema = z.enum([
+  "iphone",
+  "iphone_plus",
+  "android_phone",
+  "ipad",
+  "ipad_pro",
+  "android_tablet",
+  "pc",
+  "smart",
+  "tablet",
+  "android",
+  "ipad_landscape",
+]);
 
 export const OrientationSchema = z.enum(["portrait", "landscape"]);
 export const ColumnModeSchema = z.enum(["single_column", "two_column"]);
@@ -50,6 +62,38 @@ export const SettingsSchema = z.object({
   // ... 他のフィールドは既存settings_storeに委ねる
 });
 
+// 青空文庫 書籍検索・ダウンロード (/api/library/*)
+export const LibrarySearchQuerySchema = z.object({
+  q: z.string().max(100).default(""),
+  offset: z.coerce.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
+export type LibrarySearchQuery = z.infer<typeof LibrarySearchQuerySchema>;
+
+export const LibraryDownloadRequestSchema = z.object({
+  book_ids: z.array(z.string().regex(/^\d+$/)).min(1).max(100),
+  overwrite: z.boolean().default(false),
+});
+
+export type LibraryDownloadRequest = z.infer<typeof LibraryDownloadRequestSchema>;
+
+export function safeValidateLibrarySearchQuery(data: unknown) {
+  const result = LibrarySearchQuerySchema.safeParse(data);
+  if (!result.success) {
+    return { success: false as const, error: z.flattenError(result.error) };
+  }
+  return { success: true as const, data: result.data };
+}
+
+export function safeValidateLibraryDownloadRequest(data: unknown) {
+  const result = LibraryDownloadRequestSchema.safeParse(data);
+  if (!result.success) {
+    return { success: false as const, error: z.flattenError(result.error) };
+  }
+  return { success: true as const, data: result.data };
+}
+
 export function validateCompileRequest(data: unknown): CompileRequest {
   return CompileRequestSchema.parse(data);
 }
@@ -57,7 +101,8 @@ export function validateCompileRequest(data: unknown): CompileRequest {
 export function safeValidateCompileRequest(data: unknown) {
   const result = CompileRequestSchema.safeParse(data);
   if (!result.success) {
-    return { success: false as const, error: result.error.flatten() };
+    // zod 4 では error.flatten() が非推奨のためトップレベル関数を使用
+    return { success: false as const, error: z.flattenError(result.error) };
   }
   return { success: true as const, data: result.data };
 }

@@ -26,29 +26,61 @@ DEVICE_CUSTOM_FILE = CONFIG_DIR / "device_settings.custom.ini"
 
 SUPPORTED_BODY_COLUMN_MODES = ("single_column", "two_column")
 SUPPORTED_ORIENTATIONS = ("portrait", "landscape")
-SUPPORTED_DEVICES = ("smart", "tablet", "pc")
+SUPPORTED_DEVICES = (
+    "iphone",
+    "iphone_plus",
+    "android_phone",
+    "ipad",
+    "ipad_pro",
+    "android_tablet",
+    "pc",
+)
 SUPPORTED_BACKGROUND_RENDER_MODES = ("tikz", "image")
 DEVICE_ALIASES: dict[str, str] = {
-    "iphone": "smart",
-    "android": "smart",
-    "ipad": "tablet",
-    "ipad_landscape": "tablet",
+    "smart": "iphone",
+    "phone": "iphone",
+    "android": "android_phone",
+    "tablet": "ipad",
+    "ipad_landscape": "ipad",
+    "android_tab": "android_tablet",
 }
 DEVICE_ORIENTATION_HINTS: dict[str, str] = {
     "iphone": "portrait",
+    "iphone_plus": "portrait",
     "android": "portrait",
+    "android_phone": "portrait",
     "ipad": "portrait",
     "ipad_landscape": "landscape",
+    "ipad_pro": "portrait",
+    "android_tablet": "portrait",
 }
-DEVICE_ORIENTATION_OPTION_DEVICES = {"smart", "tablet"}
+SMARTPHONE_DEVICES = {"iphone", "iphone_plus", "android_phone"}
+TABLET_DEVICES = {"ipad", "ipad_pro", "android_tablet"}
+DEVICE_ORIENTATION_OPTION_DEVICES = set(TABLET_DEVICES) | {"pc"}
+DEVICE_COLUMN_OPTION_DEVICES = set(TABLET_DEVICES) | {"pc"}
 
 DEVICE_LABELS: dict[str, str] = {
-    "smart": "Smart（iPhone 11 Pro基準） (62.0x134.0mm)",
-    "tablet": "Tablet（iPad基準） (158.0x227.0mm)",
+    "iphone": "iPhone 標準（90.0x195.0mm）",
+    "iphone_plus": "iPhone Plus / Pro Max（96.0x208.0mm）",
+    "android_phone": "Android 主流スマホ（90.0x200.0mm）",
+    "ipad": "iPad 標準（150.0x215.0mm）",
+    "ipad_pro": "iPad Pro（150.0x200.0mm）",
+    "android_tablet": "Android 主流タブレット（150.0x240.0mm）",
     "pc": "PC（A4版用紙） (210.0x297.0mm)",
 }
 
+DEVICE_CATEGORIES: dict[str, str] = {
+    "iphone": "smartphone",
+    "iphone_plus": "smartphone",
+    "android_phone": "smartphone",
+    "ipad": "tablet",
+    "ipad_pro": "tablet",
+    "android_tablet": "tablet",
+    "pc": "pc",
+}
+
 GLOBAL_DEFAULTS: dict[str, str] = {
+    "selected_device": "iphone",
     "font_family": "IPAmjMincho",
     "body_column_mode": "single_column",
     "main_washi_enabled": "false",
@@ -67,34 +99,94 @@ GLOBAL_DEFAULTS: dict[str, str] = {
 }
 
 DEVICE_DEFAULTS: dict[str, dict[str, Any]] = {
-    "smart": {
-        "font_size": 10.5,
-        "width_mm": 62.0,
-        "height_mm": 134.0,
-        "margin_top_mm": 4.0,
-        "margin_bottom_mm": 4.0,
-        "margin_left_mm": 4.0,
-        "margin_right_mm": 4.0,
+    "iphone": {
+        "font_size": 9.0,
+        "width_mm": 90.0,
+        "height_mm": 195.0,
+        "margin_top_mm": 3.0,
+        "margin_bottom_mm": 3.0,
+        "margin_left_mm": 3.0,
+        "margin_right_mm": 3.0,
         "mode": "single_column",
         "show_page_number": False,
         "orientation": "portrait",
-        "line_gap_ratio": 0.5,
-        "line_leading_ratio": 1.5,
+        "line_gap_ratio": 0.35,
+        "line_leading_ratio": 1.35,
         "character_spacing_zw": 0.0,
     },
-    "tablet": {
-        "font_size": 13.5,
-        "width_mm": 158.0,
-        "height_mm": 227.0,
-        "margin_top_mm": 7.0,
-        "margin_bottom_mm": 7.0,
-        "margin_left_mm": 7.0,
-        "margin_right_mm": 7.0,
+    "iphone_plus": {
+        "font_size": 9.0,
+        "width_mm": 96.0,
+        "height_mm": 208.0,
+        "margin_top_mm": 3.0,
+        "margin_bottom_mm": 3.0,
+        "margin_left_mm": 3.0,
+        "margin_right_mm": 3.0,
+        "mode": "single_column",
+        "show_page_number": False,
+        "orientation": "portrait",
+        "line_gap_ratio": 0.35,
+        "line_leading_ratio": 1.35,
+        "character_spacing_zw": 0.0,
+    },
+    "android_phone": {
+        "font_size": 9.0,
+        "width_mm": 90.0,
+        "height_mm": 200.0,
+        "margin_top_mm": 3.0,
+        "margin_bottom_mm": 3.0,
+        "margin_left_mm": 3.0,
+        "margin_right_mm": 3.0,
+        "mode": "single_column",
+        "show_page_number": False,
+        "orientation": "portrait",
+        "line_gap_ratio": 0.35,
+        "line_leading_ratio": 1.35,
+        "character_spacing_zw": 0.0,
+    },
+    "ipad": {
+        "font_size": 11.0,
+        "width_mm": 150.0,
+        "height_mm": 215.0,
+        "margin_top_mm": 5.0,
+        "margin_bottom_mm": 5.0,
+        "margin_left_mm": 5.0,
+        "margin_right_mm": 5.0,
         "mode": "single_column",
         "show_page_number": True,
         "orientation": "portrait",
-        "line_gap_ratio": 0.5,
-        "line_leading_ratio": 1.5,
+        "line_gap_ratio": 0.25,
+        "line_leading_ratio": 1.25,
+        "character_spacing_zw": 0.0,
+    },
+    "ipad_pro": {
+        "font_size": 11.0,
+        "width_mm": 150.0,
+        "height_mm": 200.0,
+        "margin_top_mm": 5.0,
+        "margin_bottom_mm": 5.0,
+        "margin_left_mm": 5.0,
+        "margin_right_mm": 5.0,
+        "mode": "single_column",
+        "show_page_number": True,
+        "orientation": "portrait",
+        "line_gap_ratio": 0.25,
+        "line_leading_ratio": 1.25,
+        "character_spacing_zw": 0.0,
+    },
+    "android_tablet": {
+        "font_size": 11.0,
+        "width_mm": 150.0,
+        "height_mm": 240.0,
+        "margin_top_mm": 5.0,
+        "margin_bottom_mm": 5.0,
+        "margin_left_mm": 5.0,
+        "margin_right_mm": 5.0,
+        "mode": "single_column",
+        "show_page_number": True,
+        "orientation": "portrait",
+        "line_gap_ratio": 0.25,
+        "line_leading_ratio": 1.25,
         "character_spacing_zw": 0.0,
     },
     "pc": {
@@ -149,11 +241,15 @@ def _normalize_orientation(value: str | None, fallback: str = "portrait") -> str
 
 
 def _normalize_device_name(device: str | None) -> str:
-    raw = (device or "smart").strip().lower()
+    raw = (device or "iphone").strip().lower()
     normalized_device = DEVICE_ALIASES.get(raw, raw)
     if normalized_device not in SUPPORTED_DEVICES:
-        return "smart"
+        return "iphone"
     return normalized_device
+
+
+def normalize_device_name(device: str | None) -> str:
+    return _normalize_device_name(device)
 
 
 def _resolve_device_orientation_hint(device: str | None) -> str | None:
@@ -208,6 +304,7 @@ def _write_parser(path: Path, parser: configparser.ConfigParser) -> None:
 def _render_global_default_ini() -> str:
     lines = [
         "[global]",
+        f"selected_device = {GLOBAL_DEFAULTS['selected_device']}",
         f"font_family = {GLOBAL_DEFAULTS['font_family']}",
         f"body_column_mode = {GLOBAL_DEFAULTS['body_column_mode']}",
         f"main_washi_enabled = {GLOBAL_DEFAULTS['main_washi_enabled']}",
@@ -228,7 +325,15 @@ def _render_global_default_ini() -> str:
     return "\n".join(lines)
 
 
-def _render_device_default_ini() -> str:
+def _render_device_default_ini(
+    profiles: dict[str, dict[str, Any]] | None = None,
+) -> str:
+    """デバイス初期値の ini テキストを生成する。
+
+    profiles 省略時は工場出荷値（DEVICE_DEFAULTS）を使う。
+    profiles を渡すとその値で全端末分を書き出す（初期値編集の保存用）。
+    """
+    source = profiles or DEVICE_DEFAULTS
     lines: list[str] = [
         "[meta]",
         "; フォント名の初期値は global_settings.default.ini の font_family で一元管理します。",
@@ -237,7 +342,7 @@ def _render_device_default_ini() -> str:
         "",
     ]
     for device in SUPPORTED_DEVICES:
-        profile = DEVICE_DEFAULTS[device]
+        profile = source.get(device, DEVICE_DEFAULTS[device])
         lines.append(f"[{device}]")
         lines.append(f"font_size = {profile['font_size']}")
         lines.append(f"width_mm = {profile['width_mm']}")
@@ -292,6 +397,19 @@ def _prune_custom_settings_files() -> None:
     device_changed = False
 
     for section in list(device_parser.sections()):
+        normalized_section = _normalize_device_name(section)
+        if section not in SUPPORTED_DEVICES and normalized_section in SUPPORTED_DEVICES:
+            if not device_parser.has_section(normalized_section):
+                device_parser.add_section(normalized_section)
+            for key, value in list(device_parser[section].items()):
+                if key in DEVICE_ALLOWED_KEYS and not device_parser.has_option(
+                    normalized_section,
+                    key,
+                ):
+                    device_parser.set(normalized_section, key, value)
+            device_parser.remove_section(section)
+            device_changed = True
+            continue
         if section not in SUPPORTED_DEVICES:
             device_parser.remove_section(section)
             device_changed = True
@@ -370,6 +488,14 @@ def get_global_settings(*, include_custom: bool = True) -> dict[str, Any]:
     font_family = (
         _get_option(cfg, section, "font_family", GLOBAL_DEFAULTS["font_family"])
         or GLOBAL_DEFAULTS["font_family"]
+    )
+    selected_device = _normalize_device_name(
+        _get_option(
+            cfg,
+            section,
+            "selected_device",
+            GLOBAL_DEFAULTS["selected_device"],
+        )
     )
     body_column_mode = _get_option(
         cfg,
@@ -481,6 +607,7 @@ def get_global_settings(*, include_custom: bool = True) -> dict[str, Any]:
 
     return {
         "font_family": font_family,
+        "selected_device": selected_device,
         "body_column_mode": body_column_mode,
         "main_washi_enabled": main_washi_enabled,
         "main_frame_enabled": main_frame_enabled,
@@ -633,7 +760,7 @@ def _load_device_settings_from_cfg(
     )
     if orientation_hint in SUPPORTED_ORIENTATIONS:
         orientation = str(orientation_hint)
-    elif not orientation_explicit and normalized_device == "tablet":
+    elif not orientation_explicit and normalized_device in TABLET_DEVICES:
         orientation = "portrait"
 
     if normalized_device not in DEVICE_ORIENTATION_OPTION_DEVICES:
@@ -645,10 +772,14 @@ def _load_device_settings_from_cfg(
             float(defaults["height_mm"]),
             float(defaults["width_mm"]),
         )
-        if normalized_device == "tablet" and (
+        if normalized_device in TABLET_DEVICES and (
             not mode_explicit or orientation_hint == "landscape"
         ):
             defaults["mode"] = "two_column"
+
+    if normalized_device in SMARTPHONE_DEVICES:
+        defaults["mode"] = "single_column"
+        defaults["show_page_number"] = False
 
     line_gap_ratio = float(defaults.get("line_gap_ratio", 0.5))
     if not (0.0 <= line_gap_ratio <= 2.0):
@@ -758,14 +889,177 @@ def get_device_api_payload(
         payload[device] = {
             "width": profile["width_mm"],
             "height": profile["height_mm"],
+            "width_mm": profile["width_mm"],
+            "height_mm": profile["height_mm"],
             "base_width": base_profile["width_mm"],
             "base_height": base_profile["height_mm"],
             "font_size": profile["font_size"],
             "label": DEVICE_LABELS.get(device, device),
+            "category": DEVICE_CATEGORIES.get(device, "device"),
             "default": index == 0,
             "mode": profile["mode"],
             "show_page_number": profile["show_page_number"],
             "orientation": profile.get("orientation", "portrait"),
             "supports_orientation": device in DEVICE_ORIENTATION_OPTION_DEVICES,
+            "supports_columns": device in DEVICE_COLUMN_OPTION_DEVICES,
         }
     return payload
+
+
+_DEVICE_DEFAULT_FLOAT_KEYS = (
+    "font_size",
+    "width_mm",
+    "height_mm",
+    "margin_top_mm",
+    "margin_bottom_mm",
+    "margin_left_mm",
+    "margin_right_mm",
+    "line_gap_ratio",
+    "line_leading_ratio",
+    "character_spacing_zw",
+)
+
+
+def _apply_device_default_constraints(
+    device: str,
+    profile: dict[str, Any],
+) -> dict[str, Any]:
+    """初期値プロファイルに読込側（_load_device_settings_from_cfg）と同じ制約を適用する。"""
+    factory = DEVICE_DEFAULTS[device]
+
+    if device in SMARTPHONE_DEVICES:
+        profile["mode"] = "single_column"
+        profile["show_page_number"] = False
+        profile["orientation"] = "portrait"
+
+    if profile.get("mode") not in SUPPORTED_BODY_COLUMN_MODES:
+        profile["mode"] = "single_column"
+    if profile.get("orientation") not in SUPPORTED_ORIENTATIONS:
+        profile["orientation"] = str(factory["orientation"])
+
+    if float(profile["font_size"]) <= 0:
+        profile["font_size"] = factory["font_size"]
+    if float(profile["width_mm"]) <= 0:
+        profile["width_mm"] = factory["width_mm"]
+    if float(profile["height_mm"]) <= 0:
+        profile["height_mm"] = factory["height_mm"]
+    for key in ("margin_top_mm", "margin_bottom_mm", "margin_left_mm", "margin_right_mm"):
+        if float(profile[key]) < 0:
+            profile[key] = factory[key]
+
+    if not 0.0 <= float(profile["line_gap_ratio"]) <= 2.0:
+        profile["line_gap_ratio"] = 0.5
+    if float(profile["line_leading_ratio"]) <= 0:
+        profile["line_leading_ratio"] = 1.0 + float(profile["line_gap_ratio"])
+    if not -0.5 <= float(profile["character_spacing_zw"]) <= 1.0:
+        profile["character_spacing_zw"] = 0.0
+
+    return profile
+
+
+def _load_device_default_profiles() -> dict[str, dict[str, Any]]:
+    """default.ini の生の値を読み込む。
+
+    custom はマージせず、landscape 時の幅高スワップ等の読込時変換も行わない
+    （初期値編集UIには保存されている値そのものを見せるため）。
+    ファイルが無い場合は ensure_config_files() が生成する。
+    """
+    ensure_config_files()
+    parser = _new_parser()
+    parser.read(DEVICE_DEFAULT_FILE, encoding="utf-8")
+
+    profiles: dict[str, dict[str, Any]] = {}
+    for device in SUPPORTED_DEVICES:
+        profile = dict(DEVICE_DEFAULTS[device])
+        if parser.has_section(device):
+            section = parser[device]
+            for key in _DEVICE_DEFAULT_FLOAT_KEYS:
+                if key in section:
+                    profile[key] = _safe_float(section[key], float(profile[key]))
+            if "mode" in section:
+                mode = _strip_inline_comment(section["mode"]).strip().lower()
+                if mode in SUPPORTED_BODY_COLUMN_MODES:
+                    profile["mode"] = mode
+            if "show_page_number" in section:
+                profile["show_page_number"] = _safe_bool(
+                    section["show_page_number"],
+                    bool(profile["show_page_number"]),
+                )
+            if "orientation" in section:
+                profile["orientation"] = _normalize_orientation(
+                    section["orientation"],
+                    fallback=str(profile["orientation"]),
+                )
+        profiles[device] = _apply_device_default_constraints(device, profile)
+    return profiles
+
+
+def get_device_default_file_info() -> dict[str, str]:
+    """初期値ファイルの場所情報（UI 表示・外部エディタ起動用）を返す。"""
+    ensure_config_files()
+    return {
+        "path": str(DEVICE_DEFAULT_FILE),
+        "directory": str(CONFIG_DIR),
+        "filename": DEVICE_DEFAULT_FILE.name,
+    }
+
+
+def get_device_default_settings() -> dict[str, dict[str, Any]]:
+    """初期値編集UI用のペイロード（全端末の初期値＋表示メタ情報）を返す。"""
+    profiles = _load_device_default_profiles()
+    payload: dict[str, dict[str, Any]] = {}
+    for device in SUPPORTED_DEVICES:
+        payload[device] = {
+            **profiles[device],
+            "label": DEVICE_LABELS.get(device, device),
+            "category": DEVICE_CATEGORIES.get(device, "device"),
+            "supports_orientation": device in DEVICE_ORIENTATION_OPTION_DEVICES,
+            "supports_columns": device in DEVICE_COLUMN_OPTION_DEVICES,
+        }
+    return payload
+
+
+def save_device_default_settings(
+    settings_by_device: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    """初期値（default.ini）を更新する。custom.ini には触れない。"""
+    profiles = _load_device_default_profiles()
+
+    for device, updates in settings_by_device.items():
+        normalized_device = _normalize_device_name(str(device))
+        if normalized_device not in SUPPORTED_DEVICES or not isinstance(updates, dict):
+            continue
+        profile = profiles[normalized_device]
+        for key, value in updates.items():
+            if key not in DEVICE_ALLOWED_KEYS or value is None:
+                continue
+            if key == "orientation":
+                profile[key] = _normalize_orientation(
+                    str(value),
+                    fallback=str(profile[key]),
+                )
+            elif key == "mode":
+                mode = str(value).strip().lower()
+                if mode in SUPPORTED_BODY_COLUMN_MODES:
+                    profile[key] = mode
+            elif key == "show_page_number":
+                profile[key] = _safe_bool(str(value), bool(profile[key]))
+            else:
+                profile[key] = _safe_float(str(value), float(profile[key]))
+        profiles[normalized_device] = _apply_device_default_constraints(
+            normalized_device,
+            profile,
+        )
+
+    DEVICE_DEFAULT_FILE.write_text(
+        _render_device_default_ini(profiles),
+        encoding="utf-8",
+    )
+    return get_device_default_settings()
+
+
+def reset_device_default_settings() -> dict[str, dict[str, Any]]:
+    """初期値（default.ini）を工場出荷値（DEVICE_DEFAULTS）に戻す。"""
+    ensure_config_files()
+    DEVICE_DEFAULT_FILE.write_text(_render_device_default_ini(), encoding="utf-8")
+    return get_device_default_settings()

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Search, Check } from "lucide-react";
-import { DataFile } from "@/lib/hooks/useAozoraData";
+import { DataFile } from "@/lib/hooks/useDataFiles";
 
 interface FileSelectorProps {
   files: DataFile[];
@@ -28,83 +28,117 @@ export function FileSelector({
   onSelectAll,
   onClearAll,
 }: FileSelectorProps) {
+  const formatDownloadedAt = (iso: string) => {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "不明";
+    return date.toLocaleString("ja-JP");
+  };
+
+  const describeKanaType = (kanaType: string) => {
+    if (!kanaType) return "";
+    if (kanaType.includes("旧仮名")) return "昔のかなづかい版";
+    if (kanaType.includes("新仮名")) return "現代かなづかい版";
+    return kanaType;
+  };
+
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
         <div className="sm:col-span-6 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            size={16}
+          />
           <input
             type="text"
-            placeholder="ファイル名で検索..."
+            placeholder="作品名・作者・ファイル名で検索..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-zinc-950/80 border border-white/5 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-purple-500 transition"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-input border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-hidden focus:border-accent transition"
           />
         </div>
         <div className="sm:col-span-3">
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-zinc-950/80 border border-white/5 rounded-xl text-zinc-300 focus:outline-none focus:border-purple-500 transition"
+            className="w-full px-3 py-2 text-sm bg-input border border-border rounded-xl text-foreground focus:outline-hidden focus:border-accent transition"
           >
             <option value="name-asc">名前順（昇順）</option>
             <option value="name-desc">名前順（降順）</option>
             <option value="id-asc">作品ID順（昇順）</option>
             <option value="id-desc">作品ID順（降順）</option>
+            <option value="downloaded-desc">ダウンロード日時（新しい順）</option>
+            <option value="downloaded-asc">ダウンロード日時（古い順）</option>
           </select>
         </div>
         <div className="sm:col-span-3 flex gap-2">
           <button
             onClick={onSelectAll}
-            className="flex-1 py-2 text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/50 rounded-xl transition"
+            className="flex-1 py-2 text-xs font-semibold bg-muted hover:bg-muted/70 text-foreground border border-border rounded-xl transition"
           >
             全選択
           </button>
           <button
             onClick={onClearAll}
-            className="flex-1 py-2 text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/50 rounded-xl transition"
+            className="flex-1 py-2 text-xs font-semibold bg-muted hover:bg-muted/70 text-foreground border border-border rounded-xl transition"
           >
             解除
           </button>
         </div>
       </div>
 
-      <div className="max-h-60 overflow-y-auto border border-white/5 rounded-xl divide-y divide-white/5 bg-zinc-950/30">
+      <div className="max-h-60 overflow-y-auto border border-border rounded-xl divide-y divide-border/60 bg-input/50">
         {filteredAndSortedFiles.length > 0 ? (
           filteredAndSortedFiles.map((file) => {
             const isSelected = selectedFiles.includes(file.path);
+            const primaryLabel = file.title
+              ? `${file.title}${file.author ? ` / ${file.author}` : ""}`
+              : file.name;
+            const secondaryParts = [
+              file.name,
+              file.book_id ? `作品ID ${file.book_id}` : "",
+              describeKanaType(file.kana_type),
+              `DL ${formatDownloadedAt(file.downloaded_at)}`,
+            ].filter(Boolean);
             return (
               <div
                 key={file.path}
                 onClick={() => onToggle(file.path)}
                 className={`flex items-center justify-between p-3.5 text-sm cursor-pointer transition ${
-                  isSelected ? "bg-purple-500/[0.04]" : "hover:bg-white/[0.01]"
+                  isSelected ? "bg-accent/10" : "hover:bg-muted/40"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                    className={`w-4 h-4 shrink-0 rounded border flex items-center justify-center transition-colors ${
                       isSelected
-                        ? "border-purple-500 bg-purple-500 text-black"
-                        : "border-zinc-700 bg-transparent"
+                        ? "border-accent bg-accent text-accent-foreground"
+                        : "border-border bg-transparent"
                     }`}
                   >
                     {isSelected && <Check size={12} strokeWidth={3} />}
                   </div>
-                  <span
-                    className={`${isSelected ? "text-purple-300 font-medium" : "text-zinc-300"}`}
-                  >
-                    {file.name}
-                  </span>
+                  <div className="min-w-0">
+                    <div
+                      className={`truncate ${
+                        isSelected ? "text-accent font-medium" : "text-foreground/90"
+                      }`}
+                    >
+                      {primaryLabel}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {secondaryParts.join(" ・ ")}
+                    </div>
+                  </div>
                 </div>
-                <span className="text-xs text-zinc-600 font-mono hidden sm:inline">
+                <span className="text-xs text-muted-foreground/70 font-mono hidden sm:inline">
                   {file.path}
                 </span>
               </div>
             );
           })
         ) : (
-          <div className="p-8 text-center text-sm text-zinc-500">
+          <div className="p-8 text-center text-sm text-muted-foreground">
             対象のHTMLファイルが見つかりません
           </div>
         )}

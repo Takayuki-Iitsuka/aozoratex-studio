@@ -5,12 +5,12 @@ import fs from "fs";
 export async function GET(req: NextRequest, props: { params: Promise<{ path: string[] }> }) {
   const params = await props.params;
   const relativePathList = params.path;
-  const filePath = path.join(process.cwd(), "assets", ...relativePathList);
+  const filePath = path.join(process.cwd(), "static", "assets", "backgrounds", ...relativePathList);
 
-  // Prevent directory traversal attacks
-  const resolvedBase = path.resolve(path.join(process.cwd(), "assets"));
+  // 旧 `/assets/...` URL を `static/assets/backgrounds/...` に読み替える。
+  const resolvedBase = path.resolve(path.join(process.cwd(), "static", "assets", "backgrounds"));
   const resolvedTarget = path.resolve(filePath);
-  if (!resolvedTarget.startsWith(resolvedBase)) {
+  if (resolvedTarget !== resolvedBase && !resolvedTarget.startsWith(resolvedBase + path.sep)) {
     return new Response("Access Denied", { status: 403 });
   }
 

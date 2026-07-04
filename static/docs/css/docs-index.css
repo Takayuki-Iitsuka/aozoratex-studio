@@ -1,15 +1,31 @@
 :root {
-    --docs-bg: #f4f7fb;
-    --docs-surface: #ffffff;
-    --docs-surface-soft: #eef4fb;
-    --docs-border: #d7e0ea;
-    --docs-ink: #13202f;
-    --docs-muted: #5f6f82;
-    --docs-heading: #0f172a;
-    --docs-accent: #0f766e;
-    --docs-accent-soft: #dff6f2;
-    --docs-accent-hover: #115e59;
-    --docs-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+    --docs-bg: #fafafa;
+    --docs-surface: rgba(255, 255, 255, 0.6);
+    --docs-surface-soft: rgba(124, 58, 237, 0.05);
+    --docs-border: #e4e4e7;
+    --docs-ink: #18181b;
+    --docs-muted: #71717a;
+    --docs-heading: #18181b;
+    --docs-accent: #7c3aed;
+    --docs-accent-soft: rgba(124, 58, 237, 0.1);
+    --docs-accent-hover: #6d28d9;
+    --docs-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --docs-bg: #09090b;
+        --docs-surface: rgba(19, 19, 22, 0.6);
+        --docs-surface-soft: rgba(167, 139, 250, 0.05);
+        --docs-border: #27272a;
+        --docs-ink: #f4f4f5;
+        --docs-muted: #a1a1aa;
+        --docs-heading: #f4f4f5;
+        --docs-accent: #a78bfa;
+        --docs-accent-soft: rgba(167, 139, 250, 0.1);
+        --docs-accent-hover: #8b5cf6;
+        --docs-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
 }
 
 * {
@@ -18,12 +34,11 @@
 
 body {
     margin: 0;
-    font-family: "Segoe UI", "Yu Gothic", sans-serif;
+    font-family: var(--font-inter, "Inter"), var(--font-noto-sans-jp, "Noto Sans JP"), "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
     line-height: 1.7;
-    background:
-        linear-gradient(180deg, #eaf2fb 0, var(--docs-bg) 280px),
-        var(--docs-bg);
+    background-color: var(--docs-bg);
     color: var(--docs-ink);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .docs-shell {
@@ -35,8 +50,10 @@ body {
 .docs-hero,
 .docs-section {
     background: var(--docs-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--docs-border);
-    border-radius: 8px;
+    border-radius: 16px;
     box-shadow: var(--docs-shadow);
 }
 
@@ -140,14 +157,20 @@ h1 {
     gap: 10px;
     min-width: 0;
     padding: 18px;
-    background: #fbfdff;
+    background: var(--docs-surface);
     border: 1px solid var(--docs-border);
-    border-radius: 8px;
+    border-radius: 16px;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.doc-card:hover {
+    border-color: var(--docs-accent);
+    background: var(--docs-surface-soft);
 }
 
 .doc-card-accent {
     background: var(--docs-accent-soft);
-    border-color: #99d8ce;
+    border-color: var(--docs-accent);
 }
 
 .doc-card h3 {
@@ -191,7 +214,14 @@ h1 {
     padding: 12px 14px;
     background: var(--docs-surface-soft);
     border: 1px solid var(--docs-border);
-    border-radius: 6px;
+    border-radius: 12px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.doc-link-panel a:hover {
+    background: var(--docs-accent-soft);
+    border-color: var(--docs-accent);
+    text-decoration: none;
 }
 
 @media (max-width: 720px) {

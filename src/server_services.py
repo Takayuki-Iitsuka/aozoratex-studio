@@ -1,10 +1,21 @@
 from __future__ import annotations
 
 import csv
+import io
 import json
 import logging
+import os
+import re
 import shutil
 import subprocess
+import sys
+import time
+import unicodedata
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -14,6 +25,7 @@ from src.aozoratex_generate import generate_tex_for_source
 
 WORKDIR = Path(__file__).resolve().parent.parent
 DATA_DIR = WORKDIR / "data"
+CACHE_DIR = WORKDIR / "cache"
 OUT_DIR = WORKDIR / "out"
 WORK_OUT_DIR = OUT_DIR / "work"
 PDF_OUT_DIR = OUT_DIR / "pdf"
@@ -23,7 +35,7 @@ COLOR_PALETTE_FILE = STATIC_DIR / "color-palettes.json"
 FONT_LIST_ENTRY = WORKDIR / "tools" / "fonts" / "texlive_font_list.py"
 FONT_LIST_CSV = WORKDIR / "tools" / "fonts" / "texlive_fonts.csv"
 MAX_COLOR_SCHEMES = 36
-BODY_COLUMN_OPTION_DEVICES = {"pc", "tablet"}
+BODY_COLUMN_OPTION_DEVICES = settings_store.DEVICE_COLUMN_OPTION_DEVICES
 
 _FONT_CACHE_MTIME: Optional[float] = None
 _FONT_CACHE_FONTS: list[dict] = []
@@ -33,12 +45,7 @@ logger = logging.getLogger(__name__)
 
 
 def _normalize_device_name(device: Optional[str]) -> str:
-    # 注: 正規化の主ロジックは settings_store 側に集約推奨（重複排除）
-    raw = str(device or settings_store.SUPPORTED_DEVICES[0]).strip().lower()
-    normalized = settings_store.DEVICE_ALIASES.get(raw, raw)
-    if normalized not in settings_store.SUPPORTED_DEVICES:
-        normalized = settings_store.SUPPORTED_DEVICES[0]
-    return normalized
+    return settings_store.normalize_device_name(device)
 
 
 def command_to_log_text(cmd: list[str]) -> str:
@@ -537,7 +544,7 @@ def resolve_decoration_options(payload: dict) -> dict[str, object]:
     if request_device not in settings_store.DEVICE_ORIENTATION_OPTION_DEVICES:
         resolved_device_orientation = "portrait"
     if (
-        request_device == "tablet"
+        request_device in settings_store.TABLET_DEVICES
         and resolved_device_orientation == "landscape"
         and "body_column_mode" not in payload
     ):
@@ -600,6 +607,7 @@ def save_generation_preferences(
     font_family: Optional[str] = None,
     decorations: Optional[dict[str, object]] = None,
 ) -> None:
+    device = _normalize_device_name(device)
     global_updates: dict[str, object] = {
         "background_color": bg_color,
         "text_color": fg_color,
@@ -642,10 +650,32 @@ def save_generation_preferences(
 
 def list_source_files() -> list[dict]:
     html_files = list(DATA_DIR.glob("*.html")) + list(DATA_DIR.glob("*.xhtml"))
-    return [
-        {"name": f.name, "path": str(f.relative_to(WORKDIR))}
-        for f in sorted(html_files)
-    ]
+    index = _load_library_index()
+    books_by_filename = {
+        str(book.get("filename", "")): book
+        for book in (index or {}).get("books", [])
+        if book.get("filename")
+    }
+
+    files: list[dict] = []
+    for f in sorted(html_files):
+        book = books_by_filename.get(f.name, {})
+        stat = f.stat()
+        item = {
+            "name": f.name,
+            "path": str(f.relative_to(WORKDIR)),
+            "downloaded_at": datetime.fromtimestamp(stat.st_mtime).astimezone().isoformat(
+                timespec="seconds"
+            ),
+            "book_id": str(book.get("book_id", "")),
+            "title": str(book.get("title", "")),
+            "title_reading": str(book.get("title_reading", "")),
+            "kana_type": str(book.get("kana_type", "")),
+            "author": str(book.get("author", "")),
+            "author_reading": str(book.get("author_reading", "")),
+        }
+        files.append(item)
+    return files
 
 
 def list_background_assets() -> dict[str, object]:
@@ -901,6 +931,7 @@ def generate_single(
     decorations: Optional[dict[str, object]] = None,
     emit_log: Optional[callable] = None,
 ) -> tuple[bool, dict, int]:
+    device = _normalize_device_name(device)
     logger.info(
         "[generate] start source=%s device=%s compile_pdf=%s",
         source,
@@ -1112,3 +1143,420 @@ def generate_single(
         },
         200,
     )
+
+
+# ---------------------------------------------------------------------------
+# 青空文庫 作品インデックス（書籍検索・ダウンロード）
+# ---------------------------------------------------------------------------
+
+AOZORA_INDEX_URL = (
+    "https://www.aozora.gr.jp/index_pages/list_person_all_extended_utf8.zip"
+)
+AOZORA_INDEX_FILE = CACHE_DIR / "aozora_index.json"
+AOZORA_USER_AGENT = "AozoraTeX-Studio/1.0"
+AOZORA_ALLOWED_HOSTS = {"www.aozora.gr.jp", "aozora.gr.jp"}
+# data/ 直下に保存するファイル名の許可パターン（パストラバーサル防止）
+AOZORA_FILENAME_RE = re.compile(r"[0-9A-Za-z_\-]+\.x?html")
+LIBRARY_SEARCH_LIMIT_MAX = 200
+LIBRARY_DOWNLOAD_SLEEP_SEC = 1.0
+
+# カタカナ→ひらがな変換テーブル（U+30A1〜U+30F6 を -0x60 シフト）
+_KATAKANA_TO_HIRAGANA = {code: code - 0x60 for code in range(0x30A1, 0x30F7)}
+
+
+def _http_get_bytes(url: str, timeout: float = 30.0) -> bytes:
+    request = urllib.request.Request(url, headers={"User-Agent": AOZORA_USER_AGENT})
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read()
+
+
+def _normalize_for_search(text: str) -> str:
+    # NFKC 正規化 + 小文字化 + カタカナ→ひらがな + 空白除去。
+    # 「作品名読み」(ひらがな) とカタカナ入力の双方にヒットさせるため。
+    normalized = unicodedata.normalize("NFKC", text).lower()
+    normalized = normalized.translate(_KATAKANA_TO_HIRAGANA)
+    return "".join(normalized.split())
+
+
+def _find_column(header: list[str], candidates: list[str]) -> Optional[int]:
+    # 列名の表記ゆれに耐えるため、NFKC 正規化した完全一致 → 部分一致の順で探索
+    normalized = [unicodedata.normalize("NFKC", name).strip() for name in header]
+    for candidate in candidates:
+        for index, name in enumerate(normalized):
+            if name == candidate:
+                return index
+    for candidate in candidates:
+        for index, name in enumerate(normalized):
+            if candidate in name:
+                return index
+    return None
+
+
+def _aozora_url_host_allowed(url: str) -> bool:
+    try:
+        host = urllib.parse.urlsplit(url).hostname
+    except ValueError:
+        return False
+    return host in AOZORA_ALLOWED_HOSTS
+
+
+def update_library_index() -> tuple[bool, dict]:
+    try:
+        raw_zip = _http_get_bytes(AOZORA_INDEX_URL)
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        logger.warning("Failed to download aozora index: %s", exc)
+        return False, {
+            "error": f"青空文庫サーバからインデックスを取得できませんでした: {exc}"
+        }
+
+    try:
+        with zipfile.ZipFile(io.BytesIO(raw_zip)) as archive:
+            # zip 内の CSV ファイル名変更に耐えるため名前非依存で探索
+            csv_names = [
+                name for name in archive.namelist() if name.lower().endswith(".csv")
+            ]
+            if not csv_names:
+                return False, {"error": "インデックス zip に CSV が含まれていません。"}
+            csv_text = archive.read(csv_names[0]).decode("utf-8-sig")
+    except (zipfile.BadZipFile, UnicodeDecodeError) as exc:
+        logger.warning("Failed to parse aozora index archive: %s", exc)
+        return False, {"error": f"インデックスの解析に失敗しました: {exc}"}
+
+    reader = csv.reader(io.StringIO(csv_text))
+    header = next(reader, None)
+    if not header:
+        return False, {"error": "インデックス CSV が空です。"}
+
+    columns = {
+        "book_id": _find_column(header, ["作品ID"]),
+        "title": _find_column(header, ["作品名"]),
+        "title_reading": _find_column(header, ["作品名読み"]),
+        "kana_type": _find_column(header, ["文字遣い種別"]),
+        "role": _find_column(header, ["役割フラグ"]),
+        "last_name": _find_column(header, ["姓"]),
+        "first_name": _find_column(header, ["名"]),
+        "last_name_reading": _find_column(header, ["姓読み"]),
+        "first_name_reading": _find_column(header, ["名読み"]),
+        "html_url": _find_column(header, ["XHTML/HTMLファイルURL"]),
+    }
+    missing = [
+        key for key in ("book_id", "title", "html_url") if columns[key] is None
+    ]
+    if missing:
+        return False, {
+            "error": f"インデックス CSV に必須列が見つかりません: {', '.join(missing)}"
+        }
+
+    def cell(row: list[str], key: str) -> str:
+        index = columns[key]
+        if index is None or index >= len(row):
+            return ""
+        return row[index].strip()
+
+    # CSV は (作品×人物) で 1 行のため、作品ID ごとに集約する。
+    # 著者名は役割フラグ「著者」の行を優先し、無ければその他（翻訳者等）を使う。
+    books: dict[str, dict] = {}
+    for row in reader:
+        book_id = cell(row, "book_id")
+        html_url = cell(row, "html_url")
+        if not book_id or not html_url:
+            continue
+        if not _aozora_url_host_allowed(html_url):
+            continue
+        filename = Path(urllib.parse.urlsplit(html_url).path).name
+        if not AOZORA_FILENAME_RE.fullmatch(filename):
+            continue
+
+        entry = books.setdefault(
+            book_id,
+            {
+                "book_id": book_id,
+                "title": cell(row, "title"),
+                "title_reading": cell(row, "title_reading"),
+                "kana_type": cell(row, "kana_type"),
+                "html_url": html_url,
+                "filename": filename,
+                "_authors": [],
+                "_others": [],
+            },
+        )
+
+        person = " ".join(
+            part for part in (cell(row, "last_name"), cell(row, "first_name")) if part
+        )
+        reading = " ".join(
+            part
+            for part in (
+                cell(row, "last_name_reading"),
+                cell(row, "first_name_reading"),
+            )
+            if part
+        )
+        if person:
+            bucket = entry["_authors"] if cell(row, "role") == "著者" else entry["_others"]
+            if all(existing[0] != person for existing in bucket):
+                bucket.append((person, reading))
+
+    entries: list[dict] = []
+    for entry in books.values():
+        people = entry.pop("_authors") or entry.pop("_others")
+        entry.pop("_others", None)
+        entry["author"] = "、".join(name for name, _ in people)
+        entry["author_reading"] = "、".join(reading for _, reading in people if reading)
+        entry["norm"] = _normalize_for_search(
+            "|".join(
+                (
+                    entry["title"],
+                    entry["title_reading"],
+                    entry["author"],
+                    entry["author_reading"],
+                )
+            )
+        )
+        entries.append(entry)
+    entries.sort(key=lambda e: int(e["book_id"]) if e["book_id"].isdigit() else 0)
+
+    updated_at = datetime.now().astimezone().isoformat(timespec="seconds")
+    payload = {
+        "meta": {
+            "updated_at": updated_at,
+            "total": len(entries),
+            "source_url": AOZORA_INDEX_URL,
+        },
+        "books": entries,
+    }
+
+    # 一時ファイル→replace のアトミック更新（失敗時に旧キャッシュを壊さない）
+    _safe_mkdir(CACHE_DIR)
+    tmp_file = AOZORA_INDEX_FILE.with_name(AOZORA_INDEX_FILE.name + ".tmp")
+    tmp_file.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    tmp_file.replace(AOZORA_INDEX_FILE)
+
+    logger.info("[library] index updated: total=%s", len(entries))
+    return True, {"total": len(entries), "updated_at": updated_at}
+
+
+def _load_library_index() -> Optional[dict]:
+    try:
+        return json.loads(AOZORA_INDEX_FILE.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return None
+    except Exception as exc:
+        logger.warning("Failed to load library index cache: %s", exc)
+        return None
+
+
+def get_library_status() -> dict:
+    index = _load_library_index()
+    if index is None:
+        return {"cached": False, "updated_at": None, "total": 0}
+    meta = index.get("meta", {})
+    return {
+        "cached": True,
+        "updated_at": meta.get("updated_at"),
+        "total": meta.get("total", len(index.get("books", []))),
+    }
+
+
+def search_library(query: str, offset: int = 0, limit: int = 50) -> tuple[bool, dict]:
+    index = _load_library_index()
+    if index is None:
+        return False, {
+            "error": "index_not_ready",
+            "message": "作品インデックスが未取得です。先にインデックスを更新してください。",
+        }
+
+    books = index.get("books", [])
+    terms = [
+        term
+        for term in (_normalize_for_search(part) for part in str(query or "").split())
+        if term
+    ]
+    if terms:
+        matched = [
+            book
+            for book in books
+            if all(term in book.get("norm", "") for term in terms)
+        ]
+    else:
+        matched = books
+
+    offset = max(0, int(offset))
+    limit = min(max(1, int(limit)), LIBRARY_SEARCH_LIMIT_MAX)
+    items = []
+    for book in matched[offset : offset + limit]:
+        item = {key: value for key, value in book.items() if key != "norm"}
+        item["downloaded"] = (DATA_DIR / book["filename"]).exists()
+        item["path"] = str((DATA_DIR / book["filename"]).relative_to(WORKDIR))
+        parsed_html_url = urllib.parse.urlsplit(str(book.get("html_url", "")))
+        card_dir = str(Path(parsed_html_url.path).parent.parent).replace("\\", "/")
+        item["card_url"] = urllib.parse.urlunsplit(
+            (
+                parsed_html_url.scheme,
+                parsed_html_url.netloc,
+                f"{card_dir}/card{int(book['book_id'])}.html",
+                "",
+                "",
+            )
+        )
+        items.append(item)
+
+    return True, {"total": len(matched), "offset": offset, "limit": limit, "items": items}
+
+
+def download_library_books(
+    book_ids: list[str],
+    overwrite: bool = False,
+    sleep_sec: float = LIBRARY_DOWNLOAD_SLEEP_SEC,
+    emit_log: Optional[callable] = None,
+) -> tuple[bool, dict]:
+    index = _load_library_index()
+    if index is None:
+        return False, {
+            "error": "作品インデックスが未取得です。先にインデックスを更新してください。"
+        }
+
+    def log(line: str) -> None:
+        if emit_log:
+            emit_log(line)
+
+    # クライアントから URL は受け取らず、作品ID からインデックス経由で解決する
+    # （SSRF・パストラバーサル防止。_resolve_source_path と同じ「サーバ側で閉じる」方針）
+    books_by_id = {book["book_id"]: book for book in index.get("books", [])}
+    _safe_mkdir(DATA_DIR)
+
+    results: list[dict] = []
+    counts = {"downloaded": 0, "skipped": 0, "failed": 0}
+    did_request = False
+    total = len(book_ids)
+
+    for position, raw_id in enumerate(book_ids, start=1):
+        prefix = f"[{position}/{total}]"
+        book_id = str(raw_id).strip()
+        book = books_by_id.get(book_id)
+        if not book:
+            log(f"{prefix} 作品ID {book_id} はインデックスに存在しません。")
+            counts["failed"] += 1
+            results.append(
+                {
+                    "book_id": book_id,
+                    "status": "failed",
+                    "error": "インデックスに存在しない作品IDです。",
+                }
+            )
+            continue
+
+        filename = book["filename"]
+        target = DATA_DIR / filename
+        result = {
+            "book_id": book_id,
+            "title": book["title"],
+            "filename": filename,
+            "path": str(target.relative_to(WORKDIR)),
+        }
+
+        if (
+            not AOZORA_FILENAME_RE.fullmatch(filename)
+            or not _aozora_url_host_allowed(book["html_url"])
+        ):
+            log(f"{prefix} {book['title']} は不正なファイル名/URLのためスキップします。")
+            result["status"] = "failed"
+            result["error"] = "不正なファイル名または URL です。"
+            counts["failed"] += 1
+            results.append(result)
+            continue
+
+        if target.exists() and not overwrite:
+            log(f"{prefix} {book['title']} ({filename}) は既に存在するためスキップします。")
+            result["status"] = "skipped"
+            counts["skipped"] += 1
+            results.append(result)
+            continue
+
+        try:
+            # 青空文庫サーバへの配慮として、連続リクエスト間にスリープを挟む
+            if did_request and sleep_sec > 0:
+                time.sleep(sleep_sec)
+            log(f"{prefix} {book['title']} ({filename}) をダウンロード中...")
+            data = _http_get_bytes(book["html_url"])
+            did_request = True
+            # 原本バイト列のまま保存（エンコーディング判定は既存パイプラインが行う）
+            tmp_file = target.with_name(target.name + ".tmp")
+            tmp_file.write_bytes(data)
+            tmp_file.replace(target)
+            log(f"{prefix} {book['title']} を保存しました → {result['path']}")
+            result["status"] = "downloaded"
+            counts["downloaded"] += 1
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            did_request = True
+            logger.warning("[library] download failed for %s: %s", book_id, exc)
+            log(f"{prefix} {book['title']} のダウンロードに失敗しました: {exc}")
+            result["status"] = "failed"
+            result["error"] = str(exc)
+            counts["failed"] += 1
+        results.append(result)
+
+    ok = counts["failed"] < total if total else False
+    payload = {"results": results, **counts}
+    if not ok:
+        payload["error"] = "すべての作品のダウンロードに失敗しました。"
+    return ok, payload
+
+
+# ---------------------------------------------------------------------------
+# 設定ファイルを外部エディタで開く
+# ---------------------------------------------------------------------------
+
+# UI から指定できるエディタ識別子（開くパスはサーバー側で固定）
+SUPPORTED_CONFIG_EDITORS = ("default", "notepad", "vscode", "explorer")
+
+
+def open_device_default_file(app: str) -> tuple[bool, dict[str, str]]:
+    """デバイス初期値ファイル（device_settings.default.ini）を外部アプリで開く。
+
+    app:
+        default  - OS の関連付けアプリ（既定のエディタ）
+        notepad  - メモ帳（Windows のみ）
+        vscode   - Visual Studio Code（PATH 上の code コマンド）
+        explorer - エクスプローラー / Finder でファイルの場所を表示
+    """
+    settings_store.ensure_config_files()
+    path = settings_store.DEVICE_DEFAULT_FILE
+    normalized_app = (app or "default").strip().lower()
+    if normalized_app not in SUPPORTED_CONFIG_EDITORS:
+        return False, {"error": f"未対応のエディタ指定です: {app}"}
+
+    try:
+        if normalized_app == "notepad":
+            if sys.platform != "win32":
+                return False, {"error": "メモ帳は Windows でのみ利用できます。"}
+            subprocess.Popen(["notepad.exe", str(path)])
+        elif normalized_app == "vscode":
+            code_cmd = shutil.which("code") or shutil.which("code.cmd")
+            if not code_cmd:
+                return False, {
+                    "error": (
+                        "VS Code の code コマンドが見つかりません。"
+                        "VS Code をインストールし PATH に code を追加してください。"
+                    )
+                }
+            subprocess.Popen([code_cmd, str(path)])
+        elif normalized_app == "explorer":
+            if sys.platform == "win32":
+                subprocess.Popen(["explorer", f"/select,{path}"])
+            elif sys.platform == "darwin":
+                subprocess.Popen(["open", "-R", str(path)])
+            else:
+                subprocess.Popen(["xdg-open", str(path.parent)])
+        else:  # default: OS の関連付けアプリ
+            if sys.platform == "win32":
+                os.startfile(str(path))  # noqa: S606 - 固定パスのみを開く
+            elif sys.platform == "darwin":
+                subprocess.Popen(["open", str(path)])
+            else:
+                subprocess.Popen(["xdg-open", str(path)])
+    except OSError as exc:
+        logger.warning("[config] failed to open editor %s: %s", normalized_app, exc)
+        return False, {"error": f"エディタの起動に失敗しました: {exc}"}
+
+    return True, {"app": normalized_app, "path": str(path)}

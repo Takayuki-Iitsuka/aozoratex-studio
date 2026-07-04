@@ -85,8 +85,8 @@
       <tbody>
         <tr>
           <td>Next.js</td>
-          <td>^15.5.20</td>
-          <td>Reactフレームワーク。App Router、API Routes、静的ファイル配信を担当</td>
+          <td>^16.2.10</td>
+          <td>Reactフレームワーク。App Router、API Routes、静的ファイル配信を担当。ビルドは Turbopack（v16 でデフォルト化）</td>
         </tr>
         <tr>
           <td>React</td>
@@ -105,18 +105,13 @@
         </tr>
         <tr>
           <td>Tailwind CSS</td>
-          <td>^3.4.19</td>
-          <td>ユーティリティファーストCSSフレームワーク</td>
+          <td>^4.3.2</td>
+          <td>ユーティリティファーストCSSフレームワーク。v4 の CSS-first 構成（globals.css の @theme。tailwind.config.ts は廃止、PostCSS は @tailwindcss/postcss のみ、autoprefixer 不要）</td>
         </tr>
         <tr>
-          <td>PostCSS + Autoprefixer</td>
-          <td>^8.5.16 / ^10.5.2</td>
-          <td>CSS処理とベンダープレフィックス自動付与</td>
-        </tr>
-        <tr>
-          <td>framer-motion</td>
-          <td>^11.18.2</td>
-          <td>アニメーションライブラリ</td>
+          <td>motion</td>
+          <td>^12.42.2</td>
+          <td>アニメーションライブラリ（旧 framer-motion。v12 で改名、import は "motion/react"）</td>
         </tr>
         <tr>
           <td>lucide-react</td>
@@ -133,12 +128,23 @@
           <td>^0.7.1</td>
           <td>バリアントベースのコンポーネントスタイリング</td>
         </tr>
+        <tr>
+          <td>zod</td>
+          <td>^4.4.3</td>
+          <td>スキーマバリデーション。<code>src/lib/validation.ts</code> と API Route（settings）の入力検証で使用</td>
+        </tr>
+        <tr>
+          <td>sonner</td>
+          <td>^1.7.1</td>
+          <td>トースト通知。<code>layout.tsx</code> の Toaster と各フック（useCompile / useLibrary / useSystemActions）で使用</td>
+        </tr>
       </tbody>
     </table>
 
     <h3>フロントエンド開発ツール</h3>
     <ul>
-      <li><strong>ESLint</strong> + <strong>eslint-config-next</strong> (^9.39.4 / ^15.5.20) — コード品質チェック</li>
+      <li><strong>ESLint</strong> + <strong>eslint-config-next</strong> (^9.39.4 / ^16.2.10) — コード品質チェック。flat config（<code>eslint.config.mjs</code>）で整備済み。Next 16 で <code>next lint</code> が廃止されたため <code>eslint .</code> を直接実行</li>
+      <li><strong>Prettier</strong> + <strong>eslint-config-prettier</strong> (^3.4.2 / ^9.1.0) — コードフォーマット（<code>bun run format</code>）</li>
       <li><strong>@types/node</strong>, <strong>@types/react</strong>, <strong>@types/react-dom</strong> — TypeScript型定義</li>
     </ul>
 
@@ -150,11 +156,11 @@
       </thead>
       <tbody>
         <tr><td>Python</td><td>3.14.3</td><td>.venv\Scripts\python.exe で実行</td></tr>
-        <tr><td>pip</td><td>25.3</td><td>パッケージ管理ツール</td></tr>
+        <tr><td>uv</td><td>0.11.x</td><td>パッケージ管理。<code>uv venv</code> + <code>uv pip install -e ".[dev]"</code>（uv 作成の venv に pip は同梱されない）</td></tr>
       </tbody>
     </table>
 
-    <p><strong>注意</strong>： .venv には現在アクティブに使っているパッケージと、過去の Flask 構成時代のレガシーパッケージの両方が混在しています。以下で明確に分類して記載しています。</p>
+    <p><strong>注記</strong>： 2026年（皇紀2686年・令和8年）7月3日に .venv を uv で再構築し、旧 Flask 構成時代のレガシーパッケージ約20個（Flask / Werkzeug / SocketIO 系など）を一掃しました。現在の .venv は pyproject.toml の宣言と一致しています。</p>
 
     <!-- HTML / パース関連 -->
     <h2>4. HTML / XML パース関連（HTML処理）</h2>
@@ -189,14 +195,9 @@
       </thead>
       <tbody>
         <tr>
-          <td>Jinja2</td>
-          <td>3.1.6</td>
-          <td>フル機能テンプレートエンジン（レガシーとして .venv に残存）。現在のメイン組版テンプレートは Python 生文字列（% フォーマット + 正規表現置換）で実装。</td>
-        </tr>
-        <tr>
-          <td>MarkupSafe</td>
-          <td>3.0.3</td>
-          <td>Jinja2 の HTML エスケープ用依存ライブラリ。</td>
+          <td>（Jinja2）</td>
+          <td>—</td>
+          <td>旧 Flask 構成で使用していたが、.venv 再構築で削除済み。現在のメイン組版テンプレートは Python 生文字列（% フォーマット + 正規表現置換）で実装。</td>
         </tr>
       </tbody>
     </table>
@@ -246,6 +247,30 @@
       </tbody>
     </table>
 
+    <h3>宣言済みだが未使用の Python 依存</h3>
+    <p>
+      <code>requirements.txt</code> / <code>pyproject.toml</code> で宣言され .venv にインストール済みですが、
+      現時点で <code>src/</code> 配下のどこからも import されていないパッケージです（設定処理は <code>configparser</code> のまま）。
+      将来 pydantic ベースの設定バリデーションへ移行するための準備、または削除候補です。
+    </p>
+    <table>
+      <thead>
+        <tr><th>Package</th><th>Exact Version</th><th>備考</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>pydantic</td><td>2.13.4</td><td>型安全バリデーション（未使用・移行準備）</td></tr>
+        <tr><td>pydantic-settings</td><td>2.14.2</td><td>設定管理（未使用・移行準備）</td></tr>
+        <tr><td>python-dotenv</td><td>1.2.2</td><td>.env 読み込み（未使用）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>実験的 FastAPI ブリッジ</h3>
+    <p>
+      <code>src/server_fastapi.py</code> に、プロセス spawn 方式の <code>api_bridge.py</code> を置き換える
+      長寿命サーバーの雛形があります。依存の <strong>fastapi 0.139.0 / uvicorn 0.49.0</strong> は
+      dev extras（<code>[dev]</code>）として .venv にインストール済みです（本番依存ではなく実験扱い）。
+    </p>
+
     <!-- Python 標準ライブラリ多用 -->
     <h2>9. Python 標準ライブラリ（多用）</h2>
     <ul>
@@ -256,35 +281,15 @@
       <li><code>json</code>、<code>logging</code>、<code>re</code>、<code>dataclasses</code>、<code>typing</code>、<code>shutil</code>、<code>csv</code> など</li>
     </ul>
 
-    <!-- レガシー Flask スタック -->
-    <h2>10. レガシー依存（.venv に残存する旧 Flask 時代パッケージ）</h2>
-    <p>現在のアーキテクチャ（Next.js + api_bridge.py）では使用していませんが、.venv に残っている全パッケージ（exact）。</p>
-    <table>
-      <thead>
-        <tr><th>Package</th><th>Exact Version</th><th>旧主な役割</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Flask</td><td>3.1.3</td><td>Web フレームワーク</td></tr>
-        <tr><td>Flask-Caching</td><td>2.4.0</td><td>キャッシュ</td></tr>
-        <tr><td>Flask-SocketIO</td><td>5.6.1</td><td>リアルタイム通信</td></tr>
-        <tr><td>Flask-WTF</td><td>1.3.0</td><td>フォーム</td></tr>
-        <tr><td>Werkzeug</td><td>3.1.8</td><td>WSGI ユーティリティ</td></tr>
-        <tr><td>WTForms</td><td>3.2.2</td><td>フォーム定義</td></tr>
-        <tr><td>waitress</td><td>3.0.2</td><td>WSGI サーバー</td></tr>
-        <tr><td>python-socketio</td><td>5.16.3</td><td>Socket.IO クライアント/サーバー</td></tr>
-        <tr><td>python-engineio</td><td>4.13.3</td><td>Engine.IO</td></tr>
-        <tr><td>Jinja2</td><td>3.1.6</td><td>テンプレート（上記）</td></tr>
-        <tr><td>MarkupSafe</td><td>3.0.3</td><td>HTML エスケープ</td></tr>
-        <tr><td>bidict</td><td>0.23.1</td><td>双方向マッピング</td></tr>
-        <tr><td>blinker</td><td>1.9.0</td><td>シグナルシステム</td></tr>
-        <tr><td>cachelib</td><td>0.14.0</td><td>キャッシュバックエンド</td></tr>
-        <tr><td>click</td><td>8.4.2</td><td>CLI ツールキット</td></tr>
-        <tr><td>colorama</td><td>0.4.6</td><td>Windows コンソールカラー</td></tr>
-        <tr><td>itsdangerous</td><td>2.2.0</td><td>署名・トークン</td></tr>
-        <tr><td>typing_extensions</td><td>4.16.0</td><td>型ヒント拡張</td></tr>
-        <tr><td>h11 / wsproto / simple-websocket</td><td>0.16.0 / 1.3.2 / 1.1.0</td><td>低レベル WebSocket</td></tr>
-      </tbody>
-    </table>
+    <!-- レガシー Flask スタック（削除済み） -->
+    <h2>10. レガシー依存（削除済み）</h2>
+    <p>
+      旧 Flask 構成時代のパッケージ（Flask / Flask-Caching / Flask-SocketIO / Flask-WTF /
+      Werkzeug / WTForms / waitress / python-socketio / python-engineio / Jinja2 / MarkupSafe /
+      bidict / blinker / cachelib / itsdangerous / wsproto / simple-websocket など約20個）は、
+      2026年（皇紀2686年・令和8年）7月3日の uv による .venv 再構築で削除しました。
+      現在の .venv は pyproject.toml（本体依存 + dev extras）と完全に一致しています。
+    </p>
 
     <!-- 組版システム -->
     <h2>11. 組版システム (LuaLaTeX + jlreq)</h2>
@@ -346,7 +351,10 @@
       <tbody>
         <tr><td>Makefile</td><td>PDF生成、クリーンアップなどの補助コマンド集</td></tr>
         <tr><td>start_server.bat</td><td>Windowsでの簡単起動スクリプト（Bun/npm自動判別）</td></tr>
-        <tr><td>ESLint + Next.js設定</td><td>フロントエンドのコード品質管理</td></tr>
+        <tr><td>ESLint + Next.js設定</td><td>フロントエンドのコード品質管理（flat config <code>eslint.config.mjs</code>、<code>bun run lint</code> = <code>eslint .</code>）</td></tr>
+        <tr><td>Prettier</td><td>フロントエンドのコードフォーマット（<code>bun run format</code> / <code>format:check</code>）</td></tr>
+        <tr><td>pyproject.toml + uv</td><td>Python 依存管理。<code>uv venv</code> + <code>uv pip install -e ".[dev]"</code> で構築（requirements.txt は互換用に維持）</td></tr>
+        <tr><td>ruff / pytest / mypy</td><td>0.15.20 / 9.1.1 / 2.1.0（dev extras として導入済み）。テスト実行は <code>.venv\Scripts\python.exe -m pytest tests</code></td></tr>
         <tr><td>Python標準ツール</td><td><code>python -m compileall</code> などによる静的チェック</td></tr>
       </tbody>
     </table>
@@ -354,7 +362,7 @@
     <!-- 補足 -->
     <h2>補足・バージョン確認方法</h2>
     <ul>
-      <li><strong>Python依存</strong>： <code>.venv\Scripts\pip list</code> または <code>pip freeze</code> で確認（<code>requirements.txt</code> は最低バージョン指定）</li>
+      <li><strong>Python依存</strong>： <code>uv pip list</code> で確認（uv 作成の .venv に pip は同梱されない。<code>requirements.txt</code> は最低バージョン指定）</li>
       <li><strong>Node依存</strong>： <code>bun list</code> または <code>npm list</code>（<code>package.json</code> 参照）</li>
       <li><strong>TeX環境</strong>： <code>lualatex --version</code> および <code>latexmk -v</code></li>
       <li>Bootstrapはドキュメント表示用に <code>static/vendor/bootstrap-5.3.8-dist/</code> に同梱されていますが、メインUIでは使用していません。</li>

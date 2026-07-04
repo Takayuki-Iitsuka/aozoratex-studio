@@ -350,42 +350,76 @@ Source Han Code JP,R It,C:/WINDOWS/fonts/SourceHanCodeJP.ttc,true,false,Source H
 UDEV Gothic,Regular,C:/WINDOWS/fonts/UDEVGothic-Regular.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
 UDEV Gothic,Bold,C:/WINDOWS/fonts/UDEVGothic-Bold.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
 UDEV Gothic,Bold Italic,C:/WINDOWS/fonts/UDEVGothic-BoldItalic.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
+UDEV Gothic,BoldItalic,C:/WINDOWS/fonts/UDEVGothic-BoldItalic_0.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
 UDEV Gothic,Italic,C:/WINDOWS/fonts/UDEVGothic-Italic.ttf,true,false,UDEV Gothic,\setmainjfont{UDEV Gothic}
 UDEV Gothic 35,Regular,C:/WINDOWS/fonts/UDEVGothic35-Regular.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
 UDEV Gothic 35,Bold,C:/WINDOWS/fonts/UDEVGothic35-Bold.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
 UDEV Gothic 35,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35-BoldItalic.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
+UDEV Gothic 35,BoldItalic,C:/WINDOWS/fonts/UDEVGothic35-BoldItalic_0.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
 UDEV Gothic 35,Italic,C:/WINDOWS/fonts/UDEVGothic35-Italic.ttf,true,false,UDEV Gothic 35,\setmainjfont{UDEV Gothic 35}
+UDEV Gothic 35HS,Regular,C:/WINDOWS/fonts/UDEVGothic35HS-Regular.ttf,true,false,UDEV Gothic 35HS,\setmainjfont{UDEV Gothic 35HS}
+UDEV Gothic 35HS,Bold,C:/WINDOWS/fonts/UDEVGothic35HS-Bold.ttf,true,false,UDEV Gothic 35HS,\setmainjfont{UDEV Gothic 35HS}
+UDEV Gothic 35HS,BoldItalic,C:/WINDOWS/fonts/UDEVGothic35HS-BoldItalic.ttf,true,false,UDEV Gothic 35HS,\setmainjfont{UDEV Gothic 35HS}
+UDEV Gothic 35HS,Italic,C:/WINDOWS/fonts/UDEVGothic35HS-Italic.ttf,true,false,UDEV Gothic 35HS,\setmainjfont{UDEV Gothic 35HS}
+UDEV Gothic 35HSJPDOC,Regular,C:/WINDOWS/fonts/UDEVGothic35HSJPDOC-Regular.ttf,true,false,UDEV Gothic 35HSJPDOC,\setmainjfont{UDEV Gothic 35HSJPDOC}
+UDEV Gothic 35HSJPDOC,Bold,C:/WINDOWS/fonts/UDEVGothic35HSJPDOC-Bold.ttf,true,false,UDEV Gothic 35HSJPDOC,\setmainjfont{UDEV Gothic 35HSJPDOC}
+UDEV Gothic 35HSJPDOC,BoldItalic,C:/WINDOWS/fonts/UDEVGothic35HSJPDOC-BoldItalic.ttf,true,false,UDEV Gothic 35HSJPDOC,\setmainjfont{UDEV Gothic 35HSJPDOC}
+UDEV Gothic 35HSJPDOC,Italic,C:/WINDOWS/fonts/UDEVGothic35HSJPDOC-Italic.ttf,true,false,UDEV Gothic 35HSJPDOC,\setmainjfont{UDEV Gothic 35HSJPDOC}
+UDEV Gothic 35HSLG,Regular,C:/WINDOWS/fonts/UDEVGothic35HSLG-Regular.ttf,true,false,UDEV Gothic 35HSLG,\setmainjfont{UDEV Gothic 35HSLG}
+UDEV Gothic 35HSLG,Bold,C:/WINDOWS/fonts/UDEVGothic35HSLG-Bold.ttf,true,false,UDEV Gothic 35HSLG,\setmainjfont{UDEV Gothic 35HSLG}
+UDEV Gothic 35HSLG,BoldItalic,C:/WINDOWS/fonts/UDEVGothic35HSLG-BoldItalic.ttf,true,false,UDEV Gothic 35HSLG,\setmainjfont{UDEV Gothic 35HSLG}
+UDEV Gothic 35HSLG,Italic,C:/WINDOWS/fonts/UDEVGothic35HSLG-Italic.ttf,true,false,UDEV Gothic 35HSLG,\setmainjfont{UDEV Gothic 35HSLG}
 UDEV Gothic 35JPDOC,Regular,C:/WINDOWS/fonts/UDEVGothic35JPDOC-Regular.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
 UDEV Gothic 35JPDOC,Bold,C:/WINDOWS/fonts/UDEVGothic35JPDOC-Bold.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
 UDEV Gothic 35JPDOC,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35JPDOC-BoldItalic.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
+UDEV Gothic 35JPDOC,BoldItalic,C:/WINDOWS/fonts/UDEVGothic35JPDOC-BoldItalic_0.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
 UDEV Gothic 35JPDOC,Italic,C:/WINDOWS/fonts/UDEVGothic35JPDOC-Italic.ttf,true,false,UDEV Gothic 35JPDOC,\setmainjfont{UDEV Gothic 35JPDOC}
 UDEV Gothic 35LG,Regular,C:/WINDOWS/fonts/UDEVGothic35LG-Regular.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
 UDEV Gothic 35LG,Bold,C:/WINDOWS/fonts/UDEVGothic35LG-Bold.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
 UDEV Gothic 35LG,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35LG-BoldItalic.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
+UDEV Gothic 35LG,BoldItalic,C:/WINDOWS/fonts/UDEVGothic35LG-BoldItalic_0.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
 UDEV Gothic 35LG,Italic,C:/WINDOWS/fonts/UDEVGothic35LG-Italic.ttf,true,false,UDEV Gothic 35LG,\setmainjfont{UDEV Gothic 35LG}
 UDEV Gothic 35NF,Regular,C:/WINDOWS/fonts/UDEVGothic35NF-Regular.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
 UDEV Gothic 35NF,Bold,C:/WINDOWS/fonts/UDEVGothic35NF-Bold.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
 UDEV Gothic 35NF,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35NF-BoldItalic.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
+UDEV Gothic 35NF,BoldItalic,C:/WINDOWS/fonts/UDEVGothic35NF-BoldItalic_0.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
 UDEV Gothic 35NF,Italic,C:/WINDOWS/fonts/UDEVGothic35NF-Italic.ttf,true,false,UDEV Gothic 35NF,\setmainjfont{UDEV Gothic 35NF}
 UDEV Gothic 35NFLG,Regular,C:/WINDOWS/fonts/UDEVGothic35NFLG-Regular.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
 UDEV Gothic 35NFLG,Bold,C:/WINDOWS/fonts/UDEVGothic35NFLG-Bold.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
 UDEV Gothic 35NFLG,Bold Italic,C:/WINDOWS/fonts/UDEVGothic35NFLG-BoldItalic.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
+UDEV Gothic 35NFLG,BoldItalic,C:/WINDOWS/fonts/UDEVGothic35NFLG-BoldItalic_0.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
 UDEV Gothic 35NFLG,Italic,C:/WINDOWS/fonts/UDEVGothic35NFLG-Italic.ttf,true,false,UDEV Gothic 35NFLG,\setmainjfont{UDEV Gothic 35NFLG}
+UDEV Gothic HS,Regular,C:/WINDOWS/fonts/UDEVGothicHS-Regular.ttf,true,false,UDEV Gothic HS,\setmainjfont{UDEV Gothic HS}
+UDEV Gothic HS,Bold,C:/WINDOWS/fonts/UDEVGothicHS-Bold.ttf,true,false,UDEV Gothic HS,\setmainjfont{UDEV Gothic HS}
+UDEV Gothic HS,BoldItalic,C:/WINDOWS/fonts/UDEVGothicHS-BoldItalic.ttf,true,false,UDEV Gothic HS,\setmainjfont{UDEV Gothic HS}
+UDEV Gothic HS,Italic,C:/WINDOWS/fonts/UDEVGothicHS-Italic.ttf,true,false,UDEV Gothic HS,\setmainjfont{UDEV Gothic HS}
+UDEV Gothic HSJPDOC,Regular,C:/WINDOWS/fonts/UDEVGothicHSJPDOC-Regular.ttf,true,false,UDEV Gothic HSJPDOC,\setmainjfont{UDEV Gothic HSJPDOC}
+UDEV Gothic HSJPDOC,Bold,C:/WINDOWS/fonts/UDEVGothicHSJPDOC-Bold.ttf,true,false,UDEV Gothic HSJPDOC,\setmainjfont{UDEV Gothic HSJPDOC}
+UDEV Gothic HSJPDOC,BoldItalic,C:/WINDOWS/fonts/UDEVGothicHSJPDOC-BoldItalic.ttf,true,false,UDEV Gothic HSJPDOC,\setmainjfont{UDEV Gothic HSJPDOC}
+UDEV Gothic HSJPDOC,Italic,C:/WINDOWS/fonts/UDEVGothicHSJPDOC-Italic.ttf,true,false,UDEV Gothic HSJPDOC,\setmainjfont{UDEV Gothic HSJPDOC}
+UDEV Gothic HSLG,Regular,C:/WINDOWS/fonts/UDEVGothicHSLG-Regular.ttf,true,false,UDEV Gothic HSLG,\setmainjfont{UDEV Gothic HSLG}
+UDEV Gothic HSLG,Bold,C:/WINDOWS/fonts/UDEVGothicHSLG-Bold.ttf,true,false,UDEV Gothic HSLG,\setmainjfont{UDEV Gothic HSLG}
+UDEV Gothic HSLG,BoldItalic,C:/WINDOWS/fonts/UDEVGothicHSLG-BoldItalic.ttf,true,false,UDEV Gothic HSLG,\setmainjfont{UDEV Gothic HSLG}
+UDEV Gothic HSLG,Italic,C:/WINDOWS/fonts/UDEVGothicHSLG-Italic.ttf,true,false,UDEV Gothic HSLG,\setmainjfont{UDEV Gothic HSLG}
 UDEV Gothic JPDOC,Regular,C:/WINDOWS/fonts/UDEVGothicJPDOC-Regular.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
 UDEV Gothic JPDOC,Bold,C:/WINDOWS/fonts/UDEVGothicJPDOC-Bold.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
 UDEV Gothic JPDOC,Bold Italic,C:/WINDOWS/fonts/UDEVGothicJPDOC-BoldItalic.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
+UDEV Gothic JPDOC,BoldItalic,C:/WINDOWS/fonts/UDEVGothicJPDOC-BoldItalic_0.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
 UDEV Gothic JPDOC,Italic,C:/WINDOWS/fonts/UDEVGothicJPDOC-Italic.ttf,true,false,UDEV Gothic JPDOC,\setmainjfont{UDEV Gothic JPDOC}
 UDEV Gothic LG,Regular,C:/WINDOWS/fonts/UDEVGothicLG-Regular.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
 UDEV Gothic LG,Bold,C:/WINDOWS/fonts/UDEVGothicLG-Bold.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
 UDEV Gothic LG,Bold Italic,C:/WINDOWS/fonts/UDEVGothicLG-BoldItalic.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
+UDEV Gothic LG,BoldItalic,C:/WINDOWS/fonts/UDEVGothicLG-BoldItalic_0.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
 UDEV Gothic LG,Italic,C:/WINDOWS/fonts/UDEVGothicLG-Italic.ttf,true,false,UDEV Gothic LG,\setmainjfont{UDEV Gothic LG}
 UDEV Gothic NF,Regular,C:/WINDOWS/fonts/UDEVGothicNF-Regular.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
 UDEV Gothic NF,Bold,C:/WINDOWS/fonts/UDEVGothicNF-Bold.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
 UDEV Gothic NF,Bold Italic,C:/WINDOWS/fonts/UDEVGothicNF-BoldItalic.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
+UDEV Gothic NF,BoldItalic,C:/WINDOWS/fonts/UDEVGothicNF-BoldItalic_0.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
 UDEV Gothic NF,Italic,C:/WINDOWS/fonts/UDEVGothicNF-Italic.ttf,true,false,UDEV Gothic NF,\setmainjfont{UDEV Gothic NF}
 UDEV Gothic NFLG,Regular,C:/WINDOWS/fonts/UDEVGothicNFLG-Regular.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
 UDEV Gothic NFLG,Bold,C:/WINDOWS/fonts/UDEVGothicNFLG-Bold.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
 UDEV Gothic NFLG,Bold Italic,C:/WINDOWS/fonts/UDEVGothicNFLG-BoldItalic.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
+UDEV Gothic NFLG,BoldItalic,C:/WINDOWS/fonts/UDEVGothicNFLG-BoldItalic_0.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
 UDEV Gothic NFLG,Italic,C:/WINDOWS/fonts/UDEVGothicNFLG-Italic.ttf,true,false,UDEV Gothic NFLG,\setmainjfont{UDEV Gothic NFLG}
 Ume Mincho S3,Regular,C:/WINDOWS/fonts/ume-tms3.ttf,true,false,Ume Mincho S3,\setmainjfont{Ume Mincho S3}
 Ume P Mincho S3,Regular,C:/WINDOWS/fonts/ume-pms3.ttf,true,false,Ume P Mincho S3,\setmainjfont{Ume P Mincho S3}
